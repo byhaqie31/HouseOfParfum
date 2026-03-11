@@ -13,9 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('order', function (Blueprint $table) {
-            $table->string('perfume_name')->default("Perfume Name");
-        });
+        // duplicate of 2022_12_12_095608_add_perfume_name_to_order
     }
 
     /**
@@ -25,8 +23,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('order', function (Blueprint $table) {
-            $table->dropColumn('perfume_name')->default("Perfume Name");
-        });
+        // no-op
     }
 };
