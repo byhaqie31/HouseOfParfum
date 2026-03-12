@@ -1,0 +1,48 @@
+services:
+  frontend:
+    build: ./frontend
+    container_name: hop-frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - API_BASE_URL=https://hop-api.axelnova.tech/api
+    depends_on:
+      - backend
+
+  backend:
+    build: ./backend
+    container_name: hop-backend
+    restart: always
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env.production
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - backend-storage:/var/www/storage
+
+  mysql:
+    image: mysql:8.0
+    container_name: hop-mysql
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-secret}
+      MYSQL_DATABASE: house_of_parfum
+      MYSQL_USER: hop_user
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-secret}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mysql-data:
+  backend-storage:
