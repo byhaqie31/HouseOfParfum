@@ -203,11 +203,17 @@ const loadingBrands = ref(true)
 const currentSlide = ref(0)
 let autoplayTimer: ReturnType<typeof setInterval> | null = null
 
+const brandNameMap = computed(() => {
+  const map: Record<string, string> = {}
+  brands.value.forEach((b) => { map[b.code] = b.name })
+  return map
+})
+
 const slides = computed(() =>
   perfumes.value.slice(0, 4).map((p) => ({
     id: p.id,
     name: p.name,
-    brand: p.brand,
+    brand: brandNameMap.value[p.brand] || p.brand,
     image: p.image,
     price: p.price,
     tagline: `${p.size} ml \u00B7 ${p.quality}`,
