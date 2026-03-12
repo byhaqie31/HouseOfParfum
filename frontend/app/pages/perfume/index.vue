@@ -9,7 +9,7 @@
         :to="`/perfume/${perfume.id}`"
         class="bg-white rounded-lg shadow hover:shadow-md transition overflow-hidden"
       >
-        <img :src="`/images/perfumes/${perfume.image}`" :alt="perfume.name" class="w-full h-48 object-cover" />
+        <img :src="`/${perfume.image}`" :alt="perfume.name" class="w-full h-48 object-cover" />
         <div class="p-4">
           <p class="text-xs text-gray-400 uppercase">{{ perfume.brand }}</p>
           <h3 class="font-semibold text-gray-800 mt-1">{{ perfume.name }}</h3>
@@ -23,7 +23,7 @@
 
 <script setup lang="ts">
 const api = useApi()
-const perfumes = ref([])
+const perfumes = ref<any[]>([])
 const pending = ref(true)
 
 onMounted(async () => {

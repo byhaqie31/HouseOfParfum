@@ -1,7 +1,7 @@
 <template>
   <div v-if="perfume" class="max-w-4xl mx-auto">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-      <img :src="`/images/perfumes/${perfume.image}`" :alt="perfume.name" class="rounded-lg w-full object-cover" />
+      <img :src="`/${perfume.image}`" :alt="perfume.name" class="rounded-lg w-full object-cover" />
       <div>
         <p class="text-sm text-gray-400 uppercase mb-1">{{ perfume.brand }}</p>
         <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ perfume.name }}</h1>
@@ -20,7 +20,7 @@
 <script setup lang="ts">
 const route = useRoute()
 const api = useApi()
-const perfume = ref(null)
+const perfume = ref<any>(null)
 
 onMounted(async () => {
   perfume.value = await api.get(`/perfume/${route.params.id}`)
