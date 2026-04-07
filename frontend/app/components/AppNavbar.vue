@@ -21,7 +21,7 @@
         </NuxtLink>
 
         <!-- Profile Dropdown -->
-        <div class="relative">
+        <div class="relative flex items-center">
           <button
             @click="profileOpen = !profileOpen"
             class="text-gray-600 hover:text-gray-900 transition-colors"
