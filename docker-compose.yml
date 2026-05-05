@@ -6,7 +6,7 @@ services:
     container_name: hop-frontend-dev
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3001:3000"
     environment:
       - API_BASE_URL=http://localhost:8000/api
     volumes:
@@ -14,40 +14,25 @@ services:
       - /app/node_modules
     depends_on:
       - backend
+    networks:
+      - axelnova-shared
 
   backend:
     build: ./backend
     container_name: hop-backend-dev
     restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     env_file:
       - ./backend/.env
-    depends_on:
-      mysql:
-        condition: service_healthy
     volumes:
       - backend-storage:/var/www/storage
-
-  mysql:
-    image: mysql:8.0
-    container_name: hop-mysql-dev
-    restart: unless-stopped
-    ports:
-      - "3307:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-secret}
-      MYSQL_DATABASE: house_of_parfum
-      MYSQL_USER: hop_user
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-secret}
-    volumes:
-      - mysql-data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    networks:
+      - axelnova-shared
 
 volumes:
-  mysql-data:
   backend-storage:
+
+networks:
+  axelnova-shared:
+    external: true
