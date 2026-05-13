@@ -7,9 +7,38 @@ Production runs on the same VPS as axelnova-dashboard, sharing the `axelnova-sha
 - `~/infra/` — axelnova-infra clone (mysql + phpmyadmin, always up)
 - `~/HouseOfParfum/` — this repo (frontend + backend)
 - `~/data/house-of-parfum/storage/` — host-mounted Laravel storage (logs, uploads, sessions)
-- Reverse proxy (nginx on the host) terminates TLS for:
-  - `https://houseofparfum.axelnova.tech` → `127.0.0.1:3001` (frontend)
-  - `https://hop-api.axelnova.tech` → `127.0.0.1:8000` (backend API)
+- **One subdomain**, `https://houseofparfum.axelnova.tech`. System nginx terminates TLS and routes:
+  - `/api/*` and `/sanctum/*` → `127.0.0.1:8000` (backend container)
+  - everything else → `127.0.0.1:3001` (frontend container)
+
+  Matches the dashboard pattern — same-origin frontend ↔ API, so no CORS preflights, no second TLS cert, one DNS record. Example minimal nginx block:
+
+  ```nginx
+  server {
+    server_name houseofparfum.axelnova.tech;
+    listen 443 ssl http2;
+    # ssl_certificate / ssl_certificate_key managed by certbot
+
+    location ~ ^/(api|sanctum)(/|$) {
+      proxy_pass         http://127.0.0.1:8000;
+      proxy_set_header   Host              $host;
+      proxy_set_header   X-Real-IP         $remote_addr;
+      proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+      proxy_set_header   X-Forwarded-Proto $scheme;
+    }
+
+    location / {
+      proxy_pass         http://127.0.0.1:3001;
+      proxy_set_header   Host              $host;
+      proxy_set_header   X-Real-IP         $remote_addr;
+      proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+      proxy_set_header   X-Forwarded-Proto $scheme;
+      proxy_http_version 1.1;
+      proxy_set_header   Upgrade           $http_upgrade;
+      proxy_set_header   Connection        "upgrade";
+    }
+  }
+  ```
 
 ## First-time deploy
 

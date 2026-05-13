@@ -63,7 +63,10 @@ services:
       HOST: 0.0.0.0
       PORT: 3000
       NUXT_API_BASE: http://backend:8000/api
-      NUXT_PUBLIC_API_BASE: https://hop-api.axelnova.tech/api
+      # Browser hits the same origin as the frontend; nginx on the host
+      # routes /api/* to the backend container. Keeping this relative
+      # means no rebuild needed if the public hostname ever changes.
+      NUXT_PUBLIC_API_BASE: /api
     depends_on:
       - backend
     networks:
