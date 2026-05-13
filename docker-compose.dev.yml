@@ -18,8 +18,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    image: hop-backend:dev
-    container_name: hop-backend-dev
+    image: houseofparfum-backend:dev
+    container_name: backend-dev
     restart: unless-stopped
     ports:
       - "127.0.0.1:8000:8000"
@@ -40,8 +40,8 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile.dev
-    image: hop-frontend:dev
-    container_name: hop-frontend-dev
+    image: houseofparfum-frontend:dev
+    container_name: frontend-dev
     restart: unless-stopped
     ports:
       - "127.0.0.1:3001:3000"

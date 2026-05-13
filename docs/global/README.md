@@ -70,5 +70,5 @@ HoP is registered in [axelnova-infra/docs/port-allocation.md](../../../axelnova-
 
 | Port | Service | Container |
 |---|---|---|
-| 3001 | Nuxt frontend | `hop-frontend-dev` |
-| 8000 | Laravel backend | `hop-backend-dev` |
+| 3001 | Nuxt frontend | `frontend-dev` |
+| 8000 | Laravel backend | `backend-dev` |
