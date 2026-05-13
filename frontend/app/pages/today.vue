@@ -31,10 +31,15 @@
 
       <div class="mt-12" />
 
-      <!-- Empty wardrobe → invite to add -->
+      <!-- Today's recommendation: mood/weather/occasion → matched bottle from the wardrobe -->
+      <ScentMatcher />
+
+      <div class="mt-16" />
+
+      <!-- Wardrobe: empty-state CTA OR glance grid -->
       <template v-if="wardrobe.count === 0">
-        <p class="font-display font-medium text-[11px] uppercase tracking-[0.28em] text-accent-deep mb-6">
-          Today
+        <p class="font-display font-medium text-[11px] uppercase tracking-[0.28em] text-ink-mute mb-6">
+          <span class="text-accent-deep mr-2">/</span>Your wardrobe
         </p>
         <div class="border-t border-ink relative py-12 px-2">
           <div class="absolute -top-px left-0 w-20 h-px bg-accent" />
@@ -42,7 +47,7 @@
             Your shelf is bare<em class="text-ink-soft">.</em>
           </h2>
           <p class="mt-4 font-display italic text-[15px] text-ink-soft max-w-md">
-            Add a bottle to your wardrobe and the daily pick begins.
+            Add a bottle to track what you wear and when.
           </p>
           <NuxtLink
             to="/wardrobe/add"
@@ -54,169 +59,39 @@
         </div>
       </template>
 
-      <!-- Today's pick + glance -->
-      <template v-else-if="todayPick">
-        <p class="font-display font-medium text-[11px] uppercase tracking-[0.28em] text-accent-deep mb-6">
-          Today's recommendation
-        </p>
+      <!-- Wardrobe glance — visible when shelf has items -->
+      <section v-else>
+        <header class="flex items-baseline justify-between mb-6">
+          <p class="font-display font-medium text-[11px] uppercase tracking-[0.24em] text-ink-mute">
+            <span class="font-mono text-accent-deep mr-2">/</span>Your wardrobe
+          </p>
+          <NuxtLink
+            to="/wardrobe"
+            class="font-display italic text-[12px] text-ink-soft hover:text-ink transition-colors"
+          >
+            View all {{ wardrobe.count }} &rarr;
+          </NuxtLink>
+        </header>
 
-        <!-- Framed pick card: bottle in a narrow column, identity + story + actions in the wide column -->
-        <section class="relative border border-ink bg-paper">
-          <div class="absolute -top-px left-0 w-20 h-px bg-accent" />
-          <div class="absolute -bottom-px right-0 w-12 h-px bg-accent" />
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-0">
-            <!-- Left column: bottle frame capped + centered so the 1:1 column doesn't stretch it absurdly tall -->
-            <div class="p-8 md:p-10 md:border-r md:border-rule flex items-center justify-center">
-              <div class="aspect-3/4 w-full max-w-70 bg-paper-deep border border-rule flex items-center justify-center">
-                <BottleIcon :size="120" />
-              </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <NuxtLink
+            v-for="item in wardrobeGlance"
+            :key="item.id"
+            :to="`/wardrobe/${item.id}`"
+            class="group aspect-3/4 bg-paper-deep border border-rule p-4 flex flex-col hover:bg-paper transition-colors duration-200"
+          >
+            <div class="flex-1 flex items-center justify-center">
+              <BottleIcon :size="48" />
             </div>
-
-            <!-- Right column: identity, story, actions (flex-col so the action row anchors to the bottom) -->
-            <div class="p-8 md:p-10 flex flex-col min-w-0">
-              <!-- Identity: brand + name + meta — name has the whole column width so long names fit on one line -->
-              <p class="font-display italic text-[15px] text-ink-soft leading-tight">
-                {{ todayPick.brand }}
-              </p>
-              <h1 class="mt-1 font-display text-3xl sm:text-4xl text-ink tracking-[-0.005em] leading-[1.05]">
-                <NuxtLink
-                  :to="`/wardrobe/${todayPick.id}`"
-                  class="hover:text-accent-deep transition-colors"
-                >
-                  {{ todayPick.name }}
-                </NuxtLink>
-              </h1>
-              <p class="mt-3 font-mono text-[10px] uppercase tracking-[0.16em] text-ink-mute">
-                {{ todayPick.size }} ML
-                <template v-if="todayPick.acquired"> &middot; {{ todayPick.acquired }}</template>
-              </p>
-
-              <p
-                class="mt-5 pt-4 border-t border-rule font-display italic text-[15px] leading-normal"
-                :class="isPickWornToday ? 'text-accent-deep' : 'text-ink-soft'"
-              >
-                <template v-if="isPickWornToday">
-                  You're wearing this now.
-                </template>
-                <template v-else>
-                  {{ pickReason }}
-                </template>
-              </p>
-
-              <!-- Accord chips -->
-              <div v-if="pickAccordChips.length" class="mt-6">
-                <p class="font-mono text-[9px] uppercase tracking-[0.22em] text-ink-mute mb-3">
-                  <span class="text-accent-deep mr-1.5">/</span>Accord
-                </p>
-                <div class="flex flex-wrap gap-2">
-                  <span
-                    v-for="chip in pickAccordChips"
-                    :key="chip"
-                    class="px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.14em] text-ink bg-paper-deep border border-rule"
-                  >
-                    {{ chip }}
-                  </span>
-                </div>
-              </div>
-
-              <!-- Environment recommendation (season + time of day) -->
-              <div v-if="pickEnvironmentLine" class="mt-6">
-                <p class="font-mono text-[9px] uppercase tracking-[0.22em] text-ink-mute mb-2">
-                  <span class="text-accent-deep mr-1.5">/</span>Where it wears
-                </p>
-                <p class="font-display italic text-[15px] text-ink leading-normal">
-                  {{ pickEnvironmentLine }}
-                </p>
-              </div>
-
-              <!-- History excerpt -->
-              <div v-if="pickHistoryExcerpt" class="mt-6">
-                <p class="font-mono text-[9px] uppercase tracking-[0.22em] text-ink-mute mb-2">
-                  <span class="text-accent-deep mr-1.5">/</span>The history
-                </p>
-                <p class="font-display italic text-[14px] text-ink-soft leading-normal max-w-prose">
-                  {{ pickHistoryExcerpt }}
-                </p>
-              </div>
-
-              <NuxtLink
-                v-if="todayPick?.catalog_id && pickCatalogEntry"
-                :to="`/perfume/${todayPick.catalog_id}`"
-                class="mt-5 inline-block self-start font-display italic text-[13px] text-ink hover:text-accent-deep pb-px border-b border-accent transition-colors"
-              >
-                {{ pickHistoryWasTruncated ? 'Continue reading' : 'Open the dossier' }} &rarr;
-              </NuxtLink>
-
-              <!-- Action row pinned to the bottom of the right column -->
-              <div class="mt-auto pt-8">
-                <div class="border-t border-rule pt-6 flex flex-wrap items-center justify-between gap-4">
-                  <button
-                    v-if="orderedCandidates.length > 1 && !isPickWornToday"
-                    type="button"
-                    class="font-display italic text-[14px] text-ink hover:text-accent-deep pb-1 border-b border-accent transition-colors"
-                    @click="showAnother"
-                  >
-                    Show me another
-                  </button>
-                  <span v-else aria-hidden="true" />
-
-                  <NuxtLink
-                    v-if="isPickWornToday"
-                    :to="`/wardrobe/${todayPick.id}`"
-                    class="inline-flex items-center gap-2 bg-ink text-paper text-[11px] uppercase tracking-[0.2em] font-medium px-6 py-3 hover:bg-ink-soft transition-colors"
-                  >
-                    Update diary
-                    <Icon name="lucide:arrow-right" size="14" />
-                  </NuxtLink>
-                  <button
-                    v-else
-                    type="button"
-                    class="bg-ink text-paper text-[11px] uppercase tracking-[0.2em] font-medium px-6 py-3 hover:bg-ink-soft transition-colors"
-                    @click="wearThis"
-                  >
-                    I'm wearing this
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Your Wardrobe glance -->
-        <section class="mt-12">
-          <header class="flex items-baseline justify-between mb-6">
-            <p class="font-display font-medium text-[11px] uppercase tracking-[0.24em] text-ink-mute">
-              <span class="font-mono text-accent-deep mr-2">/</span>Your wardrobe
+            <p class="font-mono text-[9px] uppercase tracking-[0.16em] text-ink-mute leading-snug">
+              {{ item.brand }}
             </p>
-            <NuxtLink
-              to="/wardrobe"
-              class="font-display italic text-[12px] text-ink-soft hover:text-ink transition-colors"
-            >
-              View all {{ wardrobe.count }} &rarr;
-            </NuxtLink>
-          </header>
-
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <NuxtLink
-              v-for="item in wardrobeGlance"
-              :key="item.id"
-              :to="`/wardrobe/${item.id}`"
-              class="group aspect-3/4 bg-paper-deep border border-rule p-4 flex flex-col hover:bg-paper transition-colors duration-200"
-            >
-              <div class="flex-1 flex items-center justify-center">
-                <BottleIcon :size="48" />
-              </div>
-              <p class="font-mono text-[9px] uppercase tracking-[0.16em] text-ink-mute leading-snug">
-                {{ item.brand }}
-              </p>
-              <p class="mt-1 font-display text-[18px] text-ink group-hover:text-accent-deep leading-tight transition-colors">
-                {{ item.name }}
-              </p>
-            </NuxtLink>
-          </div>
-        </section>
-      </template>
+            <p class="mt-1 font-display text-[18px] text-ink group-hover:text-accent-deep leading-tight transition-colors">
+              {{ item.name }}
+            </p>
+          </NuxtLink>
+        </div>
+      </section>
 
       <!-- Field notes — one perfumery fact per day, date-seeded -->
       <section v-if="knowledge" class="mt-16 pt-10 border-t border-ink relative">
@@ -347,12 +222,9 @@ type Perfume = {
   suit_time?: string
 }
 
-const HISTORY_EXCERPT_LIMIT = 240
-
 const auth = useAuthStore()
 const api = useApi()
 const wardrobe = useWardrobeStore()
-const journal = useJournalStore()
 
 const now = new Date()
 
@@ -379,89 +251,10 @@ const firstName = computed(() => {
   return raw.split(' ')[0]?.toLowerCase() ?? ''
 })
 
-// ──────────── Today's pick from wardrobe ────────────
-//
-// orderedCandidates is a SNAPSHOT taken at page mount (and when wardrobe changes).
-// We deliberately don't re-derive from journal.lastWornAt on every wear, so
-// clicking "I'm wearing this" doesn't shuffle the displayed pick to the bottom
-// of the ranking and replace it with the next candidate.
+// ──────────── Wardrobe glance (first 4 bottles, used on Today) ────────────
 import type { WardrobeItem } from '~/stores/wardrobe'
-import type { JournalEntry } from '~/stores/journal'
-
-const orderedCandidates = ref<WardrobeItem[]>([])
-const pickIndex = ref(0)
-
-const sortByLastWorn = (items: WardrobeItem[]): WardrobeItem[] => {
-  return [...items].sort((a, b) => {
-    const la = journal.lastWornAt(a.id)
-    const lb = journal.lastWornAt(b.id)
-    if (!la && !lb) return 0
-    if (!la) return -1
-    if (!lb) return 1
-    return la < lb ? -1 : la > lb ? 1 : 0
-  })
-}
-
-const refreshCandidates = () => {
-  orderedCandidates.value = sortByLastWorn(wardrobe.items)
-  pickIndex.value = 0
-}
-
-const todayPick = computed(() => orderedCandidates.value[pickIndex.value] ?? null)
 
 const wardrobeGlance = computed(() => wardrobe.items.slice(0, 4))
-
-const isSameDay = (iso: string) => {
-  const a = new Date(iso)
-  const b = new Date()
-  return (
-    a.getFullYear() === b.getFullYear()
-    && a.getMonth() === b.getMonth()
-    && a.getDate() === b.getDate()
-  )
-}
-
-// Reactively detect whether the currently-displayed pick already has a wear logged today.
-const isPickWornToday = computed(() => {
-  const p = todayPick.value
-  if (!p) return false
-  return journal.entries.some(
-    (e: JournalEntry) => e.wardrobe_item_id === p.id && isSameDay(e.worn_at),
-  )
-})
-
-const pickReason = computed(() => {
-  if (!todayPick.value) return ''
-  const last = journal.lastWornAt(todayPick.value.id)
-  if (!last) return 'Newly on the shelf — try it today.'
-  const days = Math.floor(
-    (Date.now() - new Date(last).getTime()) / (1000 * 60 * 60 * 24),
-  )
-  if (days === 0) return 'You wore this earlier today.'
-  if (days === 1) return 'Worn yesterday — give it another day.'
-  if (days < 7) return `You haven't worn this in ${days} days.`
-  if (days < 30)
-    return `You haven't reached for this in ${days} days — give it some air.`
-  if (days < 365) {
-    const months = Math.floor(days / 30)
-    return `It's been ${months} ${months === 1 ? 'month' : 'months'} since you last wore this.`
-  }
-  return "It's been over a year since you last wore this."
-})
-
-const wearThis = () => {
-  if (!todayPick.value || isPickWornToday.value) return
-  journal.log({
-    wardrobe_item_id: todayPick.value.id,
-    brand: todayPick.value.brand,
-    name: todayPick.value.name,
-  })
-}
-
-const showAnother = () => {
-  if (orderedCandidates.value.length === 0) return
-  pickIndex.value = (pickIndex.value + 1) % orderedCandidates.value.length
-}
 
 // ──────────── Recommendations from catalog ────────────
 const catalogPerfumes = ref<Perfume[]>([])
@@ -469,52 +262,6 @@ const brands = ref<Brand[]>([])
 const shuffledRecs = ref<Perfume[]>([])
 const recPage = ref(0)
 const RECS_PER_PAGE = 2
-
-// ──────────── Today's pick — catalog enrichment ────────────
-// The wardrobe item carries `catalog_id` when it was added from /perfume.
-// When present, we look up accord + history from the loaded catalog and
-// surface them in the right-column story panel. Free-entered bottles
-// (catalog_id === null) silently skip the block.
-const pickCatalogEntry = computed<Perfume | null>(() => {
-  const id = todayPick.value?.catalog_id
-  if (typeof id !== 'number') return null
-  return catalogPerfumes.value.find((p: Perfume) => p.id === id) ?? null
-})
-
-const pickAccordChips = computed<string[]>(() => {
-  const raw = pickCatalogEntry.value?.main_accord
-  if (!raw || typeof raw !== 'string') return []
-  return raw.split(',').map(s => s.trim()).filter(Boolean)
-})
-
-const pickHistoryRaw = computed(() => pickCatalogEntry.value?.history?.trim() ?? '')
-
-const pickHistoryExcerpt = computed(() => {
-  const raw = pickHistoryRaw.value
-  if (!raw) return ''
-  if (raw.length <= HISTORY_EXCERPT_LIMIT) return raw
-  // Trim at the last sentence/word boundary before the limit so we don't cut a word in half.
-  const slice = raw.slice(0, HISTORY_EXCERPT_LIMIT)
-  const cut = Math.max(slice.lastIndexOf('. '), slice.lastIndexOf('? '), slice.lastIndexOf('! '))
-  if (cut > HISTORY_EXCERPT_LIMIT * 0.5) return `${slice.slice(0, cut + 1)}…`
-  const lastSpace = slice.lastIndexOf(' ')
-  return `${slice.slice(0, lastSpace > 0 ? lastSpace : HISTORY_EXCERPT_LIMIT)}…`
-})
-
-const pickHistoryWasTruncated = computed(
-  () => pickHistoryRaw.value.length > HISTORY_EXCERPT_LIMIT,
-)
-
-const pickEnvironmentLine = computed(() => {
-  const entry = pickCatalogEntry.value
-  if (!entry) return ''
-  const season = entry.suit_season?.trim().toLowerCase()
-  const time = entry.suit_time?.trim().toLowerCase()
-  if (!season && !time) return ''
-  if (season && time) return `Best worn through ${season}, suited to the ${time}.`
-  if (season) return `Best worn through ${season}.`
-  return `Suited to the ${time}.`
-})
 
 // ──────────── Field notes — daily perfumery knowledge ────────────
 const knowledge = useDailyKnowledge(now)
@@ -565,10 +312,6 @@ const prevRecPage = () => {
 }
 
 onMounted(async () => {
-  // Snapshot today's pick ordering once on mount — see the comment on
-  // orderedCandidates above for why we don't recompute on every journal change.
-  refreshCandidates()
-
   try {
     const [perfumeData, brandData] = await Promise.all([
       api.get('/perfume'),
@@ -582,12 +325,11 @@ onMounted(async () => {
   }
 })
 
-// Re-snapshot when wardrobe changes (bottle added/removed). Wear-clicks don't
-// change wardrobe.items.length, so the pick stays locked when only journal updates.
+// Rebuild "Worth a try" recommendations when the wardrobe changes so newly
+// added bottles get excluded from the cross-sell.
 watch(
   () => wardrobe.items.length,
   () => {
-    refreshCandidates()
     if (catalogPerfumes.value.length > 0) buildRecommendations()
   },
 )
