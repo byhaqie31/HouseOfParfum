@@ -1,1 +1,96 @@
 @import "tailwindcss";
+
+/* ──────────────────────────────────────────────────────────────────────
+   MODERN MAISON — test build. Swaps the locked Couture White token set
+   for warmer cream paper, honey-amber accent, Fraunces + Plus Jakarta Sans.
+   Revert with: git restore frontend/app/assets/css/main.css frontend/app/app.vue
+   ────────────────────────────────────────────────────────────────────── */
+
+@theme {
+  /* ===== PAPER (backgrounds) ===== */
+  --color-paper: oklch(0.965 0.012 80);        /* cream, primary surface */
+  --color-paper-deep: oklch(0.94 0.015 78);    /* sand, card/section backgrounds */
+  --color-paper-warm: oklch(0.92 0.020 75);    /* warmer accent surface */
+
+  /* ===== INK (text & primary surfaces) ===== */
+  --color-ink: oklch(0.18 0.014 55);           /* warm near-black */
+  --color-ink-soft: oklch(0.40 0.012 55);      /* body text, captions */
+  --color-ink-mute: oklch(0.58 0.010 55);      /* meta, hint text */
+
+  /* ===== RULE (borders, hairlines) ===== */
+  --color-rule: oklch(0.86 0.012 75);
+  --color-rule-strong: oklch(0.74 0.014 75);
+
+  /* ===== HONEY (accent — warmer than champagne, more confident than rose) ===== */
+  --color-accent: oklch(0.72 0.12 80);         /* honey amber */
+  --color-accent-deep: oklch(0.54 0.12 78);    /* deeper, for hover/text on light */
+  --color-accent-soft: oklch(0.90 0.05 82);    /* tints, backgrounds, chip fills */
+
+  /* ===== TYPOGRAPHY ===== */
+  --font-display: 'Fraunces', 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* ===== RADIUS (Modern Maison is gently rounded, not sharp) ===== */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-pill: 999px;
+}
+
+@layer base {
+  html {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+  }
+
+  body {
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    /* Plus Jakarta Sans default features — slightly tighter tracking
+       reads more refined at body sizes */
+    letter-spacing: -0.005em;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    color: var(--color-ink);
+    letter-spacing: -0.01em;
+    line-height: 1.18;
+    /* Fraunces optical sizing — important, this is what gives it the
+       modern feel. Trust the font's opsz axis. */
+    font-variation-settings: 'opsz' 96;
+  }
+
+  /* Smaller headings should use the smaller optical size variant */
+  h4, h5, h6 {
+    font-variation-settings: 'opsz' 14;
+  }
+
+  em, i {
+    font-style: italic;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--color-rule);
+    margin: 1.5rem 0;
+  }
+
+  /* Active nav link gets a 1px honey hairline underneath */
+  a.router-link-active.nav-link {
+    border-bottom: 1px solid var(--color-accent);
+  }
+
+  /* Mobile drawer tile — active state is a filled highlight, not a hairline */
+  a.router-link-active.mobile-tile {
+    background-color: var(--color-paper-deep);
+    border-color: var(--color-accent);
+    color: var(--color-ink);
+  }
+}
