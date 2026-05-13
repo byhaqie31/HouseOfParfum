@@ -153,7 +153,7 @@
           class="bg-ink text-paper text-[11px] uppercase tracking-[0.2em] font-medium px-7 py-3 hover:bg-ink-soft transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           @click="submit"
         >
-          {{ submitting ? 'Adding…' : 'Add to vanity' }}
+          {{ submitting ? 'Adding…' : 'Add to wardrobe' }}
         </button>
       </div>
     </div>
@@ -176,7 +176,7 @@ type Perfume = {
 const api = useApi()
 const router = useRouter()
 const route = useRoute()
-const vanity = useVanityStore()
+const wardrobe = useWardrobeStore()
 
 const perfumes = ref<Perfume[]>([])
 const brands = ref<Brand[]>([])
@@ -236,14 +236,14 @@ const pickFromCatalog = (perfume: Perfume) => {
   searchFocused.value = false
 }
 
-const cancel = () => router.push('/vanity')
+const cancel = () => router.push('/wardrobe')
 
 const submit = async () => {
   if (!canSubmit.value || submitting.value) return
   error.value = ''
   submitting.value = true
 
-  vanity.add({
+  wardrobe.add({
     catalog_id: form.catalog_id,
     brand: form.brand.trim(),
     name: form.name.trim(),
@@ -255,7 +255,7 @@ const submit = async () => {
   // small pause so the press-feedback reads, then route to the shelf
   await new Promise(r => setTimeout(r, 350))
   submitting.value = false
-  router.push('/vanity')
+  router.push('/wardrobe')
 }
 
 onMounted(async () => {
@@ -267,10 +267,10 @@ onMounted(async () => {
     perfumes.value = perfumeData
     brands.value = brandData
   } catch (e) {
-    console.warn('[vanity/add] catalog load failed', e)
+    console.warn('[wardrobe/add] catalog load failed', e)
   }
 
-  // Prefill from /perfume catalog card link: /vanity/add?catalog_id=42
+  // Prefill from /perfume catalog card link: /wardrobe/add?catalog_id=42
   const raw = route.query.catalog_id
   if (raw) {
     const id = Number(Array.isArray(raw) ? raw[0] : raw)

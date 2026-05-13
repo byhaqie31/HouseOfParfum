@@ -72,10 +72,10 @@
             <!-- Actions -->
             <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
               <NuxtLink
-                :to="`/vanity/add?catalog_id=${perfume.id}`"
+                :to="`/wardrobe/add?catalog_id=${perfume.id}`"
                 class="inline-block bg-ink text-paper text-[11px] uppercase tracking-[0.2em] font-medium px-6 py-3 hover:bg-ink-soft transition-colors"
               >
-                Add to vanity
+                Add to wardrobe
               </NuxtLink>
               <NuxtLink
                 to="/perfume"
@@ -203,10 +203,10 @@
             Already on your shelf? Skip the form and log a wear from today's pick.
           </p>
           <NuxtLink
-            :to="`/vanity/add?catalog_id=${perfume.id}`"
+            :to="`/wardrobe/add?catalog_id=${perfume.id}`"
             class="inline-block bg-ink text-paper text-[11px] uppercase tracking-[0.2em] font-medium px-7 py-3 hover:bg-ink-soft transition-colors"
           >
-            Add to vanity
+            Add to wardrobe
           </NuxtLink>
         </section>
       </template>

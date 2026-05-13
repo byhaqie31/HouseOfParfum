@@ -194,7 +194,7 @@ const mobileDrawerRef = ref<HTMLElement | null>(null)
 
 const appLinks = [
   { to: '/today', label: 'Today' },
-  { to: '/vanity', label: 'Vanity' },
+  { to: '/wardrobe', label: 'Wardrobe' },
   { to: '/journal', label: 'Journal' },
   { to: '/almanac', label: 'Almanac' },
   { to: '/perfume', label: 'Discover' },

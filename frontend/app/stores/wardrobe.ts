@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-export type VanityItem = {
+export type WardrobeItem = {
   id: string                  // local UUID, scoped to this device until backend persistence lands
   catalog_id: number | null   // optional reference to /api/perfume id (free entry leaves it null)
   brand: string               // brand display name (denormalized — survives catalog edits)
@@ -11,11 +11,11 @@ export type VanityItem = {
   created_at: string          // ISO timestamp
 }
 
-const STORAGE_KEY = 'hop.vanity'
+const STORAGE_KEY = 'hop.wardrobe'
 
-export const useVanityStore = defineStore('vanity', {
+export const useWardrobeStore = defineStore('wardrobe', {
   state: () => ({
-    items: [] as VanityItem[],
+    items: [] as WardrobeItem[],
     hydrated: false,
   }),
 
@@ -41,8 +41,8 @@ export const useVanityStore = defineStore('vanity', {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(this.items))
     },
 
-    add(input: Omit<VanityItem, 'id' | 'created_at'>) {
-      const item: VanityItem = {
+    add(input: Omit<WardrobeItem, 'id' | 'created_at'>) {
+      const item: WardrobeItem = {
         ...input,
         id: crypto.randomUUID(),
         created_at: new Date().toISOString(),

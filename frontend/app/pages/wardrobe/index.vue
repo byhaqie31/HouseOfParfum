@@ -6,18 +6,18 @@
           Your shelf
         </p>
         <h1 class="mt-3 font-display text-5xl sm:text-6xl text-ink tracking-tight leading-[1.05]">
-          Vanity
+          Wardrobe
         </h1>
       </header>
 
       <!-- Count + add button, on the same line below the bar -->
-      <div v-if="vanity.count > 0" class="mt-8 flex items-center justify-between gap-4">
+      <div v-if="wardrobe.count > 0" class="mt-8 flex items-center justify-between gap-4">
         <p class="font-mono text-[11px] uppercase tracking-[0.2em] text-ink-mute">
-          {{ String(vanity.count).padStart(2, '0') }}
-          <span class="text-ink-soft ml-1">{{ vanity.count === 1 ? 'bottle' : 'bottles' }}</span>
+          {{ String(wardrobe.count).padStart(2, '0') }}
+          <span class="text-ink-soft ml-1">{{ wardrobe.count === 1 ? 'bottle' : 'bottles' }}</span>
         </p>
         <NuxtLink
-          to="/vanity/add"
+          to="/wardrobe/add"
           class="inline-flex items-center gap-2 bg-ink text-paper text-xs uppercase tracking-[0.2em] px-6 py-3 hover:bg-ink-soft transition-colors"
         >
           <Icon name="lucide:plus" size="14" />
@@ -26,11 +26,11 @@
       </div>
 
       <!-- Populated shelf -->
-      <section v-if="vanity.count > 0" class="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+      <section v-if="wardrobe.count > 0" class="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         <NuxtLink
-          v-for="item in vanity.items"
+          v-for="item in wardrobe.items"
           :key="item.id"
-          :to="`/vanity/${item.id}`"
+          :to="`/wardrobe/${item.id}`"
           class="group flex flex-col"
         >
           <div class="aspect-3/4 bg-paper-deep border border-rule flex items-center justify-center group-hover:bg-paper transition-colors duration-200">
@@ -69,7 +69,7 @@
           Begin with the bottle you reached for today.
         </p>
         <NuxtLink
-          to="/vanity/add"
+          to="/wardrobe/add"
           class="mt-12 inline-flex items-center gap-2 bg-ink text-paper text-xs uppercase tracking-[0.2em] px-8 py-3.5 hover:bg-ink-soft transition-colors"
         >
           Add your first bottle
@@ -83,11 +83,11 @@
 <script setup lang="ts">
 definePageMeta({ middleware: 'auth' })
 
-const vanity = useVanityStore()
+const wardrobe = useWardrobeStore()
 const journal = useJournalStore()
 
-const lastWornLabel = (vanityItemId: string) => {
-  const iso = journal.lastWornAt(vanityItemId)
+const lastWornLabel = (wardrobeItemId: string) => {
+  const iso = journal.lastWornAt(wardrobeItemId)
   if (!iso) return ''
   const days = Math.floor(
     (Date.now() - new Date(iso).getTime()) / (1000 * 60 * 60 * 24),

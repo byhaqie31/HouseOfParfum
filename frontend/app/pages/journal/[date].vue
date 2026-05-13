@@ -80,8 +80,8 @@
                 {{ entry.brand }}
               </p>
               <NuxtLink
-                v-if="entry.vanity_item_id"
-                :to="`/vanity/${entry.vanity_item_id}`"
+                v-if="entry.wardrobe_item_id"
+                :to="`/wardrobe/${entry.wardrobe_item_id}`"
                 class="block mt-0.5 font-display text-2xl text-ink hover:text-accent-deep leading-tight transition-colors"
               >
                 {{ entry.name }}
@@ -119,8 +119,8 @@
               </p>
 
               <NuxtLink
-                v-if="entry.vanity_item_id"
-                :to="`/vanity/${entry.vanity_item_id}`"
+                v-if="entry.wardrobe_item_id"
+                :to="`/wardrobe/${entry.wardrobe_item_id}`"
                 class="mt-4 inline-block font-display italic text-[12px] text-ink hover:text-accent-deep border-b border-accent pb-px transition-colors"
               >
                 Open diary &rarr;

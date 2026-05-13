@@ -31,8 +31,8 @@
 
       <div class="mt-12" />
 
-      <!-- Empty vanity → invite to add -->
-      <template v-if="vanity.count === 0">
+      <!-- Empty wardrobe → invite to add -->
+      <template v-if="wardrobe.count === 0">
         <p class="font-display font-medium text-[11px] uppercase tracking-[0.28em] text-accent-deep mb-6">
           Today
         </p>
@@ -42,10 +42,10 @@
             Your shelf is bare<em class="text-ink-soft">.</em>
           </h2>
           <p class="mt-4 font-display italic text-[15px] text-ink-soft max-w-md">
-            Add a bottle to your vanity and the daily pick begins.
+            Add a bottle to your wardrobe and the daily pick begins.
           </p>
           <NuxtLink
-            to="/vanity/add"
+            to="/wardrobe/add"
             class="mt-8 inline-flex items-center gap-2 bg-ink text-paper text-xs uppercase tracking-[0.2em] px-6 py-3 hover:bg-ink-soft transition-colors"
           >
             Add a bottle
@@ -81,7 +81,7 @@
               </p>
               <h1 class="mt-1 font-display text-3xl sm:text-4xl text-ink tracking-[-0.005em] leading-[1.05]">
                 <NuxtLink
-                  :to="`/vanity/${todayPick.id}`"
+                  :to="`/wardrobe/${todayPick.id}`"
                   class="hover:text-accent-deep transition-colors"
                 >
                   {{ todayPick.name }}
@@ -163,7 +163,7 @@
 
                   <NuxtLink
                     v-if="isPickWornToday"
-                    :to="`/vanity/${todayPick.id}`"
+                    :to="`/wardrobe/${todayPick.id}`"
                     class="inline-flex items-center gap-2 bg-ink text-paper text-[11px] uppercase tracking-[0.2em] font-medium px-6 py-3 hover:bg-ink-soft transition-colors"
                   >
                     Update diary
@@ -183,25 +183,25 @@
           </div>
         </section>
 
-        <!-- Your Vanity glance -->
+        <!-- Your Wardrobe glance -->
         <section class="mt-12">
           <header class="flex items-baseline justify-between mb-6">
             <p class="font-display font-medium text-[11px] uppercase tracking-[0.24em] text-ink-mute">
-              <span class="font-mono text-accent-deep mr-2">/</span>Your vanity
+              <span class="font-mono text-accent-deep mr-2">/</span>Your wardrobe
             </p>
             <NuxtLink
-              to="/vanity"
+              to="/wardrobe"
               class="font-display italic text-[12px] text-ink-soft hover:text-ink transition-colors"
             >
-              View all {{ vanity.count }} &rarr;
+              View all {{ wardrobe.count }} &rarr;
             </NuxtLink>
           </header>
 
           <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
             <NuxtLink
-              v-for="item in vanityGlance"
+              v-for="item in wardrobeGlance"
               :key="item.id"
-              :to="`/vanity/${item.id}`"
+              :to="`/wardrobe/${item.id}`"
               class="group aspect-3/4 bg-paper-deep border border-rule p-4 flex flex-col hover:bg-paper transition-colors duration-200"
             >
               <div class="flex-1 flex items-center justify-center">
@@ -351,7 +351,7 @@ const HISTORY_EXCERPT_LIMIT = 240
 
 const auth = useAuthStore()
 const api = useApi()
-const vanity = useVanityStore()
+const wardrobe = useWardrobeStore()
 const journal = useJournalStore()
 
 const now = new Date()
@@ -379,19 +379,19 @@ const firstName = computed(() => {
   return raw.split(' ')[0]?.toLowerCase() ?? ''
 })
 
-// ──────────── Today's pick from vanity ────────────
+// ──────────── Today's pick from wardrobe ────────────
 //
-// orderedCandidates is a SNAPSHOT taken at page mount (and when vanity changes).
+// orderedCandidates is a SNAPSHOT taken at page mount (and when wardrobe changes).
 // We deliberately don't re-derive from journal.lastWornAt on every wear, so
 // clicking "I'm wearing this" doesn't shuffle the displayed pick to the bottom
 // of the ranking and replace it with the next candidate.
-import type { VanityItem } from '~/stores/vanity'
+import type { WardrobeItem } from '~/stores/wardrobe'
 import type { JournalEntry } from '~/stores/journal'
 
-const orderedCandidates = ref<VanityItem[]>([])
+const orderedCandidates = ref<WardrobeItem[]>([])
 const pickIndex = ref(0)
 
-const sortByLastWorn = (items: VanityItem[]): VanityItem[] => {
+const sortByLastWorn = (items: WardrobeItem[]): WardrobeItem[] => {
   return [...items].sort((a, b) => {
     const la = journal.lastWornAt(a.id)
     const lb = journal.lastWornAt(b.id)
@@ -403,13 +403,13 @@ const sortByLastWorn = (items: VanityItem[]): VanityItem[] => {
 }
 
 const refreshCandidates = () => {
-  orderedCandidates.value = sortByLastWorn(vanity.items)
+  orderedCandidates.value = sortByLastWorn(wardrobe.items)
   pickIndex.value = 0
 }
 
 const todayPick = computed(() => orderedCandidates.value[pickIndex.value] ?? null)
 
-const vanityGlance = computed(() => vanity.items.slice(0, 4))
+const wardrobeGlance = computed(() => wardrobe.items.slice(0, 4))
 
 const isSameDay = (iso: string) => {
   const a = new Date(iso)
@@ -426,7 +426,7 @@ const isPickWornToday = computed(() => {
   const p = todayPick.value
   if (!p) return false
   return journal.entries.some(
-    (e: JournalEntry) => e.vanity_item_id === p.id && isSameDay(e.worn_at),
+    (e: JournalEntry) => e.wardrobe_item_id === p.id && isSameDay(e.worn_at),
   )
 })
 
@@ -452,7 +452,7 @@ const pickReason = computed(() => {
 const wearThis = () => {
   if (!todayPick.value || isPickWornToday.value) return
   journal.log({
-    vanity_item_id: todayPick.value.id,
+    wardrobe_item_id: todayPick.value.id,
     brand: todayPick.value.brand,
     name: todayPick.value.name,
   })
@@ -471,7 +471,7 @@ const recPage = ref(0)
 const RECS_PER_PAGE = 2
 
 // ──────────── Today's pick — catalog enrichment ────────────
-// The vanity item carries `catalog_id` when it was added from /perfume.
+// The wardrobe item carries `catalog_id` when it was added from /perfume.
 // When present, we look up accord + history from the loaded catalog and
 // surface them in the right-column story panel. Free-entered bottles
 // (catalog_id === null) silently skip the block.
@@ -528,8 +528,8 @@ const formatAccord = (raw: string) =>
 
 const buildRecommendations = () => {
   const ownedCatalogIds = new Set(
-    vanity.items
-      .map((i: VanityItem) => i.catalog_id)
+    wardrobe.items
+      .map((i: WardrobeItem) => i.catalog_id)
       .filter((id: number | null): id is number => typeof id === 'number'),
   )
   const candidates = catalogPerfumes.value.filter((p: Perfume) => !ownedCatalogIds.has(p.id))
@@ -582,10 +582,10 @@ onMounted(async () => {
   }
 })
 
-// Re-snapshot when vanity changes (bottle added/removed). Wear-clicks don't
-// change vanity.items.length, so the pick stays locked when only journal updates.
+// Re-snapshot when wardrobe changes (bottle added/removed). Wear-clicks don't
+// change wardrobe.items.length, so the pick stays locked when only journal updates.
 watch(
-  () => vanity.items.length,
+  () => wardrobe.items.length,
   () => {
     refreshCandidates()
     if (catalogPerfumes.value.length > 0) buildRecommendations()

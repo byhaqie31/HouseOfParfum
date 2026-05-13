@@ -83,7 +83,7 @@ const auth = useAuthStore()
 const pillars = [
   {
     icon: 'lucide:flower-2',
-    title: 'Vanity',
+    title: 'Wardrobe',
     body: 'A record of every bottle on your shelf — brand, notes, size, the day it arrived. Decants and samples welcome.',
   },
   {

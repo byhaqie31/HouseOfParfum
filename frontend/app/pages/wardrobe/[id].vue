@@ -3,7 +3,7 @@
     <div class="max-w-6xl mx-auto">
       <!-- Back -->
       <NuxtLink
-        to="/vanity"
+        to="/wardrobe"
         class="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-ink-soft hover:text-ink transition-colors"
       >
         <Icon name="lucide:arrow-left" size="14" />
@@ -341,11 +341,11 @@ definePageMeta({ middleware: 'auth' })
 
 const route = useRoute()
 const router = useRouter()
-const vanity = useVanityStore()
+const wardrobe = useWardrobeStore()
 const journal = useJournalStore()
 
 const id = computed(() => String(route.params.id))
-const item = computed(() => vanity.byId(id.value) ?? null)
+const item = computed(() => wardrobe.byId(id.value) ?? null)
 
 const longevityOptions: Array<{ value: Longevity; label: string; hint: string }> = [
   { value: 'brief', label: 'Brief', hint: 'Faded in an hour or two.' },
@@ -370,7 +370,7 @@ const isSameDay = (iso: string) => {
 
 // The wear started today for this item, if any. The diary section binds to it.
 const todayEntry = computed(() =>
-  journal.entries.find(e => e.vanity_item_id === id.value && isSameDay(e.worn_at)) ?? null,
+  journal.entries.find(e => e.wardrobe_item_id === id.value && isSameDay(e.worn_at)) ?? null,
 )
 
 const wearStartedAt = computed(() => {
@@ -429,7 +429,7 @@ let savedFlashTimer: ReturnType<typeof setTimeout> | null = null
 const startWear = () => {
   if (!item.value || todayEntry.value) return
   journal.log({
-    vanity_item_id: item.value.id,
+    wardrobe_item_id: item.value.id,
     brand: item.value.brand,
     name: item.value.name,
   })
@@ -484,7 +484,7 @@ const lastWornLabel = computed(() => {
 
 const wears = computed(() => {
   return journal.entries
-    .filter(e => e.vanity_item_id === id.value)
+    .filter(e => e.wardrobe_item_id === id.value)
     .sort((a, b) => (a.worn_at < b.worn_at ? 1 : -1))
     .map((entry) => {
       const d = new Date(entry.worn_at)
@@ -507,7 +507,7 @@ const confirmRemove = () => {
   if (!item.value) return
   // eslint-disable-next-line no-alert
   if (!window.confirm(`Remove ${item.value.brand} ${item.value.name} from your shelf?`)) return
-  vanity.remove(item.value.id)
-  router.push('/vanity')
+  wardrobe.remove(item.value.id)
+  router.push('/wardrobe')
 }
 </script>

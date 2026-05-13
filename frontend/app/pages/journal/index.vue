@@ -119,8 +119,8 @@
               class="border-b border-rule"
             >
               <NuxtLink
-                v-if="entry.vanity_item_id"
-                :to="`/vanity/${entry.vanity_item_id}`"
+                v-if="entry.wardrobe_item_id"
+                :to="`/wardrobe/${entry.wardrobe_item_id}`"
                 class="group block py-5 -mx-3 px-3 hover:bg-paper-deep transition-colors cursor-pointer"
               >
                 <div class="flex items-baseline justify-between gap-2 mb-2">
@@ -164,7 +164,7 @@
                 </p>
               </NuxtLink>
 
-              <!-- Orphan entry without a vanity item — kept inert -->
+              <!-- Orphan entry without a wardrobe item — kept inert -->
               <div v-else class="block py-5">
                 <div class="flex items-baseline justify-between gap-2 mb-2">
                   <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-ink-soft">

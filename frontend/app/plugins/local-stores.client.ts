@@ -1,9 +1,9 @@
-// Hydrate the local-mock Pinia stores (vanity + journal) on app start so
+// Hydrate the local-mock Pinia stores (wardrobe + journal) on app start so
 // page components can read state synchronously after mount. Both stores
 // are localStorage-backed until real backend persistence lands.
 export default defineNuxtPlugin(() => {
-  const vanity = useVanityStore()
+  const wardrobe = useWardrobeStore()
   const journal = useJournalStore()
-  vanity.init()
+  wardrobe.init()
   journal.init()
 })

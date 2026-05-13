@@ -4,13 +4,13 @@ export type Longevity = 'brief' | 'settled' | 'lasting' | 'all-day' | 'into-nigh
 
 export type JournalEntry = {
   id: string
-  vanity_item_id: string | null   // links to VanityItem when worn from your shelf
-  brand: string                   // denormalized so the entry survives a vanity edit
+  wardrobe_item_id: string | null   // links to WardrobeItem when worn from your shelf
+  brand: string                   // denormalized so the entry survives a wardrobe edit
   name: string
   worn_at: string                 // ISO timestamp
 
   // Diary fields. All optional — quick wears from /today log with none of these set;
-  // detailed wears from /vanity/[id] can fill any subset.
+  // detailed wears from /wardrobe/[id] can fill any subset.
   experience?: string             // personal feeling — how it sat with you today
   compliments?: string            // what others said
   longevity?: Longevity | null    // how long it lasted
@@ -30,20 +30,20 @@ export const useJournalStore = defineStore('journal', {
   getters: {
     count: state => state.entries.length,
 
-    /** Most recent worn_at (ISO) for the given vanity item, or null if never worn. */
-    lastWornAt: state => (vanityItemId: string): string | null => {
+    /** Most recent worn_at (ISO) for the given wardrobe item, or null if never worn. */
+    lastWornAt: state => (wardrobeItemId: string): string | null => {
       let latest: string | null = null
       for (const e of state.entries) {
-        if (e.vanity_item_id !== vanityItemId) continue
+        if (e.wardrobe_item_id !== wardrobeItemId) continue
         if (!latest || e.worn_at > latest) latest = e.worn_at
       }
       return latest
     },
 
-    /** Total wears for the given vanity item. */
-    wearCount: state => (vanityItemId: string): number =>
+    /** Total wears for the given wardrobe item. */
+    wearCount: state => (wardrobeItemId: string): number =>
       state.entries.reduce(
-        (n, e) => n + (e.vanity_item_id === vanityItemId ? 1 : 0),
+        (n, e) => n + (e.wardrobe_item_id === wardrobeItemId ? 1 : 0),
         0,
       ),
 
