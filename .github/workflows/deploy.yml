@@ -52,7 +52,10 @@ jobs:
 
             echo ""
             echo "=== refresh framework caches ==="
-            docker compose -f docker-compose.prod.yml exec -T backend php artisan optimize
+            # API-only — no Blade views, so skip view:cache (it errors on missing resources/views/).
+            docker compose -f docker-compose.prod.yml exec -T backend php artisan config:cache
+            docker compose -f docker-compose.prod.yml exec -T backend php artisan route:cache
+            docker compose -f docker-compose.prod.yml exec -T backend php artisan event:cache
 
             echo ""
             echo "=== container status ==="
