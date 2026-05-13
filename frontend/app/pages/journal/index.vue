@@ -70,7 +70,7 @@
               v-for="(cell, i) in cells"
               :key="i"
               type="button"
-              class="bg-paper aspect-[5/4] sm:aspect-square p-2 text-left flex flex-col justify-between transition-colors cursor-pointer"
+              class="bg-paper aspect-5/4 sm:aspect-square p-2 text-left flex flex-col justify-between transition-colors cursor-pointer"
               :class="cellClasses(cell)"
               @click="selectCell(cell)"
             >
@@ -118,11 +118,10 @@
               :key="entry.id"
               class="border-b border-rule"
             >
-              <component
-                :is="entry.vanity_item_id ? 'NuxtLink' : 'div'"
-                :to="entry.vanity_item_id ? `/vanity/${entry.vanity_item_id}` : undefined"
-                class="group block py-5 transition-colors"
-                :class="entry.vanity_item_id ? 'hover:bg-paper-deep -mx-3 px-3 cursor-pointer' : ''"
+              <NuxtLink
+                v-if="entry.vanity_item_id"
+                :to="`/vanity/${entry.vanity_item_id}`"
+                class="group block py-5 -mx-3 px-3 hover:bg-paper-deep transition-colors cursor-pointer"
               >
                 <div class="flex items-baseline justify-between gap-2 mb-2">
                   <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-ink-soft">
@@ -139,10 +138,7 @@
                 <p class="font-display italic text-[13px] text-ink-soft leading-tight">
                   {{ entry.brand }}
                 </p>
-                <h3
-                  class="mt-0.5 font-display text-xl text-ink leading-tight"
-                  :class="entry.vanity_item_id ? 'group-hover:text-accent-deep transition-colors' : ''"
-                >
+                <h3 class="mt-0.5 font-display text-xl text-ink leading-tight group-hover:text-accent-deep transition-colors">
                   {{ entry.name }}
                 </h3>
 
@@ -163,13 +159,37 @@
                   &ldquo;{{ entry.compliments }}&rdquo;
                 </p>
 
-                <p
-                  v-if="entry.vanity_item_id"
-                  class="mt-3 font-display italic text-[12px] text-ink hover:text-accent-deep border-b border-accent inline-block pb-px"
-                >
+                <p class="mt-3 font-display italic text-[12px] text-ink group-hover:text-accent-deep border-b border-accent inline-block pb-px transition-colors">
                   Open diary &rarr;
                 </p>
-              </component>
+              </NuxtLink>
+
+              <!-- Orphan entry without a vanity item — kept inert -->
+              <div v-else class="block py-5">
+                <div class="flex items-baseline justify-between gap-2 mb-2">
+                  <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-ink-soft">
+                    {{ entry.timeLabel }}
+                  </p>
+                  <span
+                    v-if="entry.longevity"
+                    class="shrink-0 px-2 py-0.5 font-mono text-[8px] uppercase tracking-[0.16em] bg-accent-soft border border-accent text-accent-deep"
+                  >
+                    {{ longevityLabel(entry.longevity) }}
+                  </span>
+                </div>
+                <p class="font-display italic text-[13px] text-ink-soft leading-tight">
+                  {{ entry.brand }}
+                </p>
+                <h3 class="mt-0.5 font-display text-xl text-ink leading-tight">
+                  {{ entry.name }}
+                </h3>
+                <p
+                  v-if="entry.experience || entry.notes"
+                  class="mt-3 font-display italic text-[14px] text-ink-soft leading-normal"
+                >
+                  &ldquo;{{ entry.experience ?? entry.notes }}&rdquo;
+                </p>
+              </div>
             </li>
           </ul>
 
@@ -279,7 +299,7 @@ const cells = computed<Cell[]>(() => {
 })
 
 const monthWearCount = computed(() =>
-  cells.value.reduce((n, c) => (c.inMonth ? n + c.wears.length : n), 0),
+  cells.value.reduce((n: number, c: Cell) => (c.inMonth ? n + c.wears.length : n), 0),
 )
 
 const cellClasses = (cell: Cell) => {
@@ -328,7 +348,7 @@ const selectedDayHeadline = computed(() => {
 
 const selectedDayWears = computed(() => {
   const raw = wearsByDay.value.get(selectedDate.value.toDateString()) ?? []
-  return raw.map((entry) => {
+  return raw.map((entry: JournalEntry) => {
     const d = new Date(entry.worn_at)
     return {
       ...entry,

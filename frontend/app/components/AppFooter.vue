@@ -8,7 +8,13 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
         <!-- Brand -->
         <div class="lg:col-span-1">
-          <h3 class="font-display text-2xl font-normal text-ink tracking-[-0.005em] mb-4">
+          <h3 class="flex items-center gap-3 font-display text-2xl font-normal text-ink tracking-[-0.005em] mb-4">
+            <img
+              src="/favicon/favicon.svg"
+              alt=""
+              aria-hidden="true"
+              class="h-7 w-7 shrink-0"
+            >
             House of Parfum
           </h3>
           <p class="text-sm leading-relaxed text-ink-soft">

@@ -7,8 +7,14 @@
     <div class="max-w-300 mx-auto px-6 h-14 flex items-center justify-between">
       <NuxtLink
         to="/"
-        class="font-display text-xl font-normal text-ink tracking-[-0.005em]"
+        class="inline-flex items-center gap-2.5 font-display text-xl font-normal text-ink tracking-[-0.005em]"
       >
+        <img
+          src="/favicon/favicon.svg"
+          alt=""
+          aria-hidden="true"
+          class="h-6 w-6 shrink-0"
+        >
         House of Parfum
       </NuxtLink>
 

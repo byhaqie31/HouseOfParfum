@@ -89,94 +89,147 @@
               leave-from-class="opacity-100"
               leave-to-class="opacity-0"
             >
-              <form
-                v-if="todayEntry"
-                class="mt-12 pt-10 border-t border-rule"
-                @submit.prevent="saveDiary"
-              >
-                <p class="font-display font-medium text-[11px] uppercase tracking-[0.28em] text-accent-deep">
-                  Today's diary
-                </p>
-                <h2 class="mt-1 font-display text-2xl text-ink tracking-tight">
-                  <em class="text-ink-soft">Write</em> as it unfolds.
-                </h2>
-                <p class="mt-2 font-display italic text-[13px] text-ink-mute">
-                  Come back through the day — log what others said, how long it lasted, how it sat.
-                </p>
+              <div v-if="todayEntry" class="mt-12 pt-10 border-t border-rule">
+                <!-- Heading + Edit toggle -->
+                <div class="flex items-baseline justify-between gap-4">
+                  <p class="font-display font-medium text-[11px] uppercase tracking-[0.28em] text-accent-deep">
+                    Today's diary
+                  </p>
+                  <button
+                    v-if="!isEditingDiary"
+                    type="button"
+                    class="font-display italic text-[13px] text-ink hover:text-accent-deep pb-px border-b border-accent transition-colors"
+                    @click="editDiary"
+                  >
+                    Edit
+                  </button>
+                </div>
 
-                <div class="mt-8 space-y-6">
-                  <div>
-                    <label
-                      for="experience"
-                      class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-2"
-                    >
-                      Experience
-                    </label>
-                    <textarea
-                      id="experience"
-                      v-model="form.experience"
-                      rows="3"
-                      placeholder="How does it sit with you?"
-                      class="w-full bg-paper-deep border border-rule px-4 py-2.5 text-[14px] text-ink placeholder:font-display placeholder:italic placeholder:text-ink-mute focus:outline-none focus:border-ink-soft transition-colors resize-none"
-                    />
-                  </div>
+                <!-- Edit mode -->
+                <form
+                  v-if="isEditingDiary"
+                  class="mt-4"
+                  @submit.prevent="saveDiary"
+                >
+                  <h2 class="font-display text-2xl text-ink tracking-tight">
+                    <em class="text-ink-soft">Write</em> as it unfolds.
+                  </h2>
+                  <p class="mt-2 font-display italic text-[13px] text-ink-mute">
+                    Come back through the day — log what others said, how long it lasted, how it sat.
+                  </p>
 
-                  <div>
-                    <label
-                      for="compliments"
-                      class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-2"
-                    >
-                      Compliments
-                    </label>
-                    <input
-                      id="compliments"
-                      v-model="form.compliments"
-                      type="text"
-                      placeholder="What did others say?"
-                      class="w-full bg-paper-deep border border-rule px-4 py-2.5 text-[14px] text-ink placeholder:font-display placeholder:italic placeholder:text-ink-mute focus:outline-none focus:border-ink-soft transition-colors"
-                    >
-                  </div>
-
-                  <div>
-                    <p class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-3">
-                      Longevity
-                    </p>
-                    <div class="flex flex-wrap gap-2">
-                      <button
-                        v-for="opt in longevityOptions"
-                        :key="opt.value"
-                        type="button"
-                        class="px-4 py-2 font-mono text-[10px] uppercase tracking-[0.14em] border transition-colors"
-                        :class="form.longevity === opt.value
-                          ? 'bg-accent-soft border-accent text-accent-deep font-medium'
-                          : 'bg-paper-deep border-rule text-ink hover:border-ink-soft'"
-                        @click="toggleLongevity(opt.value)"
+                  <div class="mt-8 space-y-6">
+                    <div>
+                      <label
+                        for="experience"
+                        class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-2"
                       >
-                        {{ opt.label }}
+                        Experience
+                      </label>
+                      <textarea
+                        id="experience"
+                        v-model="form.experience"
+                        rows="3"
+                        placeholder="How does it sit with you?"
+                        class="w-full bg-paper-deep border border-rule px-4 py-2.5 text-[14px] text-ink placeholder:font-display placeholder:italic placeholder:text-ink-mute focus:outline-none focus:border-ink-soft transition-colors resize-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        for="compliments"
+                        class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-2"
+                      >
+                        Compliments
+                      </label>
+                      <input
+                        id="compliments"
+                        v-model="form.compliments"
+                        type="text"
+                        placeholder="What did others say?"
+                        class="w-full bg-paper-deep border border-rule px-4 py-2.5 text-[14px] text-ink placeholder:font-display placeholder:italic placeholder:text-ink-mute focus:outline-none focus:border-ink-soft transition-colors"
+                      >
+                    </div>
+
+                    <div>
+                      <p class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-3">
+                        Longevity
+                      </p>
+                      <div class="flex flex-wrap gap-2">
+                        <button
+                          v-for="opt in longevityOptions"
+                          :key="opt.value"
+                          type="button"
+                          class="px-4 py-2 font-mono text-[10px] uppercase tracking-[0.14em] border transition-colors"
+                          :class="form.longevity === opt.value
+                            ? 'bg-accent-soft border-accent text-accent-deep font-medium'
+                            : 'bg-paper-deep border-rule text-ink hover:border-ink-soft'"
+                          @click="toggleLongevity(opt.value)"
+                        >
+                          {{ opt.label }}
+                        </button>
+                      </div>
+                      <p class="mt-2 font-display italic text-[12px] text-ink-mute">
+                        {{ longevityHint }}
+                      </p>
+                    </div>
+
+                    <div class="flex items-center justify-between gap-4 pt-2">
+                      <button
+                        v-if="hasDiaryContent"
+                        type="button"
+                        class="font-display italic text-[13px] text-ink-soft hover:text-ink transition-colors"
+                        @click="cancelEdit"
+                      >
+                        Cancel
+                      </button>
+                      <span v-else />
+                      <button
+                        type="submit"
+                        class="bg-ink text-paper text-[11px] uppercase tracking-[0.2em] font-medium px-6 py-3 hover:bg-ink-soft transition-colors"
+                      >
+                        Save diary
                       </button>
                     </div>
-                    <p class="mt-2 font-display italic text-[12px] text-ink-mute">
-                      {{ longevityHint }}
+                  </div>
+                </form>
+
+                <!-- View mode (saved diary, read-only) -->
+                <div v-else class="mt-6">
+                  <p
+                    v-if="todayEntry.experience"
+                    class="font-display italic text-[16px] text-ink-soft leading-normal"
+                  >
+                    &ldquo;{{ todayEntry.experience }}&rdquo;
+                  </p>
+
+                  <p
+                    v-if="todayEntry.compliments"
+                    class="mt-4 flex items-baseline gap-3 font-display italic text-[14px] text-ink-soft"
+                  >
+                    <span class="font-mono not-italic text-[8px] uppercase tracking-[0.18em] text-accent-deep shrink-0">
+                      Heard
+                    </span>
+                    &ldquo;{{ todayEntry.compliments }}&rdquo;
+                  </p>
+
+                  <div v-if="todayEntry.longevity" class="mt-5">
+                    <p class="font-mono text-[9px] uppercase tracking-[0.18em] text-ink-mute mb-2">
+                      Longevity
                     </p>
+                    <span class="inline-block px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.14em] bg-accent-soft border border-accent text-accent-deep font-medium">
+                      {{ longevityLabel(todayEntry.longevity) }}
+                    </span>
                   </div>
 
-                  <div class="flex items-center justify-between gap-4 pt-2">
-                    <p
-                      v-if="savedFlash"
-                      class="font-display italic text-[13px] text-accent-deep"
-                    >
-                      Saved.
-                    </p>
-                    <span v-else />
-                    <button
-                      type="submit"
-                      class="bg-ink text-paper text-[11px] uppercase tracking-[0.2em] font-medium px-6 py-3 hover:bg-ink-soft transition-colors"
-                    >
-                      Save diary
-                    </button>
-                  </div>
+                  <p
+                    v-if="savedFlash"
+                    class="mt-6 font-display italic text-[13px] text-accent-deep"
+                  >
+                    Saved.
+                  </p>
                 </div>
-              </form>
+              </div>
             </Transition>
           </section>
 
@@ -347,6 +400,20 @@ watch(
   { immediate: true },
 )
 
+// Does today's entry have anything written in it yet?
+const hasDiaryContent = computed(() => {
+  const e = todayEntry.value
+  if (!e) return false
+  return Boolean(e.experience || e.compliments || e.longevity)
+})
+
+// Edit mode is on when the user explicitly hit "Edit" OR the entry is fresh
+// (no fields saved yet — first time landing in the form right after starting a wear).
+const editingOverride = ref(false)
+const isEditingDiary = computed(() =>
+  Boolean(todayEntry.value) && (!hasDiaryContent.value || editingOverride.value),
+)
+
 const longevityHint = computed(() => {
   if (!form.longevity) return 'How long did it sit on you?'
   return longevityOptions.find(o => o.value === form.longevity)?.hint ?? ''
@@ -366,6 +433,8 @@ const startWear = () => {
     brand: item.value.brand,
     name: item.value.name,
   })
+  // No need to flip editingOverride — the fresh empty entry already triggers
+  // isEditingDiary via the !hasDiaryContent branch.
 }
 
 const saveDiary = () => {
@@ -375,11 +444,27 @@ const saveDiary = () => {
     compliments: form.compliments.trim() || undefined,
     longevity: form.longevity ?? undefined,
   })
+  editingOverride.value = false
   savedFlash.value = true
   if (savedFlashTimer) clearTimeout(savedFlashTimer)
   savedFlashTimer = setTimeout(() => {
     savedFlash.value = false
   }, 1800)
+}
+
+const editDiary = () => {
+  editingOverride.value = true
+}
+
+const cancelEdit = () => {
+  // Re-sync form from the saved entry and exit edit mode.
+  const entry = todayEntry.value
+  if (entry) {
+    form.experience = entry.experience ?? ''
+    form.compliments = entry.compliments ?? ''
+    form.longevity = entry.longevity ?? null
+  }
+  editingOverride.value = false
 }
 
 const wearCount = computed(() => journal.wearCount(id.value))
