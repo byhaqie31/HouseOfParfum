@@ -9,7 +9,7 @@ Production runs on the same VPS as axelnova-dashboard, sharing the `axelnova-sha
 - `~/data/house-of-parfum/storage/` — host-mounted Laravel storage (logs, uploads, sessions)
 - **One subdomain**, `https://hop.axelnova.tech`. System nginx terminates TLS and routes:
   - `/api/*` and `/sanctum/*` → `127.0.0.1:8000` (backend container)
-  - everything else → `127.0.0.1:3004` (frontend container)
+  - everything else → `127.0.0.1:3005` (frontend container)
 
   Matches the dashboard pattern — same-origin frontend ↔ API, so no CORS preflights, no second TLS cert, one DNS record. Example minimal nginx block:
 
@@ -28,7 +28,7 @@ Production runs on the same VPS as axelnova-dashboard, sharing the `axelnova-sha
     }
 
     location / {
-      proxy_pass         http://127.0.0.1:3004;
+      proxy_pass         http://127.0.0.1:3005;
       proxy_set_header   Host              $host;
       proxy_set_header   X-Real-IP         $remote_addr;
       proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;

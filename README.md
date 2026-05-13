@@ -18,4 +18,4 @@ docker compose -f docker-compose.dev.yml exec backend php artisan key:generate
 docker compose -f docker-compose.dev.yml exec backend php artisan migrate --seed
 ```
 
-Frontend: http://127.0.0.1:3004 · API: http://127.0.0.1:8000/api · phpMyAdmin: http://127.0.0.1:8080
+Frontend: http://127.0.0.1:3005 · API: http://127.0.0.1:8000/api · phpMyAdmin: http://127.0.0.1:8080

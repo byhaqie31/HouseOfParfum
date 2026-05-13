@@ -30,7 +30,7 @@ Rules:
 Monorepo, two apps deployed together:
 
 - `backend/` — **Laravel 11** API (PHP 8.4). Port `8000`. Routes in [backend/routes/api.php](../backend/routes/api.php). Controllers in [backend/app/Http/Controllers/Api/](../backend/app/Http/Controllers/Api/).
-- `frontend/` — **Nuxt 4** SSR (Vue 3 + TS + Tailwind 4 + Pinia). Port `3004`. Source in [frontend/app/](../frontend/app/).
+- `frontend/` — **Nuxt 4** SSR (Vue 3 + TS + Tailwind 4 + Pinia). Port `3005`. Source in [frontend/app/](../frontend/app/).
 - **MySQL 8 + phpMyAdmin** are shared via [axelnova-infra](../../axelnova-infra/) — both apps join its external `axelnova-shared` Docker network and reach MySQL via hostname `mysql`. HoP's DB `hop_db` + user `hop_user` are provisioned in [axelnova-infra/scripts/init-databases.sql](../../axelnova-infra/scripts/init-databases.sql).
 
 ## Common commands
@@ -53,7 +53,7 @@ docker compose -f docker-compose.dev.yml exec frontend npm install <pkg>
 docker compose -f docker-compose.dev.yml down            # or `down -v` to wipe volumes
 ```
 
-Endpoints: backend `http://127.0.0.1:8000`, frontend `http://127.0.0.1:3004`, phpMyAdmin `http://127.0.0.1:8080`.
+Endpoints: backend `http://127.0.0.1:8000`, frontend `http://127.0.0.1:3005`, phpMyAdmin `http://127.0.0.1:8080`.
 
 Production deploys via `docker compose -f docker-compose.prod.yml up -d --build` on the VPS — see [docs/global/DEPLOY.md](../docs/global/DEPLOY.md).
 
@@ -69,7 +69,7 @@ Production deploys via `docker compose -f docker-compose.prod.yml up -d --build`
 
 ## Conventions
 
-- Port allocation is centrally tracked in [axelnova-infra/docs/port-allocation.md](../../axelnova-infra/docs/port-allocation.md) — HoP owns `3004` (frontend) and `8000` (backend). Update that file in the same PR that introduces a new port.
+- Port allocation is centrally tracked in [axelnova-infra/docs/port-allocation.md](../../axelnova-infra/docs/port-allocation.md) — HoP owns `3005` (frontend) and `8000` (backend). Update that file in the same PR that introduces a new port.
 - Bind to `127.0.0.1` only — never `0.0.0.0` — so nothing leaks beyond the Mac.
 - Icons: prefer Iconify (via Nuxt Icon or `<Icon>`). No emojis in UI.
 - New `.md` doc → ALL-CAPS-WITH-HYPHENS filename under the right `docs/` subfolder.
