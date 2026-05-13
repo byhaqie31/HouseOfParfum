@@ -1,1 +1,31 @@
 @import "tailwindcss";
+
+@theme {
+  /* Warm neutrals */
+  --color-paper: oklch(0.97 0.008 75);
+  --color-paper-deep: oklch(0.93 0.012 75);
+  --color-ink: oklch(0.20 0.015 60);
+  --color-ink-soft: oklch(0.40 0.012 60);
+  --color-ink-mute: oklch(0.60 0.010 60);
+
+  /* Accent — used sparingly, mostly for links/hovers */
+  --color-accent: oklch(0.45 0.08 50);
+
+  /* Hairlines, borders, dividers */
+  --color-rule: oklch(0.85 0.010 70);
+
+  /* Typography */
+  --font-serif: 'Cormorant Garamond', 'EB Garamond', Georgia, serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-feature-settings: 'ss01', 'cv11';
+    -webkit-font-smoothing: antialiased;
+  }
+}
