@@ -1,31 +1,70 @@
 @import "tailwindcss";
 
 @theme {
-  /* Warm neutrals */
-  --color-paper: oklch(0.97 0.008 75);
-  --color-paper-deep: oklch(0.93 0.012 75);
-  --color-ink: oklch(0.20 0.015 60);
-  --color-ink-soft: oklch(0.40 0.012 60);
-  --color-ink-mute: oklch(0.60 0.010 60);
+  /* ===== PAPER (backgrounds) ===== */
+  --color-paper: oklch(0.98 0.003 90);
+  --color-paper-deep: oklch(0.955 0.005 85);
+  --color-paper-warm: oklch(0.965 0.008 80);
 
-  /* Accent — used sparingly, mostly for links/hovers */
-  --color-accent: oklch(0.45 0.08 50);
+  /* ===== INK (text & primary surfaces) ===== */
+  --color-ink: oklch(0.16 0.012 60);
+  --color-ink-soft: oklch(0.38 0.010 60);
+  --color-ink-mute: oklch(0.58 0.008 60);
 
-  /* Hairlines, borders, dividers */
-  --color-rule: oklch(0.85 0.010 70);
+  /* ===== RULE (borders, hairlines) ===== */
+  --color-rule: oklch(0.88 0.008 70);
+  --color-rule-strong: oklch(0.75 0.010 70);
 
-  /* Typography */
-  --font-serif: 'Cormorant Garamond', 'EB Garamond', Georgia, serif;
-  --font-sans: 'Inter', system-ui, sans-serif;
+  /* ===== CHAMPAGNE (accent — jewelry, not décor) ===== */
+  --color-accent: oklch(0.78 0.10 90);
+  --color-accent-deep: oklch(0.58 0.10 88);
+  --color-accent-soft: oklch(0.92 0.04 90);
+
+  /* ===== TYPOGRAPHY ===== */
+  --font-display: 'Bodoni Moda', 'Bodoni 72', 'Didot', Georgia, serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
 
 @layer base {
-  body {
+  html {
     background-color: var(--color-paper);
     color: var(--color-ink);
-    font-family: var(--font-sans);
-    font-feature-settings: 'ss01', 'cv11';
+  }
+
+  body {
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: 'ss01', 'cv11';
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    color: var(--color-ink);
+    letter-spacing: -0.005em;
+    line-height: 1.2;
+  }
+
+  /* Bodoni italic carries semantic weight in our system —
+     keep italics for emphasis within headlines. */
+  em, i {
+    font-style: italic;
+  }
+
+  /* Hairline rules — used everywhere for section dividers */
+  hr {
+    border: none;
+    border-top: 1px solid var(--color-rule);
+    margin: 1.5rem 0;
+  }
+
+  /* Active nav link gets a 1px champagne hairline underneath */
+  a.router-link-active.nav-link {
+    border-bottom: 1px solid var(--color-accent);
   }
 }

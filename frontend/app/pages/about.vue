@@ -6,7 +6,7 @@
         <p class="font-mono text-[11px] uppercase tracking-widest text-ink-mute">
           A personal perfume companion
         </p>
-        <h1 class="mt-6 font-serif text-5xl sm:text-7xl text-ink tracking-tight leading-[1.05]">
+        <h1 class="mt-6 font-display text-5xl sm:text-7xl text-ink tracking-tight leading-[1.05]">
           Wear what moves you.<br>
           <em class="text-ink-soft">Remember what did.</em>
         </h1>
@@ -38,7 +38,7 @@
         <p class="font-mono text-[11px] uppercase tracking-widest text-ink-mute text-center">
           Three quiet rituals
         </p>
-        <h2 class="mt-4 font-serif text-4xl sm:text-5xl text-ink tracking-tight text-center">
+        <h2 class="mt-4 font-display text-4xl sm:text-5xl text-ink tracking-tight text-center">
           A shelf, a diary, a daily nudge.
         </h2>
 
@@ -49,7 +49,7 @@
             class="flex flex-col"
           >
             <Icon :name="pillar.icon" class="h-6 w-6 text-ink" />
-            <h3 class="mt-6 font-serif text-2xl text-ink tracking-tight">
+            <h3 class="mt-6 font-display text-2xl text-ink tracking-tight">
               {{ pillar.title }}
             </h3>
             <p class="mt-4 text-sm text-ink-soft leading-relaxed">
@@ -63,7 +63,7 @@
     <!-- Closing CTA -->
     <section v-if="!auth.isLoggedIn" class="py-32 px-6">
       <div class="max-w-2xl mx-auto text-center">
-        <h2 class="font-serif text-4xl sm:text-5xl text-ink tracking-tight leading-[1.1]">
+        <h2 class="font-display text-4xl sm:text-5xl text-ink tracking-tight leading-[1.1]">
           Begin with the bottle <em class="text-ink-soft">you reached for today.</em>
         </h2>
         <NuxtLink

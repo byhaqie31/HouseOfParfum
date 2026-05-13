@@ -8,7 +8,9 @@ export default defineNuxtConfig({
   modules: ['@pinia/nuxt', '@nuxt/icon'],
 
   icon: {
-    defaultCollection: 'lucide',
+    mode: 'css',
+    cssLayer: 'base',
+    collections: ['lucide'],
   },
 
   css: ['~/assets/css/main.css'],

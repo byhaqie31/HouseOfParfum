@@ -1,11 +1,13 @@
 <template>
   <nav
-    class="fixed top-0 left-0 right-0 z-50 bg-paper/85 backdrop-blur-xl border-b border-rule"
+    class="fixed top-0 left-0 right-0 z-50 bg-paper/85 backdrop-blur-xl border-b border-rule
+           after:hidden md:after:block after:absolute after:left-0 after:-bottom-px
+           after:w-15 after:h-px after:bg-accent after:content-['']"
   >
     <div class="max-w-300 mx-auto px-6 h-14 flex items-center justify-between">
       <NuxtLink
         to="/"
-        class="font-serif text-xl text-ink tracking-tight"
+        class="font-display text-xl font-normal text-ink tracking-[-0.005em]"
       >
         House of Parfum
       </NuxtLink>
@@ -13,12 +15,12 @@
       <!-- Authenticated nav -->
       <template v-if="auth.isLoggedIn">
         <!-- Desktop -->
-        <div class="hidden md:flex items-center gap-8">
+        <div class="hidden md:flex items-center gap-10">
           <NuxtLink
             v-for="link in appLinks"
             :key="link.to"
             :to="link.to"
-            class="text-xs uppercase tracking-widest text-ink-soft hover:text-ink transition-colors"
+            class="nav-link text-xs uppercase tracking-[0.2em] font-medium text-ink-soft hover:text-ink transition-colors pb-1"
           >
             {{ link.label }}
           </NuxtLink>
@@ -30,41 +32,41 @@
               aria-label="Account menu"
               @click="profileOpen = !profileOpen"
             >
-              <Icon name="lucide:user" class="h-5 w-5" />
+              <Icon name="lucide:user" size="20" />
             </button>
 
             <Transition
               enter-active-class="transition duration-150 ease-out"
-              enter-from-class="opacity-0 scale-95 -translate-y-1"
-              enter-to-class="opacity-100 scale-100 translate-y-0"
+              enter-from-class="opacity-0 -translate-y-1"
+              enter-to-class="opacity-100 translate-y-0"
               leave-active-class="transition duration-100 ease-in"
-              leave-from-class="opacity-100 scale-100 translate-y-0"
-              leave-to-class="opacity-0 scale-95 -translate-y-1"
+              leave-from-class="opacity-100 translate-y-0"
+              leave-to-class="opacity-0 -translate-y-1"
             >
               <div
                 v-if="profileOpen"
-                class="absolute right-0 mt-3 w-48 bg-paper rounded-xl shadow-lg border border-rule py-2 overflow-hidden"
+                class="absolute right-0 mt-3 w-52 bg-paper border border-rule py-2"
               >
                 <NuxtLink
                   to="/profile"
-                  class="block px-4 py-2.5 text-sm text-ink-soft hover:bg-paper-deep transition-colors"
+                  class="block px-5 py-2.5 text-xs uppercase tracking-[0.2em] font-medium text-ink-soft hover:text-ink hover:bg-paper-deep transition-colors"
                   @click="profileOpen = false"
                 >
                   Profile
                 </NuxtLink>
                 <NuxtLink
                   to="/order"
-                  class="block px-4 py-2.5 text-sm text-ink-soft hover:bg-paper-deep transition-colors"
+                  class="block px-5 py-2.5 text-xs uppercase tracking-[0.2em] font-medium text-ink-soft hover:text-ink hover:bg-paper-deep transition-colors"
                   @click="profileOpen = false"
                 >
                   Orders
                 </NuxtLink>
                 <div class="border-t border-rule my-1" />
                 <button
-                  class="block w-full text-left px-4 py-2.5 text-sm text-accent hover:bg-paper-deep transition-colors"
+                  class="block w-full text-left px-5 py-2.5 font-display italic text-base text-ink-soft hover:text-ink hover:bg-paper-deep transition-colors"
                   @click="handleLogout"
                 >
-                  Sign Out
+                  Sign out
                 </button>
               </div>
             </Transition>
@@ -78,7 +80,7 @@
             aria-label="Toggle menu"
             @click="mobileMenuOpen = !mobileMenuOpen"
           >
-            <Icon :name="mobileMenuOpen ? 'lucide:x' : 'lucide:menu'" class="h-5 w-5" />
+            <Icon :name="mobileMenuOpen ? 'lucide:x' : 'lucide:menu'" size="20" />
           </button>
         </div>
       </template>
@@ -87,7 +89,7 @@
       <template v-else>
         <NuxtLink
           to="/"
-          class="text-xs uppercase tracking-widest text-ink hover:text-accent transition-colors"
+          class="text-xs uppercase tracking-[0.2em] font-medium text-ink hover:text-ink-soft transition-colors"
         >
           Sign in
         </NuxtLink>
@@ -105,13 +107,13 @@
     >
       <div
         v-if="auth.isLoggedIn && mobileMenuOpen"
-        class="md:hidden bg-paper/95 backdrop-blur-xl border-b border-rule px-6 py-4 space-y-3"
+        class="md:hidden bg-paper/95 backdrop-blur-xl border-b border-rule px-6 py-5 space-y-4"
       >
         <NuxtLink
           v-for="link in appLinks"
           :key="link.to"
           :to="link.to"
-          class="block text-xs uppercase tracking-widest text-ink-soft hover:text-ink"
+          class="nav-link block text-xs uppercase tracking-[0.2em] font-medium text-ink-soft hover:text-ink"
           @click="mobileMenuOpen = false"
         >
           {{ link.label }}
@@ -119,24 +121,24 @@
         <div class="border-t border-rule my-2" />
         <NuxtLink
           to="/profile"
-          class="block text-xs uppercase tracking-widest text-ink-soft hover:text-ink"
+          class="block text-xs uppercase tracking-[0.2em] font-medium text-ink-soft hover:text-ink"
           @click="mobileMenuOpen = false"
         >
           Profile
         </NuxtLink>
         <NuxtLink
           to="/order"
-          class="block text-xs uppercase tracking-widest text-ink-soft hover:text-ink"
+          class="block text-xs uppercase tracking-[0.2em] font-medium text-ink-soft hover:text-ink"
           @click="mobileMenuOpen = false"
         >
           Orders
         </NuxtLink>
         <div class="border-t border-rule my-2" />
         <button
-          class="block text-xs uppercase tracking-widest text-accent hover:opacity-80"
+          class="block font-display italic text-base text-ink-soft hover:text-ink"
           @click="handleLogout"
         >
-          Sign Out
+          Sign out
         </button>
       </div>
     </Transition>

@@ -5,7 +5,7 @@
         {{ formattedDate }}
       </p>
 
-      <h1 class="mt-4 font-serif text-5xl sm:text-6xl text-ink tracking-tight leading-[1.05]">
+      <h1 class="mt-4 font-display text-5xl sm:text-6xl text-ink tracking-tight leading-[1.05]">
         <template v-if="auth.user?.name">
           Good {{ partOfDay }}, <em class="text-ink-soft">{{ firstName }}.</em>
         </template>
@@ -22,7 +22,7 @@
       <!-- Placeholder card -->
       <div class="mt-16 border border-rule p-10 bg-paper">
         <p class="text-[11px] uppercase tracking-widest text-ink-mute">Suggested for today</p>
-        <h2 class="mt-4 font-serif text-3xl text-ink tracking-tight">
+        <h2 class="mt-4 font-display text-3xl text-ink tracking-tight">
           <em class="text-ink-soft">— coming soon</em>
         </h2>
         <p class="mt-4 text-sm text-ink-soft">

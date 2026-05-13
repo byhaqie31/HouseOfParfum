@@ -40,7 +40,7 @@
           <p class="font-mono text-[11px] uppercase tracking-widest text-ink-mute">
             Where does it come from?
           </p>
-          <h1 class="mt-4 font-serif text-5xl sm:text-6xl text-ink tracking-tight leading-[1.05]">
+          <h1 class="mt-4 font-display text-5xl sm:text-6xl text-ink tracking-tight leading-[1.05]">
             Begin with <em class="text-ink-soft">the house.</em>
           </h1>
           <p class="mt-6 text-base text-ink-soft leading-relaxed">
@@ -49,7 +49,7 @@
         </div>
 
         <div v-if="loadingBrands" class="mt-24 text-center">
-          <p class="font-serif italic text-ink-soft">Drawing from the cabinet…</p>
+          <p class="font-display italic text-ink-soft">Drawing from the cabinet…</p>
         </div>
 
         <div v-else class="mt-16 sm:mt-20 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-px bg-rule">
@@ -66,9 +66,9 @@
                 :alt="brand.name"
                 class="w-full h-full object-cover"
               >
-              <span v-else class="font-serif text-xl text-ink-soft">{{ brand.code }}</span>
+              <span v-else class="font-display text-xl text-ink-soft">{{ brand.code }}</span>
             </div>
-            <h3 class="font-serif text-xl text-ink tracking-tight">{{ brand.name }}</h3>
+            <h3 class="font-display text-xl text-ink tracking-tight">{{ brand.name }}</h3>
             <p class="mt-2 font-mono text-[10px] uppercase tracking-widest text-ink-mute">
               {{ perfumeCountByBrand(brand.code) }} {{ perfumeCountByBrand(brand.code) === 1 ? 'fragrance' : 'fragrances' }}
             </p>
@@ -87,13 +87,13 @@
           <p class="font-mono text-[11px] uppercase tracking-widest text-ink-mute">
             From {{ selectedBrand?.name }}
           </p>
-          <h1 class="mt-4 font-serif text-5xl sm:text-6xl text-ink tracking-tight leading-[1.05]">
+          <h1 class="mt-4 font-display text-5xl sm:text-6xl text-ink tracking-tight leading-[1.05]">
             Which <em class="text-ink-soft">fragrance?</em>
           </h1>
         </div>
 
         <div v-if="filteredPerfumes.length === 0" class="mt-24 text-center">
-          <p class="font-serif italic text-ink-soft">
+          <p class="font-display italic text-ink-soft">
             We don't have any {{ selectedBrand?.name }} fragrances on file yet.
           </p>
           <button
@@ -121,7 +121,7 @@
               >
               <Icon v-else name="lucide:flower-2" class="h-8 w-8 text-ink-mute" />
             </div>
-            <h3 class="mt-6 font-serif text-2xl text-ink tracking-tight leading-tight">
+            <h3 class="mt-6 font-display text-2xl text-ink tracking-tight leading-tight">
               {{ perfume.name }}
             </h3>
             <p v-if="perfume.main_accord" class="mt-3 font-mono text-[10px] uppercase tracking-widest text-ink-mute">
@@ -151,7 +151,7 @@
             <p class="mt-6 font-mono text-[10px] uppercase tracking-widest text-ink-mute">
               {{ selectedBrand?.name }}
             </p>
-            <h2 class="mt-2 font-serif text-3xl text-ink tracking-tight leading-tight">
+            <h2 class="mt-2 font-display text-3xl text-ink tracking-tight leading-tight">
               {{ selectedPerfume?.name }}
             </h2>
             <p v-if="selectedPerfume?.main_accord" class="mt-3 font-mono text-[10px] uppercase tracking-widest text-ink-mute">
@@ -164,7 +164,7 @@
             <p class="font-mono text-[11px] uppercase tracking-widest text-ink-mute">
               Your bottle
             </p>
-            <h1 class="mt-4 font-serif text-4xl sm:text-5xl text-ink tracking-tight leading-[1.05]">
+            <h1 class="mt-4 font-display text-4xl sm:text-5xl text-ink tracking-tight leading-[1.05]">
               Tell us <em class="text-ink-soft">about it.</em>
             </h1>
 
@@ -253,7 +253,7 @@
       <!-- ── Confirmation ──────────────────────────────────── -->
       <section v-else key="step-4" class="max-w-xl mx-auto text-center pt-16">
         <Icon name="lucide:check" class="h-8 w-8 text-ink mx-auto" />
-        <h1 class="mt-8 font-serif text-5xl sm:text-6xl text-ink tracking-tight leading-[1.05]">
+        <h1 class="mt-8 font-display text-5xl sm:text-6xl text-ink tracking-tight leading-[1.05]">
           Added.
         </h1>
         <p class="mt-6 font-mono text-[11px] uppercase tracking-widest text-ink-mute">

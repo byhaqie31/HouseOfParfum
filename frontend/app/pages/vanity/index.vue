@@ -6,7 +6,7 @@
           <p class="font-mono text-[11px] uppercase tracking-widest text-ink-mute">
             Your shelf
           </p>
-          <h1 class="mt-3 font-serif text-5xl sm:text-6xl text-ink tracking-tight leading-[1.05]">
+          <h1 class="mt-3 font-display text-5xl sm:text-6xl text-ink tracking-tight leading-[1.05]">
             Vanity
           </h1>
         </div>
@@ -24,7 +24,7 @@
         <div class="w-60 h-60 rounded-full border border-rule bg-paper-deep flex items-center justify-center mx-auto">
           <Icon name="lucide:flower-2" size="100" class="text-ink-mute" />
         </div>
-        <h2 class="mt-12 font-serif text-3xl sm:text-4xl text-ink tracking-tight leading-[1.1]">
+        <h2 class="mt-12 font-display text-3xl sm:text-4xl text-ink tracking-tight leading-[1.1]">
           Your shelf is bare.
         </h2>
         <p class="mt-4 text-base text-ink-soft leading-relaxed">

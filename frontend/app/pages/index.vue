@@ -2,12 +2,12 @@
   <div class="min-h-screen grid grid-cols-1 md:grid-cols-12 bg-paper">
     <!-- Brand panel -->
     <aside class="hidden md:flex md:col-span-7 bg-paper-deep p-12 lg:p-16 flex-col justify-between">
-      <NuxtLink to="/about" class="font-serif text-xl text-ink tracking-tight">
+      <NuxtLink to="/about" class="font-display text-xl text-ink tracking-tight">
         House of Parfum
       </NuxtLink>
 
       <div class="max-w-xl">
-        <h1 class="font-serif text-5xl lg:text-6xl leading-[1.05] text-ink tracking-tight">
+        <h1 class="font-display text-5xl lg:text-6xl leading-[1.05] text-ink tracking-tight">
           A companion for the bottles you wear,<br>
           <em class="text-ink-soft">and the ones you remember.</em>
         </h1>
@@ -33,11 +33,11 @@
     <section class="col-span-1 md:col-span-5 flex items-center justify-center px-6 py-12 md:py-16">
       <div class="w-full max-w-sm">
         <!-- Mobile brand mark (form panel only on mobile) -->
-        <NuxtLink to="/about" class="md:hidden font-serif text-2xl text-ink tracking-tight block mb-10 text-center">
+        <NuxtLink to="/about" class="md:hidden font-display text-2xl text-ink tracking-tight block mb-10 text-center">
           House of Parfum
         </NuxtLink>
 
-        <h2 class="font-serif text-3xl text-ink tracking-tight">Welcome.</h2>
+        <h2 class="font-display text-3xl text-ink tracking-tight">Welcome.</h2>
         <p class="mt-2 text-sm text-ink-soft">
           Sign in to your shelf.
         </p>
