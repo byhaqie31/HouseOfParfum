@@ -63,10 +63,12 @@ services:
       - ./frontend/tsconfig.json:/app/tsconfig.json
       - ./frontend/package.json:/app/package.json
       - ./frontend/package-lock.json:/app/package-lock.json
-      # Keep container's node_modules and .nuxt isolated from the host so the
-      # Linux container deps don't collide with the macOS host install.
+      # node_modules stays isolated — Linux/macOS binary differences collide.
       - frontend_node_modules:/app/node_modules
-      - frontend_nuxt_cache:/app/.nuxt
+      # .nuxt is bind-mounted so the host IDE can resolve Nuxt's generated
+      # tsconfigs and auto-import types. Contents are JSON/TS the host never
+      # executes; risk of platform mismatch is nil in practice.
+      - ./frontend/.nuxt:/app/.nuxt
     depends_on:
       - backend
     networks:
@@ -75,7 +77,6 @@ services:
 volumes:
   backend-storage:
   frontend_node_modules:
-  frontend_nuxt_cache:
 
 networks:
   axelnova-shared:
