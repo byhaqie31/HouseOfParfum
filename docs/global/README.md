@@ -3,7 +3,7 @@
 Monorepo for the House of Parfum web app. Two services deployed together:
 
 - [backend/](../../backend/) — **Laravel 11** REST API (PHP 8.4). Port `8000`. Docs: [docs/backend/](../backend/).
-- [frontend/](../../frontend/) — **Nuxt 4** SSR (Vue 3 + TS + Tailwind 4 + Pinia). Port `3001`. Docs: [docs/frontend/](../frontend/).
+- [frontend/](../../frontend/) — **Nuxt 4** SSR (Vue 3 + TS + Tailwind 4 + Pinia). Port `3004`. Docs: [docs/frontend/](../frontend/).
 - **MySQL 8** + **phpMyAdmin** are shared via the sibling [axelnova-infra](../../../axelnova-infra/) repo. Both apps join the external `axelnova-shared` Docker network and reach MySQL via hostname `mysql`.
 
 ## Local dev — first time
@@ -38,7 +38,7 @@ docker compose -f docker-compose.dev.yml down
 
 | Service | URL |
 |---|---|
-| Frontend | http://127.0.0.1:3001 |
+| Frontend | http://127.0.0.1:3004 |
 | Backend API | http://127.0.0.1:8000/api |
 | phpMyAdmin (shared) | http://127.0.0.1:8080 |
 | MySQL (shared) | 127.0.0.1:3306 |
@@ -70,7 +70,7 @@ HoP is registered in [axelnova-infra/docs/port-allocation.md](../../../axelnova-
 
 | Port | Service | Container (dev) | Container (prod) |
 |---|---|---|---|
-| 3001 | Nuxt frontend | `hop-frontend-dev` | `hop-frontend` |
+| 3004 | Nuxt frontend | `hop-frontend-dev` | `hop-frontend` |
 | 8000 | Laravel backend | `hop-backend-dev` | `hop-backend` |
 
 Compose project name is `hop` (declared via `name:` at the top of both compose files), so `docker compose ls` shows the stack as `hop`.
