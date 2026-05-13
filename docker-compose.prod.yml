@@ -1,48 +1,70 @@
-services:
-  frontend:
-    build: ./frontend
-    container_name: hop-frontend
-    restart: always
-    ports:
-      - "3000:3000"
-    environment:
-      - API_BASE_URL=https://hop-api.axelnova.tech/api
-    depends_on:
-      - backend
+# Production stack for House of Parfum.
+#
+# Prereqs on the VPS (one-time):
+#   1. Shared infra running:           cd ~/infra && docker compose up -d
+#   2. Storage host dir exists:        mkdir -p ~/data/house-of-parfum/storage
+#   3. Env file filled in:             backend/.env.production
+#
+# First deploy:
+#   docker compose -f docker-compose.prod.yml up -d --build
+#
+# Subsequent deploys:
+#   git pull
+#   docker compose -f docker-compose.prod.yml up -d --build
+#   docker compose -f docker-compose.prod.yml exec backend php artisan migrate --force
+#
+# Logs live at: ~/data/house-of-parfum/storage/logs/laravel.log
 
+services:
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: hop-backend:latest
     container_name: hop-backend
-    restart: always
+    restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     env_file:
       - ./backend/.env.production
-    depends_on:
-      mysql:
-        condition: service_healthy
-    volumes:
-      - backend-storage:/var/www/storage
-
-  mysql:
-    image: mysql:8.0
-    container_name: hop-mysql
-    restart: always
-    ports:
-      - "3307:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-secret}
-      MYSQL_DATABASE: house_of_parfum
-      MYSQL_USER: hop_user
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-secret}
+      DB_HOST: mysql
     volumes:
-      - mysql-data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - ~/data/house-of-parfum/storage:/var/www/storage
+    networks:
+      - axelnova-shared
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
-volumes:
-  mysql-data:
-  backend-storage:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: hop-frontend:latest
+    container_name: hop-frontend
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3001:3000"
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 3000
+      NUXT_API_BASE: http://backend:8000/api
+      NUXT_PUBLIC_API_BASE: https://hop-api.axelnova.tech/api
+    depends_on:
+      - backend
+    networks:
+      - axelnova-shared
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  axelnova-shared:
+    name: axelnova-shared
+    external: true

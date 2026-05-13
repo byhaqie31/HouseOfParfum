@@ -1,0 +1,83 @@
+# Local development stack for House of Parfum.
+#
+# Prereqs:
+#   1. Shared infra running: cd ../axelnova-infra && docker compose up -d
+#   2. backend/.env exists (copy from backend/.env.example, set APP_KEY)
+#
+# Boot:
+#   docker compose -f docker-compose.dev.yml up -d --build
+#
+# Endpoints:
+#   frontend  http://127.0.0.1:3001
+#   backend   http://127.0.0.1:8000
+#   mysql     127.0.0.1:3306        (via axelnova-infra)
+#   pma       http://127.0.0.1:8080 (via axelnova-infra)
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: hop-backend:dev
+    container_name: hop-backend-dev
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"
+    env_file:
+      - ./backend/.env
+    environment:
+      # Override DB_HOST so Laravel resolves the shared MySQL via the docker network
+      DB_HOST: mysql
+    volumes:
+      # Mount .env into the container so Laravel's phpdotenv reads it directly.
+      # Sidesteps env_file parser quirks with special chars in APP_KEY.
+      - ./backend/.env:/var/www/.env:ro
+      - backend-storage:/var/www/storage
+    networks:
+      - axelnova-shared
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    image: hop-frontend:dev
+    container_name: hop-frontend-dev
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3001:3000"
+    environment:
+      NODE_ENV: development
+      HOST: 0.0.0.0
+      PORT: 3000
+      NUXT_TELEMETRY_DISABLED: "1"
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: "400"
+      # SSR (inside this container) reaches the backend via the docker-network hostname.
+      NUXT_API_BASE: http://backend:8000/api
+      # Browser hits the backend via the Mac host loopback (container hostnames don't resolve on the host).
+      NUXT_PUBLIC_API_BASE: http://127.0.0.1:8000/api
+    volumes:
+      - ./frontend/app:/app/app
+      - ./frontend/public:/app/public
+      - ./frontend/nuxt.config.ts:/app/nuxt.config.ts
+      - ./frontend/tsconfig.json:/app/tsconfig.json
+      - ./frontend/package.json:/app/package.json
+      - ./frontend/package-lock.json:/app/package-lock.json
+      # Keep container's node_modules and .nuxt isolated from the host so the
+      # Linux container deps don't collide with the macOS host install.
+      - frontend_node_modules:/app/node_modules
+      - frontend_nuxt_cache:/app/.nuxt
+    depends_on:
+      - backend
+    networks:
+      - axelnova-shared
+
+volumes:
+  backend-storage:
+  frontend_node_modules:
+  frontend_nuxt_cache:
+
+networks:
+  axelnova-shared:
+    name: axelnova-shared
+    external: true
