@@ -1,17 +1,46 @@
 <template>
   <div class="min-h-screen pt-20 pb-24 px-6">
     <div class="max-w-5xl mx-auto">
-      <!-- Greeting -->
-      <p class="font-mono text-[10px] uppercase tracking-[0.22em] text-ink-mute leading-[1.7]">
-        Good {{ partOfDay }}, {{ firstName || 'friend' }}
-        <span class="text-accent-deep mx-1">·</span>
-        {{ formattedDate }}
-      </p>
+      <!-- Welcome card -->
+      <section class="relative border border-rule bg-paper-deep">
+        <div class="absolute -top-px left-0 w-16 h-px bg-accent" />
+        <div class="absolute -bottom-px right-0 w-10 h-px bg-accent" />
 
-      <!-- Section divider with gold accent -->
-      <div class="relative border-b border-ink mt-4 mb-10">
-        <div class="absolute -bottom-px left-0 w-20 h-px bg-accent" />
-      </div>
+        <div class="flex items-center gap-6 sm:gap-8 px-6 sm:px-8 py-6 sm:py-7">
+          <!-- Animated bottle: BottleIcon with three gold particles rising from the cap -->
+          <div class="welcome-bottle relative shrink-0 w-12 h-16 sm:w-14 sm:h-[72px] flex items-end justify-center">
+            <span class="scent-particle scent-particle--a" />
+            <span class="scent-particle scent-particle--b" />
+            <span class="scent-particle scent-particle--c" />
+            <BottleIcon :size="56" class="relative z-10" />
+          </div>
+
+          <div class="min-w-0 flex-1">
+            <p class="font-mono text-[10px] uppercase tracking-[0.22em] text-ink-mute">
+              Good {{ partOfDay }}
+              <span v-if="firstName" class="text-accent-deep mx-1">·</span>
+              <span v-if="formattedDate" class="sm:hidden">{{ formattedDate }}</span>
+            </p>
+            <h2 class="mt-2 font-display text-2xl sm:text-3xl text-ink tracking-[-0.005em] leading-[1.1]">
+              <template v-if="firstName">
+                <span class="capitalize">{{ firstName }}</span><span class="text-accent-deep">.</span>
+              </template>
+              <template v-else>
+                Welcome back<span class="text-accent-deep">.</span>
+              </template>
+            </h2>
+            <p class="mt-2 font-display italic text-[14px] text-ink-soft leading-snug hidden sm:block">
+              {{ welcomeWhisper }}
+            </p>
+          </div>
+
+          <p class="hidden sm:block font-mono text-[10px] uppercase tracking-[0.18em] text-ink-mute shrink-0 self-start pt-1">
+            {{ formattedDate }}
+          </p>
+        </div>
+      </section>
+
+      <div class="mt-12" />
 
       <!-- Empty vanity → invite to add -->
       <template v-if="vanity.count === 0">
@@ -39,69 +68,128 @@
       <!-- Today's pick + glance -->
       <template v-else-if="todayPick">
         <p class="font-display font-medium text-[11px] uppercase tracking-[0.28em] text-accent-deep mb-6">
-          Today
+          Today's recommendation
         </p>
 
-        <section class="grid grid-cols-1 sm:grid-cols-[140px_1fr] gap-8 sm:gap-10 border-b border-ink pb-10">
-          <!-- Bottle frame -->
-          <div class="aspect-3/4 bg-paper-deep border border-rule flex items-center justify-center">
-            <BottleIcon :size="64" />
-          </div>
+        <!-- Framed pick card: bottle in a narrow column, identity + story + actions in the wide column -->
+        <section class="relative border border-ink bg-paper">
+          <div class="absolute -top-px left-0 w-20 h-px bg-accent" />
+          <div class="absolute -bottom-px right-0 w-12 h-px bg-accent" />
 
-          <div>
-            <p class="font-display italic text-[15px] text-ink-soft leading-tight">
-              {{ todayPick.brand }}
-            </p>
-            <h1 class="mt-1 font-display text-4xl sm:text-5xl tracking-[-0.005em] leading-none">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-0">
+            <!-- Left column: bottle frame capped + centered so the 1:1 column doesn't stretch it absurdly tall -->
+            <div class="p-8 md:p-10 md:border-r md:border-rule flex items-center justify-center">
+              <div class="aspect-3/4 w-full max-w-[280px] bg-paper-deep border border-rule flex items-center justify-center">
+                <BottleIcon :size="120" />
+              </div>
+            </div>
+
+            <!-- Right column: identity, story, actions (flex-col so the action row anchors to the bottom) -->
+            <div class="p-8 md:p-10 flex flex-col min-w-0">
+              <!-- Identity: brand + name + meta — name has the whole column width so long names fit on one line -->
+              <p class="font-display italic text-[15px] text-ink-soft leading-tight">
+                {{ todayPick.brand }}
+              </p>
+              <h1 class="mt-1 font-display text-3xl sm:text-4xl text-ink tracking-[-0.005em] leading-[1.05]">
+                <NuxtLink
+                  :to="`/vanity/${todayPick.id}`"
+                  class="hover:text-accent-deep transition-colors"
+                >
+                  {{ todayPick.name }}
+                </NuxtLink>
+              </h1>
+              <p class="mt-3 font-mono text-[10px] uppercase tracking-[0.16em] text-ink-mute">
+                {{ todayPick.size }} ML
+                <template v-if="todayPick.acquired"> &middot; {{ todayPick.acquired }}</template>
+              </p>
+
+              <p
+                class="mt-5 pt-4 border-t border-rule font-display italic text-[15px] leading-normal"
+                :class="isPickWornToday ? 'text-accent-deep' : 'text-ink-soft'"
+              >
+                <template v-if="isPickWornToday">
+                  You're wearing this now.
+                </template>
+                <template v-else>
+                  {{ pickReason }}
+                </template>
+              </p>
+
+              <!-- Accord chips -->
+              <div v-if="pickAccordChips.length" class="mt-6">
+                <p class="font-mono text-[9px] uppercase tracking-[0.22em] text-ink-mute mb-3">
+                  <span class="text-accent-deep mr-1.5">/</span>Accord
+                </p>
+                <div class="flex flex-wrap gap-2">
+                  <span
+                    v-for="chip in pickAccordChips"
+                    :key="chip"
+                    class="px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.14em] text-ink bg-paper-deep border border-rule"
+                  >
+                    {{ chip }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Environment recommendation (season + time of day) -->
+              <div v-if="pickEnvironmentLine" class="mt-6">
+                <p class="font-mono text-[9px] uppercase tracking-[0.22em] text-ink-mute mb-2">
+                  <span class="text-accent-deep mr-1.5">/</span>Where it wears
+                </p>
+                <p class="font-display italic text-[15px] text-ink leading-normal">
+                  {{ pickEnvironmentLine }}
+                </p>
+              </div>
+
+              <!-- History excerpt -->
+              <div v-if="pickHistoryExcerpt" class="mt-6">
+                <p class="font-mono text-[9px] uppercase tracking-[0.22em] text-ink-mute mb-2">
+                  <span class="text-accent-deep mr-1.5">/</span>The history
+                </p>
+                <p class="font-display italic text-[14px] text-ink-soft leading-normal max-w-prose">
+                  {{ pickHistoryExcerpt }}
+                </p>
+              </div>
+
               <NuxtLink
-                :to="`/vanity/${todayPick.id}`"
-                class="text-ink hover:text-accent-deep transition-colors"
+                v-if="todayPick?.catalog_id && pickCatalogEntry"
+                :to="`/perfume/${todayPick.catalog_id}`"
+                class="mt-5 inline-block self-start font-display italic text-[13px] text-ink hover:text-accent-deep pb-px border-b border-accent transition-colors"
               >
-                {{ todayPick.name }}
+                {{ pickHistoryWasTruncated ? 'Continue reading' : 'Open the dossier' }} &rarr;
               </NuxtLink>
-            </h1>
-            <p class="mt-3 font-mono text-[10px] uppercase tracking-[0.16em] text-ink-mute">
-              {{ todayPick.size }} ML
-              <template v-if="todayPick.acquired"> &middot; {{ todayPick.acquired }}</template>
-            </p>
 
-            <p
-              class="mt-5 pt-4 border-t border-rule font-display italic text-[15px] leading-normal"
-              :class="isPickWornToday ? 'text-accent-deep' : 'text-ink-soft'"
-            >
-              <template v-if="isPickWornToday">
-                You're wearing this now.
-              </template>
-              <template v-else>
-                {{ pickReason }}
-              </template>
-            </p>
+              <!-- Action row pinned to the bottom of the right column -->
+              <div class="mt-auto pt-8">
+                <div class="border-t border-rule pt-6 flex flex-wrap items-center justify-between gap-4">
+                  <button
+                    v-if="orderedCandidates.length > 1 && !isPickWornToday"
+                    type="button"
+                    class="font-display italic text-[14px] text-ink hover:text-accent-deep pb-1 border-b border-accent transition-colors"
+                    @click="showAnother"
+                  >
+                    Show me another
+                  </button>
+                  <span v-else aria-hidden="true" />
 
-            <div class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
-              <NuxtLink
-                v-if="isPickWornToday"
-                :to="`/vanity/${todayPick.id}`"
-                class="inline-flex items-center gap-2 bg-ink text-paper text-[11px] uppercase tracking-[0.2em] font-medium px-6 py-3 hover:bg-ink-soft transition-colors"
-              >
-                Update diary
-                <Icon name="lucide:arrow-right" size="14" />
-              </NuxtLink>
-              <button
-                v-else
-                type="button"
-                class="bg-ink text-paper text-[11px] uppercase tracking-[0.2em] font-medium px-6 py-3 hover:bg-ink-soft transition-colors"
-                @click="wearThis"
-              >
-                I'm wearing this
-              </button>
-              <button
-                v-if="orderedCandidates.length > 1 && !isPickWornToday"
-                type="button"
-                class="font-display italic text-[14px] text-ink hover:text-accent-deep pb-1 border-b border-accent transition-colors"
-                @click="showAnother"
-              >
-                Show me another
-              </button>
+                  <NuxtLink
+                    v-if="isPickWornToday"
+                    :to="`/vanity/${todayPick.id}`"
+                    class="inline-flex items-center gap-2 bg-ink text-paper text-[11px] uppercase tracking-[0.2em] font-medium px-6 py-3 hover:bg-ink-soft transition-colors"
+                  >
+                    Update diary
+                    <Icon name="lucide:arrow-right" size="14" />
+                  </NuxtLink>
+                  <button
+                    v-else
+                    type="button"
+                    class="bg-ink text-paper text-[11px] uppercase tracking-[0.2em] font-medium px-6 py-3 hover:bg-ink-soft transition-colors"
+                    @click="wearThis"
+                  >
+                    I'm wearing this
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -140,6 +228,48 @@
           </div>
         </section>
       </template>
+
+      <!-- Field notes — one perfumery fact per day, date-seeded -->
+      <section v-if="knowledge" class="mt-16 pt-10 border-t border-ink relative">
+        <div class="absolute -top-px left-0 w-20 h-px bg-accent" />
+
+        <header class="mb-8">
+          <p class="font-display font-medium text-[11px] uppercase tracking-[0.28em] text-accent-deep">
+            Field notes
+          </p>
+          <h2 class="mt-1 font-display text-3xl text-ink tracking-tight leading-tight">
+            <em class="text-ink-soft">One thing</em> about perfume.
+          </h2>
+        </header>
+
+        <article class="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-8 md:gap-12 bg-paper-deep border border-rule p-8 md:p-10 relative">
+          <div class="absolute -top-px left-0 w-16 h-px bg-accent" />
+
+          <div>
+            <p class="font-mono text-[9px] uppercase tracking-[0.22em] text-accent-deep">
+              {{ knowledge.kicker }}
+            </p>
+            <h3 class="mt-3 font-display text-[26px] sm:text-[28px] text-ink leading-[1.1] tracking-tight">
+              {{ knowledge.title }}
+            </h3>
+          </div>
+
+          <p class="font-display italic text-[16px] sm:text-[17px] text-ink-soft leading-[1.6] max-w-prose">
+            {{ knowledge.body }}
+          </p>
+        </article>
+
+        <!-- Bridge into the long-form reference -->
+        <div class="mt-8 flex justify-end">
+          <NuxtLink
+            to="/almanac"
+            class="inline-flex items-center gap-2 font-display italic text-[14px] text-ink hover:text-accent-deep pb-1 border-b border-accent transition-colors"
+          >
+            Learn more in The Almanac
+            <Icon name="lucide:arrow-right" size="14" />
+          </NuxtLink>
+        </div>
+      </section>
 
       <!-- Recommendations (always visible when catalog has unowned perfumes) -->
       <section v-if="totalRecPages > 0" class="mt-16 pt-10 border-t border-ink relative">
@@ -223,7 +353,12 @@ type Perfume = {
   size: number
   year?: string
   main_accord?: string
+  history?: string
+  suit_season?: string
+  suit_time?: string
 }
+
+const HISTORY_EXCERPT_LIMIT = 240
 
 const auth = useAuthStore()
 const api = useApi()
@@ -247,6 +382,17 @@ const partOfDay = computed(() => {
   if (h < 12) return 'morning'
   if (h < 18) return 'afternoon'
   return 'evening'
+})
+
+const welcomeWhisper = computed(() => {
+  switch (partOfDay.value) {
+    case 'morning':
+      return 'What will the day smell like?'
+    case 'afternoon':
+      return 'Halfway through. Something to lift the rest?'
+    default:
+      return 'The good hour. Something with depth.'
+  }
 })
 
 const firstName = computed(() => {
@@ -345,6 +491,55 @@ const shuffledRecs = ref<Perfume[]>([])
 const recPage = ref(0)
 const RECS_PER_PAGE = 2
 
+// ──────────── Today's pick — catalog enrichment ────────────
+// The vanity item carries `catalog_id` when it was added from /perfume.
+// When present, we look up accord + history from the loaded catalog and
+// surface them in the right-column story panel. Free-entered bottles
+// (catalog_id === null) silently skip the block.
+const pickCatalogEntry = computed<Perfume | null>(() => {
+  const id = todayPick.value?.catalog_id
+  if (typeof id !== 'number') return null
+  return catalogPerfumes.value.find(p => p.id === id) ?? null
+})
+
+const pickAccordChips = computed<string[]>(() => {
+  const raw = pickCatalogEntry.value?.main_accord
+  if (!raw || typeof raw !== 'string') return []
+  return raw.split(',').map(s => s.trim()).filter(Boolean)
+})
+
+const pickHistoryRaw = computed(() => pickCatalogEntry.value?.history?.trim() ?? '')
+
+const pickHistoryExcerpt = computed(() => {
+  const raw = pickHistoryRaw.value
+  if (!raw) return ''
+  if (raw.length <= HISTORY_EXCERPT_LIMIT) return raw
+  // Trim at the last sentence/word boundary before the limit so we don't cut a word in half.
+  const slice = raw.slice(0, HISTORY_EXCERPT_LIMIT)
+  const cut = Math.max(slice.lastIndexOf('. '), slice.lastIndexOf('? '), slice.lastIndexOf('! '))
+  if (cut > HISTORY_EXCERPT_LIMIT * 0.5) return `${slice.slice(0, cut + 1)}…`
+  const lastSpace = slice.lastIndexOf(' ')
+  return `${slice.slice(0, lastSpace > 0 ? lastSpace : HISTORY_EXCERPT_LIMIT)}…`
+})
+
+const pickHistoryWasTruncated = computed(
+  () => pickHistoryRaw.value.length > HISTORY_EXCERPT_LIMIT,
+)
+
+const pickEnvironmentLine = computed(() => {
+  const entry = pickCatalogEntry.value
+  if (!entry) return ''
+  const season = entry.suit_season?.trim().toLowerCase()
+  const time = entry.suit_time?.trim().toLowerCase()
+  if (!season && !time) return ''
+  if (season && time) return `Best worn through ${season}, suited to the ${time}.`
+  if (season) return `Best worn through ${season}.`
+  return `Suited to the ${time}.`
+})
+
+// ──────────── Field notes — daily perfumery knowledge ────────────
+const knowledge = useDailyKnowledge(now)
+
 const brandByCode = computed(() =>
   Object.fromEntries(brands.value.map((b: Brand) => [b.code, b])),
 )
@@ -418,3 +613,60 @@ watch(
   },
 )
 </script>
+
+<style scoped>
+/* Scent-diffusion animation: three small champagne-gold particles rise from
+   the cap of the welcome-card bottle in a staggered loop. Kept subtle on
+   purpose — meant to read as ambient breath, not motion. */
+.welcome-bottle .scent-particle {
+  position: absolute;
+  bottom: calc(100% - 6px);
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+  background-color: var(--color-accent);
+  opacity: 0;
+  animation: scent-rise 4.5s ease-out infinite;
+  will-change: transform, opacity;
+}
+
+.welcome-bottle .scent-particle--a {
+  left: calc(50% - 8px);
+  animation-delay: 0s;
+}
+.welcome-bottle .scent-particle--b {
+  left: 50%;
+  animation-delay: 1.4s;
+  animation-duration: 5s;
+}
+.welcome-bottle .scent-particle--c {
+  left: calc(50% + 8px);
+  animation-delay: 2.6s;
+  animation-duration: 4.2s;
+}
+
+@keyframes scent-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.4);
+  }
+  20% {
+    opacity: 0.7;
+  }
+  60% {
+    opacity: 0.35;
+    transform: translateY(-22px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-34px) scale(1.1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome-bottle .scent-particle {
+    animation: none;
+    opacity: 0;
+  }
+}
+</style>
