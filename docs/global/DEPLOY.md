@@ -19,6 +19,17 @@ Production runs on the same VPS as axelnova-dashboard, sharing the `axelnova-sha
     listen 443 ssl http2;
     # ssl_certificate / ssl_certificate_key managed by certbot
 
+    # @nuxt/icon's runtime endpoint is /api/_nuxt_icon — has to reach the
+    # Nuxt server, NOT Laravel. `^~` prefix match wins over the regex
+    # /api/ block below, so this must stay above it.
+    location ^~ /api/_nuxt_icon {
+      proxy_pass         http://127.0.0.1:3005;
+      proxy_set_header   Host              $host;
+      proxy_set_header   X-Real-IP         $remote_addr;
+      proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+      proxy_set_header   X-Forwarded-Proto $scheme;
+    }
+
     location ~ ^/(api|sanctum)(/|$) {
       proxy_pass         http://127.0.0.1:8000;
       proxy_set_header   Host              $host;
