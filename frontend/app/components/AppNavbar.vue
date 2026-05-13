@@ -10,41 +10,41 @@
         House of Parfum
       </NuxtLink>
 
-      <!-- Desktop Nav -->
-      <div class="hidden md:flex items-center gap-8">
-        <NuxtLink
-          v-for="link in navLinks"
-          :key="link.to"
-          :to="link.to"
-          class="text-xs uppercase tracking-widest text-ink-soft hover:text-ink transition-colors"
-        >
-          {{ link.label }}
-        </NuxtLink>
-
-        <!-- Profile Dropdown -->
-        <div class="relative flex items-center">
-          <button
-            class="text-ink-soft hover:text-ink transition-colors"
-            aria-label="Account menu"
-            @click="profileOpen = !profileOpen"
+      <!-- Authenticated nav -->
+      <template v-if="auth.isLoggedIn">
+        <!-- Desktop -->
+        <div class="hidden md:flex items-center gap-8">
+          <NuxtLink
+            v-for="link in appLinks"
+            :key="link.to"
+            :to="link.to"
+            class="text-xs uppercase tracking-widest text-ink-soft hover:text-ink transition-colors"
           >
-            <Icon name="lucide:user" class="h-5 w-5" />
-          </button>
+            {{ link.label }}
+          </NuxtLink>
 
-          <!-- Dropdown Menu -->
-          <Transition
-            enter-active-class="transition duration-150 ease-out"
-            enter-from-class="opacity-0 scale-95 -translate-y-1"
-            enter-to-class="opacity-100 scale-100 translate-y-0"
-            leave-active-class="transition duration-100 ease-in"
-            leave-from-class="opacity-100 scale-100 translate-y-0"
-            leave-to-class="opacity-0 scale-95 -translate-y-1"
-          >
-            <div
-              v-if="profileOpen"
-              class="absolute right-0 mt-3 w-48 bg-paper rounded-xl shadow-lg border border-rule py-2 overflow-hidden"
+          <!-- Profile Dropdown -->
+          <div class="relative flex items-center">
+            <button
+              class="text-ink-soft hover:text-ink transition-colors"
+              aria-label="Account menu"
+              @click="profileOpen = !profileOpen"
             >
-              <template v-if="auth.isLoggedIn">
+              <Icon name="lucide:user" class="h-5 w-5" />
+            </button>
+
+            <Transition
+              enter-active-class="transition duration-150 ease-out"
+              enter-from-class="opacity-0 scale-95 -translate-y-1"
+              enter-to-class="opacity-100 scale-100 translate-y-0"
+              leave-active-class="transition duration-100 ease-in"
+              leave-from-class="opacity-100 scale-100 translate-y-0"
+              leave-to-class="opacity-0 scale-95 -translate-y-1"
+            >
+              <div
+                v-if="profileOpen"
+                class="absolute right-0 mt-3 w-48 bg-paper rounded-xl shadow-lg border border-rule py-2 overflow-hidden"
+              >
                 <NuxtLink
                   to="/profile"
                   class="block px-4 py-2.5 text-sm text-ink-soft hover:bg-paper-deep transition-colors"
@@ -66,41 +66,35 @@
                 >
                   Sign Out
                 </button>
-              </template>
-              <template v-else>
-                <NuxtLink
-                  to="/login"
-                  class="block px-4 py-2.5 text-sm text-ink-soft hover:bg-paper-deep transition-colors"
-                  @click="profileOpen = false"
-                >
-                  Sign In
-                </NuxtLink>
-                <NuxtLink
-                  to="/register"
-                  class="block px-4 py-2.5 text-sm text-ink-soft hover:bg-paper-deep transition-colors"
-                  @click="profileOpen = false"
-                >
-                  Create Account
-                </NuxtLink>
-              </template>
-            </div>
-          </Transition>
+              </div>
+            </Transition>
+          </div>
         </div>
-      </div>
 
-      <!-- Mobile Nav -->
-      <div class="flex md:hidden items-center gap-4">
-        <button
-          class="text-ink-soft hover:text-ink transition-colors"
-          aria-label="Toggle menu"
-          @click="mobileMenuOpen = !mobileMenuOpen"
+        <!-- Mobile -->
+        <div class="flex md:hidden items-center gap-4">
+          <button
+            class="text-ink-soft hover:text-ink transition-colors"
+            aria-label="Toggle menu"
+            @click="mobileMenuOpen = !mobileMenuOpen"
+          >
+            <Icon :name="mobileMenuOpen ? 'lucide:x' : 'lucide:menu'" class="h-5 w-5" />
+          </button>
+        </div>
+      </template>
+
+      <!-- Public nav (unauthenticated) -->
+      <template v-else>
+        <NuxtLink
+          to="/"
+          class="text-xs uppercase tracking-widest text-ink hover:text-accent transition-colors"
         >
-          <Icon :name="mobileMenuOpen ? 'lucide:x' : 'lucide:menu'" class="h-5 w-5" />
-        </button>
-      </div>
+          Sign in
+        </NuxtLink>
+      </template>
     </div>
 
-    <!-- Mobile Menu -->
+    <!-- Mobile drawer (auth only) -->
     <Transition
       enter-active-class="transition duration-200 ease-out"
       enter-from-class="opacity-0 -translate-y-2"
@@ -110,11 +104,11 @@
       leave-to-class="opacity-0 -translate-y-2"
     >
       <div
-        v-if="mobileMenuOpen"
+        v-if="auth.isLoggedIn && mobileMenuOpen"
         class="md:hidden bg-paper/95 backdrop-blur-xl border-b border-rule px-6 py-4 space-y-3"
       >
         <NuxtLink
-          v-for="link in navLinks"
+          v-for="link in appLinks"
           :key="link.to"
           :to="link.to"
           class="block text-xs uppercase tracking-widest text-ink-soft hover:text-ink"
@@ -123,45 +117,27 @@
           {{ link.label }}
         </NuxtLink>
         <div class="border-t border-rule my-2" />
-        <template v-if="auth.isLoggedIn">
-          <NuxtLink
-            to="/profile"
-            class="block text-xs uppercase tracking-widest text-ink-soft hover:text-ink"
-            @click="mobileMenuOpen = false"
-          >
-            Profile
-          </NuxtLink>
-          <NuxtLink
-            to="/order"
-            class="block text-xs uppercase tracking-widest text-ink-soft hover:text-ink"
-            @click="mobileMenuOpen = false"
-          >
-            Orders
-          </NuxtLink>
-          <div class="border-t border-rule my-2" />
-          <button
-            class="block text-xs uppercase tracking-widest text-accent hover:opacity-80"
-            @click="handleLogout"
-          >
-            Sign Out
-          </button>
-        </template>
-        <template v-else>
-          <NuxtLink
-            to="/login"
-            class="block text-xs uppercase tracking-widest text-ink-soft hover:text-ink"
-            @click="mobileMenuOpen = false"
-          >
-            Sign In
-          </NuxtLink>
-          <NuxtLink
-            to="/register"
-            class="block text-xs uppercase tracking-widest text-ink-soft hover:text-ink"
-            @click="mobileMenuOpen = false"
-          >
-            Create Account
-          </NuxtLink>
-        </template>
+        <NuxtLink
+          to="/profile"
+          class="block text-xs uppercase tracking-widest text-ink-soft hover:text-ink"
+          @click="mobileMenuOpen = false"
+        >
+          Profile
+        </NuxtLink>
+        <NuxtLink
+          to="/order"
+          class="block text-xs uppercase tracking-widest text-ink-soft hover:text-ink"
+          @click="mobileMenuOpen = false"
+        >
+          Orders
+        </NuxtLink>
+        <div class="border-t border-rule my-2" />
+        <button
+          class="block text-xs uppercase tracking-widest text-accent hover:opacity-80"
+          @click="handleLogout"
+        >
+          Sign Out
+        </button>
       </div>
     </Transition>
   </nav>
@@ -176,8 +152,8 @@ const router = useRouter()
 const mobileMenuOpen = ref(false)
 const profileOpen = ref(false)
 
-const navLinks = [
-  { to: '/', label: 'Today' },
+const appLinks = [
+  { to: '/today', label: 'Today' },
   { to: '/vanity', label: 'Vanity' },
   { to: '/journal', label: 'Journal' },
   { to: '/perfume', label: 'Discover' },
@@ -189,6 +165,6 @@ const handleLogout = () => {
   auth.logout()
   mobileMenuOpen.value = false
   profileOpen.value = false
-  router.push('/login')
+  router.push('/')
 }
 </script>

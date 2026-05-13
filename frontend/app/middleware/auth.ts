@@ -3,6 +3,6 @@ export default defineNuxtRouteMiddleware(() => {
   auth.init()
 
   if (!auth.isLoggedIn) {
-    return navigateTo('/login')
+    return navigateTo('/')
   }
 })
