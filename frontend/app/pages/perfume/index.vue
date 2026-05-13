@@ -8,9 +8,6 @@
         </p>
         <h1 class="mt-3 font-display text-5xl sm:text-6xl text-ink tracking-tight leading-[1.05]">
           Discover
-          <span class="font-mono text-[14px] uppercase tracking-[0.16em] text-ink-mute align-middle ml-3">
-            {{ String(perfumes.length).padStart(2, '0') }}
-          </span>
         </h1>
         <p class="mt-4 font-display italic text-[15px] text-ink-soft max-w-xl">
           Browse what's on file, filter by house, and add what's already on your shelf.
@@ -19,12 +16,21 @@
 
       <!-- Filters row -->
       <div class="mt-10 flex flex-col lg:flex-row lg:items-start gap-6">
-        <!-- Brand chips -->
+        <!-- House: full-width dropdown on mobile, chip row on desktop -->
         <div class="flex-1 min-w-0 order-2 lg:order-1">
-          <p class="font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-3">
+          <label for="catalog-house" class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-3">
             House
-          </p>
-          <div class="flex flex-wrap gap-2">
+          </label>
+
+          <!-- Mobile dropdown (custom editorial styling to match the site) -->
+          <EditorialSelect
+            v-model="selectedBrandCode"
+            :options="brandOptions"
+            class="lg:hidden"
+          />
+
+          <!-- Desktop chips -->
+          <div class="hidden lg:flex flex-wrap gap-2">
             <button
               type="button"
               class="px-4 py-2 font-mono text-[10px] uppercase tracking-[0.14em] border transition-colors"
@@ -88,9 +94,9 @@
         Nothing matches that. Try a different house or clear the search.
       </p>
 
-      <!-- Grid -->
-      <ul v-else class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        <li v-for="p in filtered" :key="p.id">
+      <!-- Grid: 2 cols × 4 rows = 8 on mobile, 4 cols × 3 rows = 12 on desktop -->
+      <ul v-else class="mt-8 grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <li v-for="p in paged" :key="p.id">
           <NuxtLink
             :to="`/perfume/${p.id}`"
             class="group block bg-paper border border-rule p-5 hover:bg-paper-deep transition-colors duration-200"
@@ -101,7 +107,7 @@
             <p class="mt-4 font-mono text-[9px] uppercase tracking-[0.16em] text-ink-mute">
               {{ brandByCode[p.brand]?.name || p.brand }}
             </p>
-            <h3 class="mt-1 font-display text-[18px] text-ink leading-tight">
+            <h3 class="mt-1 font-display text-[18px] text-ink leading-tight min-h-[2.5em] line-clamp-2">
               {{ p.name }}
             </h3>
             <p
@@ -122,6 +128,32 @@
           </NuxtLink>
         </li>
       </ul>
+
+      <!-- Pagination -->
+      <div
+        v-if="!loading && totalPages > 1"
+        class="mt-12 flex items-center justify-center gap-6 font-mono text-[10px] uppercase tracking-[0.24em]"
+      >
+        <button
+          type="button"
+          class="text-ink hover:text-accent-deep transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          :disabled="pageIndex === 0"
+          @click="pageIndex--"
+        >
+          &larr; Previous
+        </button>
+        <span class="text-ink-mute">
+          Page {{ pageIndex + 1 }} / {{ totalPages }}
+        </span>
+        <button
+          type="button"
+          class="text-ink hover:text-accent-deep transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          :disabled="pageIndex >= totalPages - 1"
+          @click="pageIndex++"
+        >
+          Next &rarr;
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -148,6 +180,11 @@ const loading = ref(true)
 const selectedBrandCode = ref<'all' | string>('all')
 const searchQuery = ref('')
 
+// Responsive page size: 8 on mobile (2 cols × 4 rows), 12 on desktop (4 cols × 3 rows)
+const isLargeScreen = ref(false)
+const perPage = computed(() => (isLargeScreen.value ? 16 : 8))
+const pageIndex = ref(0)
+
 const brandByCode = computed(() =>
   Object.fromEntries(brands.value.map((b: Brand) => [b.code, b])),
 )
@@ -159,6 +196,16 @@ const countByBrand = computed(() => {
   }
   return acc
 })
+
+// Shape brands for the mobile EditorialSelect (label + count + "all" sentinel)
+const brandOptions = computed(() => [
+  { value: 'all', label: 'All houses', count: perfumes.value.length },
+  ...brands.value.map((b: Brand) => ({
+    value: b.code,
+    label: b.name,
+    count: countByBrand.value[b.code] ?? 0,
+  })),
+])
 
 const filtered = computed(() => {
   let list = perfumes.value
@@ -175,10 +222,37 @@ const filtered = computed(() => {
   return list
 })
 
+const totalPages = computed(() => Math.max(1, Math.ceil(filtered.value.length / perPage.value)))
+
+const paged = computed(() => {
+  const start = pageIndex.value * perPage.value
+  return filtered.value.slice(start, start + perPage.value)
+})
+
+// Snap back to page 1 whenever the filter set changes.
+watch([selectedBrandCode, searchQuery], () => {
+  pageIndex.value = 0
+})
+
+// Keep the current page valid when perPage shrinks/grows (e.g. user resizes
+// from desktop to mobile mid-browse and the existing page index would be empty).
+watch(totalPages, (n) => {
+  if (pageIndex.value >= n) pageIndex.value = Math.max(0, n - 1)
+})
+
 const formatAccord = (raw: string) =>
   raw.split(',').map((s: string) => s.trim()).filter(Boolean).join(' · ')
 
 onMounted(async () => {
+  // Track viewport so per-page count adapts to mobile vs desktop. lg = 1024px.
+  if (typeof window !== 'undefined') {
+    const mq = window.matchMedia('(min-width: 1024px)')
+    isLargeScreen.value = mq.matches
+    mq.addEventListener('change', (e) => {
+      isLargeScreen.value = e.matches
+    })
+  }
+
   try {
     const [perfumeData, brandData] = await Promise.all([
       api.get('/perfume'),

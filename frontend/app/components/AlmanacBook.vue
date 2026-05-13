@@ -175,11 +175,22 @@
 
       <!-- Back cover (hard) -->
       <div class="page page-cover page-cover-back" data-density="hard">
-        <div class="cover-inner items-center justify-center text-center">
+        <div class="cover-inner">
           <div class="cover-frame cover-frame-back">
-            <p class="font-mono text-[9px] uppercase tracking-[0.32em] cover-imprint">
-              House of Parfum
+            <p class="font-mono text-[10px] uppercase tracking-[0.32em] cover-eyebrow">
+              The End
             </p>
+            <h1 class="mt-auto font-display text-5xl tracking-[-0.005em] leading-[1.05] cover-title">
+              The<br><em class="cover-title-em">Almanac.</em>
+            </h1>
+            <div class="mt-auto pt-10">
+              <p class="font-display italic text-[13px] cover-tagline">
+                Author &middot; Baihaqie Yusri
+              </p>
+              <p class="mt-3 font-mono text-[9px] uppercase tracking-[0.28em] cover-imprint">
+                &copy; {{ new Date().getFullYear() }} &middot; House of Parfum
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -475,9 +486,8 @@ onBeforeUnmount(() => {
   box-shadow: inset 0 0 0 6px oklch(0.23 0.028 50);
 }
 .almanac-book :deep(.cover-frame-back) {
-  display: flex;
   align-items: center;
-  justify-content: center;
+  text-align: center;
 }
 
 /* Cover typography */

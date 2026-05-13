@@ -20,7 +20,7 @@
             <p class="font-display text-2xl text-ink tracking-tight">
               {{ monthLabelTitle }}
               <span class="font-mono text-[10px] uppercase tracking-[0.16em] text-ink-mute align-middle ml-3">
-                {{ String(monthWearCount).padStart(2, '0') }} {{ monthWearCount === 1 ? 'wear' : 'wears' }}
+                {{ String(monthWearCount).padStart(2, '0') }} {{ monthWearCount === 1 ? 'Perfume' : 'Perfumes' }}
               </span>
             </p>
             <div class="flex items-center gap-2">
@@ -67,7 +67,7 @@
               v-for="(cell, i) in cells"
               :key="i"
               type="button"
-              class="bg-paper aspect-5/4 sm:aspect-square p-2 text-left flex flex-col justify-between transition-colors cursor-pointer"
+              class="bg-paper aspect-square p-2 text-left flex flex-col justify-between transition-colors cursor-pointer"
               :class="cellClasses(cell)"
               @click="selectCell(cell)"
             >
@@ -86,7 +86,8 @@
               </div>
               <div v-if="cell.wears.length" class="flex items-baseline justify-end">
                 <span class="font-mono text-[9px] uppercase tracking-[0.14em] text-accent-deep font-medium">
-                  {{ cell.wears.length }}{{ cell.wears.length === 1 ? ' wear' : ' wears' }}
+                  <span class="sm:hidden">{{ cell.wears.length }}P</span>
+                  <span class="hidden sm:inline">{{ cell.wears.length }} {{ cell.wears.length === 1 ? 'Perfume' : 'Perfumes' }}</span>
                 </span>
               </div>
             </button>
@@ -104,8 +105,7 @@
               {{ selectedDayHeadline }}
             </h2>
             <p class="mt-2 font-mono text-[10px] uppercase tracking-[0.16em] text-ink-mute">
-              {{ String(selectedDayWears.length).padStart(2, '0') }}
-              {{ selectedDayWears.length === 1 ? 'wear' : 'wears' }} logged
+              {{ String(selectedDayWears.length).padStart(2, '0') }} {{ selectedDayWears.length === 1 ? 'Perfume' : 'Perfumes' }} logged
             </p>
           </div>
 
