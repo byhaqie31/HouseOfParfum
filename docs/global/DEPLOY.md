@@ -7,7 +7,7 @@ Production runs on the same VPS as axelnova-dashboard, sharing the `axelnova-sha
 - `~/infra/` — axelnova-infra clone (mysql + phpmyadmin, always up)
 - `~/HouseOfParfum/` — this repo (frontend + backend)
 - `~/data/house-of-parfum/storage/` — host-mounted Laravel storage (logs, uploads, sessions)
-- **One subdomain**, `https://houseofparfum.axelnova.tech`. System nginx terminates TLS and routes:
+- **One subdomain**, `https://hop.axelnova.tech`. System nginx terminates TLS and routes:
   - `/api/*` and `/sanctum/*` → `127.0.0.1:8000` (backend container)
   - everything else → `127.0.0.1:3001` (frontend container)
 
@@ -15,7 +15,7 @@ Production runs on the same VPS as axelnova-dashboard, sharing the `axelnova-sha
 
   ```nginx
   server {
-    server_name houseofparfum.axelnova.tech;
+    server_name hop.axelnova.tech;
     listen 443 ssl http2;
     # ssl_certificate / ssl_certificate_key managed by certbot
 
