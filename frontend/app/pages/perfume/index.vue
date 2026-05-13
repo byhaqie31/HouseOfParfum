@@ -18,9 +18,9 @@
       </header>
 
       <!-- Filters row -->
-      <div class="mt-10 flex flex-col lg:flex-row lg:items-end gap-6">
+      <div class="mt-10 flex flex-col lg:flex-row lg:items-start gap-6">
         <!-- Brand chips -->
-        <div class="flex-1 min-w-0">
+        <div class="flex-1 min-w-0 order-2 lg:order-1">
           <p class="font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-3">
             House
           </p>
@@ -55,7 +55,7 @@
         </div>
 
         <!-- Search -->
-        <div class="lg:w-72">
+        <div class="lg:w-72 order-1 lg:order-2">
           <label for="catalog-search" class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-3">
             Search
           </label>

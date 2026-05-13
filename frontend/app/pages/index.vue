@@ -37,7 +37,7 @@
           House of Parfum
         </NuxtLink>
 
-        <h2 class="font-display text-3xl text-ink tracking-tight">Welcome.</h2>
+        <h2 class="font-display text-3xl text-ink tracking-tight">Welcome back!</h2>
         <p class="mt-2 text-sm text-ink-soft">
           Sign in to your shelf.
         </p>
