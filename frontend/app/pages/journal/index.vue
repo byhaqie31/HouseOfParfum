@@ -8,9 +8,6 @@
         </p>
         <h1 class="mt-3 font-display text-5xl sm:text-6xl text-ink tracking-tight leading-[1.05]">
           Journal
-          <span class="font-mono text-[14px] uppercase tracking-[0.16em] text-ink-mute align-middle ml-3">
-            {{ String(journal.count).padStart(2, '0') }}
-          </span>
         </h1>
       </header>
 

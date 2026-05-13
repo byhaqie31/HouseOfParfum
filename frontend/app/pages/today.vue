@@ -36,7 +36,7 @@
         <p class="font-display font-medium text-[11px] uppercase tracking-[0.28em] text-accent-deep mb-6">
           Today
         </p>
-        <div class="border-y border-ink relative py-12 px-2">
+        <div class="border-t border-ink relative py-12 px-2">
           <div class="absolute -top-px left-0 w-20 h-px bg-accent" />
           <h2 class="font-display text-3xl sm:text-4xl text-ink tracking-tight leading-tight max-w-xl">
             Your shelf is bare<em class="text-ink-soft">.</em>
