@@ -6,15 +6,28 @@
         A new bottle <em class="text-ink">in the library.</em>
       </h1>
       <p class="mt-2 font-display italic text-[15px] text-ink-soft">
-        Begin by searching the catalog, or enter freely.
+        <template v-if="form.catalog_id">
+          From the catalog — adjust the details below.
+        </template>
+        <template v-else>
+          Search the catalog, browse the full list, or enter freely.
+        </template>
       </p>
       <div class="mt-3 w-9 h-px bg-accent" />
 
       <!-- Search -->
       <div class="mt-10 relative">
-        <label for="search" class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-2">
-          Search the catalog
-        </label>
+        <div class="flex items-baseline justify-between mb-2">
+          <label for="search" class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft">
+            Search the catalog
+          </label>
+          <NuxtLink
+            to="/perfume"
+            class="font-display italic text-[12px] text-ink hover:text-accent-deep pb-px border-b border-accent transition-colors"
+          >
+            Browse all {{ perfumes.length }} &rarr;
+          </NuxtLink>
+        </div>
         <input
           id="search"
           v-model="searchQuery"
@@ -162,6 +175,7 @@ type Perfume = {
 
 const api = useApi()
 const router = useRouter()
+const route = useRoute()
 const vanity = useVanityStore()
 
 const perfumes = ref<Perfume[]>([])
@@ -254,6 +268,14 @@ onMounted(async () => {
     brands.value = brandData
   } catch (e) {
     console.warn('[vanity/add] catalog load failed', e)
+  }
+
+  // Prefill from /perfume catalog card link: /vanity/add?catalog_id=42
+  const raw = route.query.catalog_id
+  if (raw) {
+    const id = Number(Array.isArray(raw) ? raw[0] : raw)
+    const match = perfumes.value.find(p => p.id === id)
+    if (match) pickFromCatalog(match)
   }
 })
 </script>

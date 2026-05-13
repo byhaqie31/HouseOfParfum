@@ -52,8 +52,13 @@
             <p class="font-display italic text-[15px] text-ink-soft leading-tight">
               {{ todayPick.brand }}
             </p>
-            <h1 class="mt-1 font-display text-4xl sm:text-5xl text-ink tracking-[-0.005em] leading-none">
-              {{ todayPick.name }}
+            <h1 class="mt-1 font-display text-4xl sm:text-5xl tracking-[-0.005em] leading-none">
+              <NuxtLink
+                :to="`/vanity/${todayPick.id}`"
+                class="text-ink hover:text-accent-deep transition-colors"
+              >
+                {{ todayPick.name }}
+              </NuxtLink>
             </h1>
             <p class="mt-3 font-mono text-[10px] uppercase tracking-[0.16em] text-ink-mute">
               {{ todayPick.size }} ML
@@ -100,10 +105,11 @@
           </header>
 
           <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div
+            <NuxtLink
               v-for="item in vanityGlance"
               :key="item.id"
-              class="aspect-3/4 bg-paper-deep border border-rule p-3 flex flex-col"
+              :to="`/vanity/${item.id}`"
+              class="group aspect-3/4 bg-paper-deep border border-rule p-3 flex flex-col hover:bg-paper transition-colors duration-200"
             >
               <div class="flex-1 flex items-center justify-center">
                 <BottleIcon :size="44" />
@@ -111,10 +117,10 @@
               <p class="font-mono text-[7px] uppercase tracking-[0.14em] text-ink-mute leading-snug">
                 {{ item.brand }}
               </p>
-              <p class="font-display text-[11px] text-ink leading-[1.15] mt-0.5">
+              <p class="font-display text-[11px] text-ink group-hover:text-accent-deep leading-[1.15] mt-0.5 transition-colors">
                 {{ item.name }}
               </p>
-            </div>
+            </NuxtLink>
           </div>
         </section>
       </template>

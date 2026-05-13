@@ -1,93 +1,193 @@
 <template>
-  <div class="pt-12">
-    <!-- Hero Header -->
-    <section class="py-16 px-6 text-center">
-      <h1 class="text-4xl sm:text-5xl font-semibold tracking-tight text-gray-900 mb-4">
-        Fragrances
-      </h1>
-      <p class="text-lg text-gray-500 font-light max-w-xl mx-auto">
-        Explore our curated collection of premium scents
-      </p>
-    </section>
+  <div class="min-h-screen pt-20 pb-24 px-6">
+    <div class="max-w-6xl mx-auto">
+      <!-- Header -->
+      <header class="border-b border-rule pb-8">
+        <p class="font-mono text-[11px] uppercase tracking-widest text-ink-mute">
+          The catalog
+        </p>
+        <h1 class="mt-3 font-display text-5xl sm:text-6xl text-ink tracking-tight leading-[1.05]">
+          Discover
+          <span class="font-mono text-[14px] uppercase tracking-[0.16em] text-ink-mute align-middle ml-3">
+            {{ String(perfumes.length).padStart(2, '0') }}
+          </span>
+        </h1>
+        <p class="mt-4 font-display italic text-[15px] text-ink-soft max-w-xl">
+          Browse what's on file, filter by house, and add what's already on your shelf.
+        </p>
+      </header>
 
-    <!-- Filters -->
-    <section class="max-w-300 mx-auto px-6 mb-12">
-      <div class="flex flex-wrap items-center justify-center gap-3">
-        <button
-          v-for="filter in filters"
-          :key="filter.value"
-          @click="activeFilter = filter.value"
-          class="px-5 py-2 rounded-full text-sm transition-all duration-200"
-          :class="
-            activeFilter === filter.value
-              ? 'bg-gray-900 text-white'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-          "
-        >
-          {{ filter.label }}
-        </button>
-      </div>
-    </section>
-
-    <!-- Loading -->
-    <section v-if="pending" class="py-24 text-center">
-      <div class="inline-block w-6 h-6 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin" />
-    </section>
-
-    <!-- Product Grid -->
-    <section v-else class="max-w-300 mx-auto px-6 pb-24">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-px bg-gray-200">
-        <NuxtLink
-          v-for="perfume in filteredPerfumes"
-          :key="perfume.id"
-          :to="`/perfume/${perfume.id}`"
-          class="group bg-white p-8 flex flex-col items-center text-center hover:z-10 hover:shadow-xl transition-all duration-300"
-        >
-          <div class="w-full aspect-square mb-6 overflow-hidden rounded-2xl bg-gray-50">
-            <img
-              :src="`/${perfume.image}`"
-              :alt="perfume.name"
-              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            />
+      <!-- Filters row -->
+      <div class="mt-10 flex flex-col lg:flex-row lg:items-end gap-6">
+        <!-- Brand chips -->
+        <div class="flex-1 min-w-0">
+          <p class="font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-3">
+            House
+          </p>
+          <div class="flex flex-wrap gap-2">
+            <button
+              type="button"
+              class="px-4 py-2 font-mono text-[10px] uppercase tracking-[0.14em] border transition-colors"
+              :class="selectedBrandCode === 'all'
+                ? 'bg-accent-soft border-accent text-accent-deep font-medium'
+                : 'bg-paper-deep border-rule text-ink hover:border-ink-soft'"
+              @click="selectedBrandCode = 'all'"
+            >
+              All
+              <span class="font-mono text-[9px] text-ink-mute ml-1">{{ perfumes.length }}</span>
+            </button>
+            <button
+              v-for="b in brands"
+              :key="b.code"
+              type="button"
+              class="px-4 py-2 font-mono text-[10px] uppercase tracking-[0.14em] border transition-colors"
+              :class="selectedBrandCode === b.code
+                ? 'bg-accent-soft border-accent text-accent-deep font-medium'
+                : 'bg-paper-deep border-rule text-ink hover:border-ink-soft'"
+              @click="selectedBrandCode = b.code"
+            >
+              {{ b.name }}
+              <span class="font-mono text-[9px] text-ink-mute ml-1">
+                {{ countByBrand[b.code] ?? 0 }}
+              </span>
+            </button>
           </div>
-          <p class="text-xs uppercase tracking-widest text-gray-400 mb-1">{{ perfume.brand }}</p>
-          <h3 class="text-base font-medium text-gray-900 mb-1">{{ perfume.name }}</h3>
-          <p class="text-sm text-gray-400 mb-3">{{ perfume.size }} ml</p>
-          <p class="text-lg font-semibold text-gray-900">RM {{ perfume.price }}</p>
-        </NuxtLink>
+        </div>
+
+        <!-- Search -->
+        <div class="lg:w-72">
+          <label for="catalog-search" class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-3">
+            Search
+          </label>
+          <input
+            id="catalog-search"
+            v-model="searchQuery"
+            type="text"
+            autocomplete="off"
+            placeholder="Brand or name…"
+            class="w-full bg-paper-deep border border-rule px-4 py-2.5 text-[14px] text-ink placeholder:font-display placeholder:italic placeholder:text-ink-mute focus:outline-none focus:border-ink-soft transition-colors"
+          >
+        </div>
       </div>
 
-      <!-- Empty State -->
-      <div v-if="filteredPerfumes.length === 0" class="py-24 text-center">
-        <p class="text-gray-400 text-lg">No fragrances found</p>
-      </div>
-    </section>
+      <!-- Result count + active filter chip -->
+      <p class="mt-8 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-mute">
+        Showing {{ filtered.length }}
+        <template v-if="selectedBrandCode !== 'all' || searchQuery">
+          of {{ perfumes.length }}
+        </template>
+      </p>
+
+      <!-- Loading -->
+      <p v-if="loading" class="mt-16 text-center font-display italic text-ink-soft">
+        Drawing from the cabinet…
+      </p>
+
+      <!-- Empty -->
+      <p v-else-if="filtered.length === 0" class="mt-16 text-center font-display italic text-ink-soft">
+        Nothing matches that. Try a different house or clear the search.
+      </p>
+
+      <!-- Grid -->
+      <ul v-else class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <li v-for="p in filtered" :key="p.id">
+          <NuxtLink
+            :to="`/perfume/${p.id}`"
+            class="group block bg-paper border border-rule p-5 hover:bg-paper-deep transition-colors duration-200"
+          >
+            <div class="aspect-3/4 bg-paper-deep border border-rule flex items-center justify-center group-hover:bg-paper transition-colors duration-200">
+              <BottleIcon :size="64" />
+            </div>
+            <p class="mt-4 font-mono text-[9px] uppercase tracking-[0.16em] text-ink-mute">
+              {{ brandByCode[p.brand]?.name || p.brand }}
+            </p>
+            <h3 class="mt-1 font-display text-[18px] text-ink leading-tight">
+              {{ p.name }}
+            </h3>
+            <p
+              v-if="p.main_accord"
+              class="mt-3 font-mono text-[9px] uppercase tracking-[0.14em] text-ink-mute leading-snug"
+            >
+              {{ formatAccord(p.main_accord) }}
+            </p>
+            <p class="mt-2 font-mono text-[9px] uppercase tracking-[0.14em] text-ink-mute">
+              {{ p.size }} ml
+              <template v-if="p.year">
+                <span class="text-accent-deep mx-1">·</span>{{ p.year }}
+              </template>
+            </p>
+            <p class="mt-5 font-display italic text-[12px] text-ink hover:text-accent-deep border-b border-accent inline-block pb-px">
+              View details →
+            </p>
+          </NuxtLink>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+definePageMeta({ middleware: 'auth' })
+
+type Brand = { id: number; code: string; name: string }
+type Perfume = {
+  id: number
+  brand: string
+  name: string
+  size: number
+  year?: string
+  main_accord?: string
+}
+
 const api = useApi()
-const perfumes = ref<any[]>([])
-const pending = ref(true)
-const activeFilter = ref('all')
 
-const filters = [
-  { label: 'All', value: 'all' },
-  { label: 'Women', value: 'Women' },
-  { label: 'Men', value: 'Men' },
-  { label: 'Unisex', value: 'Unisex' },
-]
+const perfumes = ref<Perfume[]>([])
+const brands = ref<Brand[]>([])
+const loading = ref(true)
 
-const filteredPerfumes = computed(() => {
-  if (activeFilter.value === 'all') return perfumes.value
-  return perfumes.value.filter((p) => p.suit === activeFilter.value)
+const selectedBrandCode = ref<'all' | string>('all')
+const searchQuery = ref('')
+
+const brandByCode = computed(() =>
+  Object.fromEntries(brands.value.map((b: Brand) => [b.code, b])),
+)
+
+const countByBrand = computed(() => {
+  const acc: Record<string, number> = {}
+  for (const p of perfumes.value) {
+    acc[p.brand] = (acc[p.brand] ?? 0) + 1
+  }
+  return acc
 })
+
+const filtered = computed(() => {
+  let list = perfumes.value
+  if (selectedBrandCode.value !== 'all') {
+    list = list.filter(p => p.brand === selectedBrandCode.value)
+  }
+  const q = searchQuery.value.trim().toLowerCase()
+  if (q.length >= 2) {
+    list = list.filter((p) => {
+      const brandName = brandByCode.value[p.brand]?.name?.toLowerCase() ?? ''
+      return p.name.toLowerCase().includes(q) || brandName.includes(q)
+    })
+  }
+  return list
+})
+
+const formatAccord = (raw: string) =>
+  raw.split(',').map((s: string) => s.trim()).filter(Boolean).join(' · ')
 
 onMounted(async () => {
   try {
-    perfumes.value = await api.get('/perfume')
+    const [perfumeData, brandData] = await Promise.all([
+      api.get('/perfume'),
+      api.get('/brand'),
+    ])
+    perfumes.value = perfumeData
+    brands.value = brandData
   } finally {
-    pending.value = false
+    loading.value = false
   }
 })
 </script>

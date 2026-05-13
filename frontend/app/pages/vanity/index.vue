@@ -24,18 +24,19 @@
 
       <!-- Populated shelf -->
       <section v-if="vanity.count > 0" class="mt-12 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        <article
+        <NuxtLink
           v-for="item in vanity.items"
           :key="item.id"
-          class="flex flex-col"
+          :to="`/vanity/${item.id}`"
+          class="group flex flex-col"
         >
-          <div class="aspect-3/4 bg-paper-deep border border-rule flex items-center justify-center">
+          <div class="aspect-3/4 bg-paper-deep border border-rule flex items-center justify-center group-hover:bg-paper transition-colors duration-200">
             <BottleIcon :size="72" />
           </div>
           <p class="mt-4 font-mono text-[9px] uppercase tracking-[0.16em] text-ink-mute">
             {{ item.brand }}
           </p>
-          <h3 class="mt-1 font-display text-[17px] text-ink leading-tight">
+          <h3 class="mt-1 font-display text-[17px] text-ink leading-tight group-hover:text-accent-deep transition-colors">
             {{ item.name }}
           </h3>
           <p class="mt-2 font-mono text-[9px] uppercase tracking-[0.14em] text-ink-mute">
@@ -50,7 +51,7 @@
           >
             {{ lastWornLabel(item.id) }}
           </p>
-        </article>
+        </NuxtLink>
       </section>
 
       <!-- Empty state -->
