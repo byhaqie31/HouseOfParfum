@@ -7,6 +7,8 @@
 #
 # First deploy:
 #   docker compose -f docker-compose.prod.yml up -d --build
+#   docker compose -f docker-compose.prod.yml exec backend php artisan migrate --force
+#   docker compose -f docker-compose.prod.yml exec backend php artisan db:seed --force
 #
 # Subsequent deploys:
 #   git pull
@@ -15,13 +17,15 @@
 #
 # Logs live at: ~/data/house-of-parfum/storage/logs/laravel.log
 
+name: hop
+
 services:
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    image: houseofparfum-backend:latest
-    container_name: backend
+    image: hop-backend:latest
+    container_name: hop-backend
     restart: unless-stopped
     ports:
       - "127.0.0.1:8000:8000"
@@ -33,6 +37,12 @@ services:
       - ~/data/house-of-parfum/storage:/var/www/storage
     networks:
       - axelnova-shared
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 128M
     logging:
       driver: json-file
       options:
@@ -43,8 +53,8 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    image: houseofparfum-frontend:latest
-    container_name: frontend
+    image: hop-frontend:latest
+    container_name: hop-frontend
     restart: unless-stopped
     ports:
       - "127.0.0.1:3001:3000"
@@ -58,6 +68,12 @@ services:
       - backend
     networks:
       - axelnova-shared
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 128M
     logging:
       driver: json-file
       options:

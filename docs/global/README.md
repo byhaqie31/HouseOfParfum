@@ -68,7 +68,9 @@ See [DEPLOY.md](DEPLOY.md).
 
 HoP is registered in [axelnova-infra/docs/port-allocation.md](../../../axelnova-infra/docs/port-allocation.md):
 
-| Port | Service | Container |
-|---|---|---|
-| 3001 | Nuxt frontend | `frontend-dev` |
-| 8000 | Laravel backend | `backend-dev` |
+| Port | Service | Container (dev) | Container (prod) |
+|---|---|---|---|
+| 3001 | Nuxt frontend | `hop-frontend-dev` | `hop-frontend` |
+| 8000 | Laravel backend | `hop-backend-dev` | `hop-backend` |
+
+Compose project name is `hop` (declared via `name:` at the top of both compose files), so `docker compose ls` shows the stack as `hop`.
