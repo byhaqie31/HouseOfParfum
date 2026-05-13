@@ -29,18 +29,18 @@
             <div class="flex items-center gap-2">
               <button
                 type="button"
+                class="h-9 px-4 flex items-center justify-center border border-rule bg-paper-deep font-mono text-[10px] uppercase tracking-[0.16em] text-ink-soft hover:text-ink hover:border-ink-soft transition-colors"
+                @click="jumpToToday"
+              >
+                Today
+              </button>
+              <button
+                type="button"
                 aria-label="Previous month"
                 class="w-9 h-9 flex items-center justify-center border border-rule bg-paper-deep text-ink-soft hover:text-ink hover:border-ink-soft transition-colors"
                 @click="shiftMonth(-1)"
               >
                 <Icon name="lucide:chevron-left" size="16" />
-              </button>
-              <button
-                type="button"
-                class="font-mono text-[10px] uppercase tracking-[0.16em] text-ink-soft hover:text-ink px-2 transition-colors"
-                @click="jumpToToday"
-              >
-                Today
               </button>
               <button
                 type="button"
@@ -112,9 +112,9 @@
             </p>
           </div>
 
-          <ul v-if="selectedDayWears.length > 0" class="border-t border-rule">
+          <ul v-if="visibleSelectedDayWears.length > 0" class="border-t border-rule">
             <li
-              v-for="entry in selectedDayWears"
+              v-for="entry in visibleSelectedDayWears"
               :key="entry.id"
               class="border-b border-rule"
             >
@@ -211,6 +211,20 @@
               Nothing logged on this day.
             </template>
           </p>
+
+          <!-- View timeline → day detail. Always visible when day has wears -->
+          <div v-if="selectedDayWears.length > 0" class="mt-6 flex items-center justify-between gap-3">
+            <p v-if="hiddenCount > 0" class="font-display italic text-[13px] text-ink-mute">
+              {{ hiddenCount }} more {{ hiddenCount === 1 ? 'wear' : 'wears' }} on this day.
+            </p>
+            <span v-else />
+            <NuxtLink
+              :to="`/journal/${dateParam}`"
+              class="font-display italic text-[14px] text-ink hover:text-accent-deep pb-px border-b border-accent transition-colors"
+            >
+              View timeline &rarr;
+            </NuxtLink>
+          </div>
         </aside>
       </div>
     </div>
@@ -359,5 +373,25 @@ const selectedDayWears = computed(() => {
       }),
     }
   })
+})
+
+// Cap the right column to the 3 most recent wears for the day; everything
+// else lives on /journal/[date] reachable via "View timeline →".
+const PREVIEW_LIMIT = 3
+const visibleSelectedDayWears = computed(() =>
+  selectedDayWears.value.slice(0, PREVIEW_LIMIT),
+)
+const hiddenCount = computed(() =>
+  Math.max(0, selectedDayWears.value.length - PREVIEW_LIMIT),
+)
+
+// Date param used in the timeline URL — YYYY-MM-DD.
+const dateParam = computed(() => {
+  const d = selectedDate.value
+  return [
+    d.getFullYear(),
+    String(d.getMonth() + 1).padStart(2, '0'),
+    String(d.getDate()).padStart(2, '0'),
+  ].join('-')
 })
 </script>

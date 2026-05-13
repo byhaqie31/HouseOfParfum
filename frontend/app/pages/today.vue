@@ -65,21 +65,37 @@
               <template v-if="todayPick.acquired"> &middot; {{ todayPick.acquired }}</template>
             </p>
 
-            <p class="mt-5 pt-4 border-t border-rule font-display italic text-[15px] text-ink-soft leading-normal">
-              {{ pickReason }}
+            <p
+              class="mt-5 pt-4 border-t border-rule font-display italic text-[15px] leading-normal"
+              :class="isPickWornToday ? 'text-accent-deep' : 'text-ink-soft'"
+            >
+              <template v-if="isPickWornToday">
+                You're wearing this now.
+              </template>
+              <template v-else>
+                {{ pickReason }}
+              </template>
             </p>
 
             <div class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
+              <NuxtLink
+                v-if="isPickWornToday"
+                :to="`/vanity/${todayPick.id}`"
+                class="inline-flex items-center gap-2 bg-ink text-paper text-[11px] uppercase tracking-[0.2em] font-medium px-6 py-3 hover:bg-ink-soft transition-colors"
+              >
+                Update diary
+                <Icon name="lucide:arrow-right" size="14" />
+              </NuxtLink>
               <button
+                v-else
                 type="button"
-                :disabled="wearLogged"
-                class="bg-ink text-paper text-[11px] uppercase tracking-[0.2em] font-medium px-6 py-3 hover:bg-ink-soft transition-colors disabled:opacity-60 disabled:cursor-default"
+                class="bg-ink text-paper text-[11px] uppercase tracking-[0.2em] font-medium px-6 py-3 hover:bg-ink-soft transition-colors"
                 @click="wearThis"
               >
-                {{ wearLogged ? 'Worn ✓' : "I'm wearing this" }}
+                I'm wearing this
               </button>
               <button
-                v-if="candidates.length > 1"
+                v-if="orderedCandidates.length > 1 && !isPickWornToday"
                 type="button"
                 class="font-display italic text-[14px] text-ink hover:text-accent-deep pb-1 border-b border-accent transition-colors"
                 @click="showAnother"
@@ -124,6 +140,74 @@
           </div>
         </section>
       </template>
+
+      <!-- Recommendations (always visible when catalog has unowned perfumes) -->
+      <section v-if="totalRecPages > 0" class="mt-16 pt-10 border-t border-ink relative">
+        <div class="absolute -top-px left-0 w-20 h-px bg-accent" />
+
+        <header class="flex items-baseline justify-between mb-6 gap-4">
+          <div>
+            <p class="font-display font-medium text-[11px] uppercase tracking-[0.28em] text-accent-deep">
+              Worth a try
+            </p>
+            <h2 class="mt-1 font-display text-3xl text-ink tracking-tight leading-tight">
+              <em class="text-ink-soft">Two</em> from outside your shelf.
+            </h2>
+          </div>
+
+          <div v-if="totalRecPages > 1" class="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              aria-label="Previous pair"
+              class="w-9 h-9 flex items-center justify-center border border-rule bg-paper-deep text-ink-soft hover:text-ink hover:border-ink-soft transition-colors"
+              @click="prevRecPage"
+            >
+              <Icon name="lucide:chevron-left" size="16" />
+            </button>
+            <span class="font-mono text-[10px] uppercase tracking-[0.16em] text-ink-mute min-w-[3.5em] text-center">
+              {{ String(recPage + 1).padStart(2, '0') }} / {{ String(totalRecPages).padStart(2, '0') }}
+            </span>
+            <button
+              type="button"
+              aria-label="Next pair"
+              class="w-9 h-9 flex items-center justify-center border border-rule bg-paper-deep text-ink-soft hover:text-ink hover:border-ink-soft transition-colors"
+              @click="nextRecPage"
+            >
+              <Icon name="lucide:chevron-right" size="16" />
+            </button>
+          </div>
+        </header>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <NuxtLink
+            v-for="rec in visibleRecommendations"
+            :key="rec.id"
+            :to="`/perfume/${rec.id}`"
+            class="group grid grid-cols-[100px_1fr] sm:grid-cols-[120px_1fr] gap-4 bg-paper border border-rule p-4 hover:bg-paper-deep transition-colors duration-200"
+          >
+            <div class="aspect-3/4 bg-paper-deep border border-rule flex items-center justify-center group-hover:bg-paper transition-colors duration-200">
+              <BottleIcon :size="56" />
+            </div>
+            <div class="flex flex-col justify-center min-w-0">
+              <p class="font-mono text-[9px] uppercase tracking-[0.16em] text-ink-mute">
+                {{ brandByCode[rec.brand]?.name || rec.brand }}
+              </p>
+              <h3 class="mt-1 font-display text-[18px] text-ink leading-tight group-hover:text-accent-deep transition-colors">
+                {{ rec.name }}
+              </h3>
+              <p
+                v-if="rec.main_accord"
+                class="mt-2 font-mono text-[9px] uppercase tracking-[0.14em] text-ink-mute leading-snug line-clamp-2"
+              >
+                {{ formatAccord(rec.main_accord) }}
+              </p>
+              <p class="mt-3 font-display italic text-[12px] text-ink group-hover:text-accent-deep border-b border-accent inline-block self-start pb-px transition-colors">
+                View details &rarr;
+              </p>
+            </div>
+          </NuxtLink>
+        </div>
+      </section>
     </div>
   </div>
 </template>
@@ -131,7 +215,18 @@
 <script setup lang="ts">
 definePageMeta({ middleware: 'auth' })
 
+type Brand = { id: number; code: string; name: string }
+type Perfume = {
+  id: number
+  brand: string
+  name: string
+  size: number
+  year?: string
+  main_accord?: string
+}
+
 const auth = useAuthStore()
+const api = useApi()
 const vanity = useVanityStore()
 const journal = useJournalStore()
 
@@ -160,9 +255,19 @@ const firstName = computed(() => {
   return raw.split(' ')[0]?.toLowerCase() ?? ''
 })
 
-// Sort candidates: never-worn first, then least-recently-worn.
-const candidates = computed(() => {
-  return [...vanity.items].sort((a, b) => {
+// ──────────── Today's pick from vanity ────────────
+//
+// orderedCandidates is a SNAPSHOT taken at page mount (and when vanity changes).
+// We deliberately don't re-derive from journal.lastWornAt on every wear, so
+// clicking "I'm wearing this" doesn't shuffle the displayed pick to the bottom
+// of the ranking and replace it with the next candidate.
+import type { VanityItem } from '~/stores/vanity'
+
+const orderedCandidates = ref<VanityItem[]>([])
+const pickIndex = ref(0)
+
+const sortByLastWorn = (items: VanityItem[]): VanityItem[] => {
+  return [...items].sort((a, b) => {
     const la = journal.lastWornAt(a.id)
     const lb = journal.lastWornAt(b.id)
     if (!la && !lb) return 0
@@ -170,15 +275,35 @@ const candidates = computed(() => {
     if (!lb) return 1
     return la < lb ? -1 : la > lb ? 1 : 0
   })
-})
+}
 
-const pickIndex = ref(0)
-const wearLogged = ref(false)
+const refreshCandidates = () => {
+  orderedCandidates.value = sortByLastWorn(vanity.items)
+  pickIndex.value = 0
+}
 
-const todayPick = computed(() => candidates.value[pickIndex.value] ?? null)
+const todayPick = computed(() => orderedCandidates.value[pickIndex.value] ?? null)
 
-// Newest-added first for the glance grid (independent of pick ordering).
 const vanityGlance = computed(() => vanity.items.slice(0, 4))
+
+const isSameDay = (iso: string) => {
+  const a = new Date(iso)
+  const b = new Date()
+  return (
+    a.getFullYear() === b.getFullYear()
+    && a.getMonth() === b.getMonth()
+    && a.getDate() === b.getDate()
+  )
+}
+
+// Reactively detect whether the currently-displayed pick already has a wear logged today.
+const isPickWornToday = computed(() => {
+  const p = todayPick.value
+  if (!p) return false
+  return journal.entries.some(
+    e => e.vanity_item_id === p.id && isSameDay(e.worn_at),
+  )
+})
 
 const pickReason = computed(() => {
   if (!todayPick.value) return ''
@@ -200,18 +325,96 @@ const pickReason = computed(() => {
 })
 
 const wearThis = () => {
-  if (!todayPick.value || wearLogged.value) return
+  if (!todayPick.value || isPickWornToday.value) return
   journal.log({
     vanity_item_id: todayPick.value.id,
     brand: todayPick.value.brand,
     name: todayPick.value.name,
   })
-  wearLogged.value = true
 }
 
 const showAnother = () => {
-  if (candidates.value.length === 0) return
-  pickIndex.value = (pickIndex.value + 1) % candidates.value.length
-  wearLogged.value = false
+  if (orderedCandidates.value.length === 0) return
+  pickIndex.value = (pickIndex.value + 1) % orderedCandidates.value.length
 }
+
+// ──────────── Recommendations from catalog ────────────
+const catalogPerfumes = ref<Perfume[]>([])
+const brands = ref<Brand[]>([])
+const shuffledRecs = ref<Perfume[]>([])
+const recPage = ref(0)
+const RECS_PER_PAGE = 2
+
+const brandByCode = computed(() =>
+  Object.fromEntries(brands.value.map((b: Brand) => [b.code, b])),
+)
+
+const formatAccord = (raw: string) =>
+  raw.split(',').map((s: string) => s.trim()).filter(Boolean).join(' · ')
+
+const buildRecommendations = () => {
+  const ownedCatalogIds = new Set(
+    vanity.items
+      .map(i => i.catalog_id)
+      .filter((id): id is number => typeof id === 'number'),
+  )
+  const candidates = catalogPerfumes.value.filter(p => !ownedCatalogIds.has(p.id))
+  // Fisher-Yates
+  const arr = [...candidates]
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    const tmp = arr[i]!
+    arr[i] = arr[j]!
+    arr[j] = tmp
+  }
+  shuffledRecs.value = arr
+  recPage.value = 0
+}
+
+const totalRecPages = computed(() =>
+  Math.ceil(shuffledRecs.value.length / RECS_PER_PAGE),
+)
+
+const visibleRecommendations = computed(() => {
+  const start = recPage.value * RECS_PER_PAGE
+  return shuffledRecs.value.slice(start, start + RECS_PER_PAGE)
+})
+
+const nextRecPage = () => {
+  if (totalRecPages.value === 0) return
+  recPage.value = (recPage.value + 1) % totalRecPages.value
+}
+
+const prevRecPage = () => {
+  if (totalRecPages.value === 0) return
+  recPage.value = (recPage.value - 1 + totalRecPages.value) % totalRecPages.value
+}
+
+onMounted(async () => {
+  // Snapshot today's pick ordering once on mount — see the comment on
+  // orderedCandidates above for why we don't recompute on every journal change.
+  refreshCandidates()
+
+  try {
+    const [perfumeData, brandData] = await Promise.all([
+      api.get('/perfume'),
+      api.get('/brand'),
+    ])
+    catalogPerfumes.value = perfumeData
+    brands.value = brandData
+    buildRecommendations()
+  } catch (e) {
+    console.warn('[today] catalog load failed', e)
+  }
+})
+
+// Re-snapshot when vanity changes (bottle added/removed). Wear-clicks don't
+// change vanity.items.length, so the pick stays locked when only journal updates.
+watch(
+  () => vanity.items.length,
+  () => {
+    refreshCandidates()
+    if (catalogPerfumes.value.length > 0) buildRecommendations()
+  },
+)
 </script>

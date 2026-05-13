@@ -3,8 +3,8 @@
     class="bg-paper-deep text-ink-soft border-t border-rule relative
            after:absolute after:-top-px after:right-0 after:w-20 after:h-px after:bg-accent after:content-['']"
   >
-    <!-- Main Footer -->
-    <div class="max-w-300 mx-auto px-6 py-16">
+    <!-- Main Footer — marketing surface only (hidden when logged in) -->
+    <div v-if="!auth.isLoggedIn" class="max-w-300 mx-auto px-6 py-16 border-b border-rule">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
         <!-- Brand -->
         <div class="lg:col-span-1">
@@ -96,16 +96,18 @@
       </div>
     </div>
 
-    <!-- Bottom Bar -->
-    <div class="border-t border-rule">
-      <div class="max-w-300 mx-auto px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <p class="font-mono text-[10px] uppercase tracking-[0.14em] text-ink-mute">
-          &copy; {{ new Date().getFullYear() }} AxelNova &middot; All rights reserved
-        </p>
-        <p class="font-mono text-[10px] uppercase tracking-[0.14em] text-ink-mute">
-          Made by Baihaqie Yusri
-        </p>
-      </div>
+    <!-- Bottom Bar — always visible -->
+    <div class="max-w-300 mx-auto px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <p class="font-mono text-[10px] uppercase tracking-[0.14em] text-ink-mute">
+        &copy; {{ new Date().getFullYear() }} AxelNova &middot; All rights reserved
+      </p>
+      <p class="font-mono text-[10px] uppercase tracking-[0.14em] text-ink-mute">
+        Made by Baihaqie Yusri
+      </p>
     </div>
   </footer>
 </template>
+
+<script setup lang="ts">
+const auth = useAuthStore()
+</script>
