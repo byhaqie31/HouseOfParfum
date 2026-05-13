@@ -1,0 +1,67 @@
+name: Deploy to production
+
+# Fires on every push to main (PR merge or direct push). Also exposes a
+# manual button via workflow_dispatch for emergency redeploys without a
+# code change.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Don't let two deploys race. A second push waits for the first to finish.
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          command_timeout: 15m
+          script: |
+            set -euo pipefail
+            cd ~/HouseOfParfum
+
+            echo "=== fetch latest main ==="
+            git fetch origin main
+            git reset --hard origin/main
+            git log --oneline -1
+
+            echo ""
+            echo "=== rebuild + start (incremental, layer-cached) ==="
+            docker compose -f docker-compose.prod.yml up -d --build
+
+            echo ""
+            echo "=== wait for boot ==="
+            sleep 10
+
+            echo ""
+            echo "=== migrations (idempotent) ==="
+            docker compose -f docker-compose.prod.yml exec -T backend php artisan migrate --force
+
+            echo ""
+            echo "=== refresh framework caches ==="
+            docker compose -f docker-compose.prod.yml exec -T backend php artisan config:cache route:cache
+
+            echo ""
+            echo "=== container status ==="
+            docker compose -f docker-compose.prod.yml ps
+
+            echo ""
+            echo "=== /up health check ==="
+            curl -fsS http://127.0.0.1:8000/up && echo
+
+            echo ""
+            echo "=== prune dangling images ==="
+            docker image prune -f
