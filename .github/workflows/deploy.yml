@@ -52,7 +52,7 @@ jobs:
 
             echo ""
             echo "=== refresh framework caches ==="
-            docker compose -f docker-compose.prod.yml exec -T backend php artisan config:cache route:cache
+            docker compose -f docker-compose.prod.yml exec -T backend php artisan optimize
 
             echo ""
             echo "=== container status ==="
