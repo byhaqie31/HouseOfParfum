@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen pt-20 pb-24 px-6">
-    <div class="max-w-5xl mx-auto">
+    <div class="max-w-6xl mx-auto">
       <!-- Welcome card — compact, minimal -->
       <section class="relative border border-rule bg-paper-deep overflow-hidden">
         <div class="absolute -top-px left-0 w-16 h-px bg-accent" />
@@ -68,7 +68,7 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-0">
             <!-- Left column: bottle frame capped + centered so the 1:1 column doesn't stretch it absurdly tall -->
             <div class="p-8 md:p-10 md:border-r md:border-rule flex items-center justify-center">
-              <div class="aspect-3/4 w-full max-w-[280px] bg-paper-deep border border-rule flex items-center justify-center">
+              <div class="aspect-3/4 w-full max-w-70 bg-paper-deep border border-rule flex items-center justify-center">
                 <BottleIcon :size="120" />
               </div>
             </div>

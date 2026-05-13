@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen pt-20 pb-24 px-6">
-    <div class="max-w-5xl mx-auto">
+    <div class="max-w-6xl mx-auto">
       <header class="border-b border-rule pb-8">
         <p class="font-mono text-[11px] uppercase tracking-widest text-ink-mute">
           Your shelf

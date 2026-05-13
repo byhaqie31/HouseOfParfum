@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen pt-20 pb-24 px-6">
-    <div class="max-w-3xl mx-auto">
+    <div class="max-w-6xl mx-auto">
       <!-- Greeting eyebrow -->
       <p class="font-mono text-[10px] uppercase tracking-[0.22em] text-ink-mute leading-[1.7]">
         Your account

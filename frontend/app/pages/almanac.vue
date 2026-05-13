@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen pt-28 pb-24 px-6">
+  <div class="min-h-screen pt-20 pb-24 px-6">
     <div class="max-w-5xl mx-auto">
       <header class="text-center">
         <p class="font-mono text-[14px] uppercase tracking-[0.32em] text-ink-mute font-bold">
