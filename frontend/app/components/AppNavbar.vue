@@ -13,7 +13,7 @@
           src="/favicon/favicon.svg"
           alt=""
           aria-hidden="true"
-          class="h-6 w-6 shrink-0"
+          class="h-9 w-9 shrink-0 brightness-0"
         >
         House of Parfum
       </NuxtLink>

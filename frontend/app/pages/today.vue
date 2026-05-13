@@ -202,15 +202,15 @@
               v-for="item in vanityGlance"
               :key="item.id"
               :to="`/vanity/${item.id}`"
-              class="group aspect-3/4 bg-paper-deep border border-rule p-3 flex flex-col hover:bg-paper transition-colors duration-200"
+              class="group aspect-3/4 bg-paper-deep border border-rule p-4 flex flex-col hover:bg-paper transition-colors duration-200"
             >
               <div class="flex-1 flex items-center justify-center">
-                <BottleIcon :size="44" />
+                <BottleIcon :size="48" />
               </div>
-              <p class="font-mono text-[7px] uppercase tracking-[0.14em] text-ink-mute leading-snug">
+              <p class="font-mono text-[9px] uppercase tracking-[0.16em] text-ink-mute leading-snug">
                 {{ item.brand }}
               </p>
-              <p class="font-display text-[11px] text-ink group-hover:text-accent-deep leading-[1.15] mt-0.5 transition-colors">
+              <p class="mt-1 font-display text-[18px] text-ink group-hover:text-accent-deep leading-tight transition-colors">
                 {{ item.name }}
               </p>
             </NuxtLink>

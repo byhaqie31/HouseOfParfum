@@ -6,7 +6,8 @@
 
 <script setup lang="ts">
 useHead({
-  titleTemplate: title => (title ? `${title} · House of Parfum` : 'House of Parfum'),
+  titleTemplate: (title: string | undefined) =>
+    title ? `${title} · House of Parfum` : 'House of Parfum',
   meta: [
     { name: 'description', content: 'A personal companion for the fragrances you wear, and the ones you remember.' },
     { name: 'theme-color', content: '#f9f7f0' },
