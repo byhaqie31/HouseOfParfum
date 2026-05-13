@@ -1,40 +1,29 @@
 <template>
   <div class="min-h-screen pt-20 pb-24 px-6">
     <div class="max-w-5xl mx-auto">
-      <!-- Welcome card -->
-      <section class="relative border border-rule bg-paper-deep">
+      <!-- Welcome card — compact, minimal -->
+      <section class="relative border border-rule bg-paper-deep overflow-hidden">
         <div class="absolute -top-px left-0 w-16 h-px bg-accent" />
         <div class="absolute -bottom-px right-0 w-10 h-px bg-accent" />
 
-        <div class="flex items-center gap-6 sm:gap-8 px-6 sm:px-8 py-6 sm:py-7">
-          <!-- Animated bottle: BottleIcon with three gold particles rising from the cap -->
-          <div class="welcome-bottle relative shrink-0 w-12 h-16 sm:w-14 sm:h-[72px] flex items-end justify-center">
-            <span class="scent-particle scent-particle--a" />
-            <span class="scent-particle scent-particle--b" />
-            <span class="scent-particle scent-particle--c" />
-            <BottleIcon :size="56" class="relative z-10" />
+        <div class="flex items-center gap-6 sm:gap-8 px-5 sm:px-7 py-4">
+          <!-- Round perfume flacon, sprays from the cap toward the greeting -->
+          <div class="shrink-0 self-center z-0">
+            <SprayBottle :size="64" />
           </div>
 
-          <div class="min-w-0 flex-1">
-            <p class="font-mono text-[10px] uppercase tracking-[0.22em] text-ink-mute">
-              Good {{ partOfDay }}
-              <span v-if="firstName" class="text-accent-deep mx-1">·</span>
-              <span v-if="formattedDate" class="sm:hidden">{{ formattedDate }}</span>
-            </p>
-            <h2 class="mt-2 font-display text-2xl sm:text-3xl text-ink tracking-[-0.005em] leading-[1.1]">
+          <div class="relative z-10 min-w-0 flex-1">
+            <h2 class="font-display text-xl sm:text-2xl text-ink tracking-[-0.005em] leading-[1.15]">
+              Good {{ partOfDay }},
               <template v-if="firstName">
-                <span class="capitalize">{{ firstName }}</span><span class="text-accent-deep">.</span>
-              </template>
-              <template v-else>
-                Welcome back<span class="text-accent-deep">.</span>
-              </template>
+                <span class="capitalize">{{ firstName }}</span></template><template v-else>friend</template><span class="text-accent-deep">.</span>
             </h2>
-            <p class="mt-2 font-display italic text-[14px] text-ink-soft leading-snug hidden sm:block">
-              {{ welcomeWhisper }}
+            <p class="mt-2 font-display italic text-[12px] sm:text-[13px] text-ink-soft leading-snug">
+              Smell good. Everytime, anywhere.
             </p>
           </div>
 
-          <p class="hidden sm:block font-mono text-[10px] uppercase tracking-[0.18em] text-ink-mute shrink-0 self-start pt-1">
+          <p class="hidden sm:block font-mono text-[10px] uppercase tracking-[0.18em] text-ink-mute shrink-0 self-center z-10">
             {{ formattedDate }}
           </p>
         </div>
@@ -384,17 +373,6 @@ const partOfDay = computed(() => {
   return 'evening'
 })
 
-const welcomeWhisper = computed(() => {
-  switch (partOfDay.value) {
-    case 'morning':
-      return 'What will the day smell like?'
-    case 'afternoon':
-      return 'Halfway through. Something to lift the rest?'
-    default:
-      return 'The good hour. Something with depth.'
-  }
-})
-
 const firstName = computed(() => {
   const raw = auth.user?.name
   if (typeof raw !== 'string') return ''
@@ -408,6 +386,7 @@ const firstName = computed(() => {
 // clicking "I'm wearing this" doesn't shuffle the displayed pick to the bottom
 // of the ranking and replace it with the next candidate.
 import type { VanityItem } from '~/stores/vanity'
+import type { JournalEntry } from '~/stores/journal'
 
 const orderedCandidates = ref<VanityItem[]>([])
 const pickIndex = ref(0)
@@ -447,7 +426,7 @@ const isPickWornToday = computed(() => {
   const p = todayPick.value
   if (!p) return false
   return journal.entries.some(
-    e => e.vanity_item_id === p.id && isSameDay(e.worn_at),
+    (e: JournalEntry) => e.vanity_item_id === p.id && isSameDay(e.worn_at),
   )
 })
 
@@ -499,7 +478,7 @@ const RECS_PER_PAGE = 2
 const pickCatalogEntry = computed<Perfume | null>(() => {
   const id = todayPick.value?.catalog_id
   if (typeof id !== 'number') return null
-  return catalogPerfumes.value.find(p => p.id === id) ?? null
+  return catalogPerfumes.value.find((p: Perfume) => p.id === id) ?? null
 })
 
 const pickAccordChips = computed<string[]>(() => {
@@ -550,10 +529,10 @@ const formatAccord = (raw: string) =>
 const buildRecommendations = () => {
   const ownedCatalogIds = new Set(
     vanity.items
-      .map(i => i.catalog_id)
-      .filter((id): id is number => typeof id === 'number'),
+      .map((i: VanityItem) => i.catalog_id)
+      .filter((id: number | null): id is number => typeof id === 'number'),
   )
-  const candidates = catalogPerfumes.value.filter(p => !ownedCatalogIds.has(p.id))
+  const candidates = catalogPerfumes.value.filter((p: Perfume) => !ownedCatalogIds.has(p.id))
   // Fisher-Yates
   const arr = [...candidates]
   for (let i = arr.length - 1; i > 0; i--) {
@@ -614,59 +593,3 @@ watch(
 )
 </script>
 
-<style scoped>
-/* Scent-diffusion animation: three small champagne-gold particles rise from
-   the cap of the welcome-card bottle in a staggered loop. Kept subtle on
-   purpose — meant to read as ambient breath, not motion. */
-.welcome-bottle .scent-particle {
-  position: absolute;
-  bottom: calc(100% - 6px);
-  width: 4px;
-  height: 4px;
-  border-radius: 9999px;
-  background-color: var(--color-accent);
-  opacity: 0;
-  animation: scent-rise 4.5s ease-out infinite;
-  will-change: transform, opacity;
-}
-
-.welcome-bottle .scent-particle--a {
-  left: calc(50% - 8px);
-  animation-delay: 0s;
-}
-.welcome-bottle .scent-particle--b {
-  left: 50%;
-  animation-delay: 1.4s;
-  animation-duration: 5s;
-}
-.welcome-bottle .scent-particle--c {
-  left: calc(50% + 8px);
-  animation-delay: 2.6s;
-  animation-duration: 4.2s;
-}
-
-@keyframes scent-rise {
-  0% {
-    opacity: 0;
-    transform: translateY(0) scale(0.4);
-  }
-  20% {
-    opacity: 0.7;
-  }
-  60% {
-    opacity: 0.35;
-    transform: translateY(-22px) scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-34px) scale(1.1);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .welcome-bottle .scent-particle {
-    animation: none;
-    opacity: 0;
-  }
-}
-</style>
