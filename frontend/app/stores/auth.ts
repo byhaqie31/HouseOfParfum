@@ -18,18 +18,30 @@ export const useAuthStore = defineStore('auth', {
 
     setUser(user: Record<string, any>) {
       this.user = user
+      if (import.meta.client) localStorage.setItem('user', JSON.stringify(user))
     },
 
     logout() {
       this.token = null
       this.user = null
-      if (import.meta.client) localStorage.removeItem('token')
+      if (import.meta.client) {
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+      }
     },
 
     init() {
       if (import.meta.client) {
         const token = localStorage.getItem('token')
         if (token) this.token = token
+        const userJson = localStorage.getItem('user')
+        if (userJson) {
+          try {
+            this.user = JSON.parse(userJson)
+          } catch {
+            /* corrupted cache — ignore */
+          }
+        }
       }
     },
   },

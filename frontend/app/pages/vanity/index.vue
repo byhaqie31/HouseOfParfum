@@ -8,21 +8,55 @@
           </p>
           <h1 class="mt-3 font-display text-5xl sm:text-6xl text-ink tracking-tight leading-[1.05]">
             Vanity
+            <span class="font-mono text-[14px] uppercase tracking-[0.16em] text-ink-mute align-middle ml-3">
+              {{ String(vanity.count).padStart(2, '0') }}
+            </span>
           </h1>
         </div>
         <NuxtLink
           to="/vanity/add"
-          class="hidden sm:inline-flex items-center gap-2 bg-ink text-paper text-xs uppercase tracking-widest px-6 py-3 hover:bg-ink-soft transition-colors"
+          class="hidden sm:inline-flex items-center gap-2 bg-ink text-paper text-xs uppercase tracking-[0.2em] px-6 py-3 hover:bg-ink-soft transition-colors"
         >
-          <Icon name="lucide:plus" class="h-3.5 w-3.5" />
+          <Icon name="lucide:plus" size="14" />
           Add a bottle
         </NuxtLink>
       </header>
 
+      <!-- Populated shelf -->
+      <section v-if="vanity.count > 0" class="mt-12 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        <article
+          v-for="item in vanity.items"
+          :key="item.id"
+          class="flex flex-col"
+        >
+          <div class="aspect-3/4 bg-paper-deep border border-rule flex items-center justify-center">
+            <BottleIcon :size="72" />
+          </div>
+          <p class="mt-4 font-mono text-[9px] uppercase tracking-[0.16em] text-ink-mute">
+            {{ item.brand }}
+          </p>
+          <h3 class="mt-1 font-display text-[17px] text-ink leading-tight">
+            {{ item.name }}
+          </h3>
+          <p class="mt-2 font-mono text-[9px] uppercase tracking-[0.14em] text-ink-mute">
+            {{ item.size }} ml
+            <template v-if="item.acquired">
+              <span class="text-accent-deep mx-1">·</span>{{ item.acquired }}
+            </template>
+          </p>
+          <p
+            v-if="lastWornLabel(item.id)"
+            class="mt-2 font-display italic text-[12px] text-ink-soft"
+          >
+            {{ lastWornLabel(item.id) }}
+          </p>
+        </article>
+      </section>
+
       <!-- Empty state -->
-      <div class="mt-24 sm:mt-32 max-w-xl mx-auto text-center">
+      <section v-else class="mt-24 sm:mt-32 max-w-xl mx-auto text-center">
         <div class="w-60 h-60 rounded-full border border-rule bg-paper-deep flex items-center justify-center mx-auto">
-          <Icon name="lucide:flower-2" size="100" class="text-ink-mute" />
+          <BottleIcon :size="100" />
         </div>
         <h2 class="mt-12 font-display text-3xl sm:text-4xl text-ink tracking-tight leading-[1.1]">
           Your shelf is bare.
@@ -32,16 +66,36 @@
         </p>
         <NuxtLink
           to="/vanity/add"
-          class="mt-12 inline-flex items-center gap-2 bg-ink text-paper text-xs uppercase tracking-widest px-8 py-3.5 hover:bg-ink-soft transition-colors"
+          class="mt-12 inline-flex items-center gap-2 bg-ink text-paper text-xs uppercase tracking-[0.2em] px-8 py-3.5 hover:bg-ink-soft transition-colors"
         >
           Add your first bottle
-          <Icon name="lucide:arrow-right" class="h-3.5 w-3.5" />
+          <Icon name="lucide:arrow-right" size="14" />
         </NuxtLink>
-      </div>
+      </section>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 definePageMeta({ middleware: 'auth' })
+
+const vanity = useVanityStore()
+const journal = useJournalStore()
+
+const lastWornLabel = (vanityItemId: string) => {
+  const iso = journal.lastWornAt(vanityItemId)
+  if (!iso) return ''
+  const days = Math.floor(
+    (Date.now() - new Date(iso).getTime()) / (1000 * 60 * 60 * 24),
+  )
+  if (days === 0) return 'Worn today'
+  if (days === 1) return 'Worn yesterday'
+  if (days < 7) return `Worn ${days} days ago`
+  if (days < 30) return `Last worn ${days} days ago`
+  if (days < 365) {
+    const months = Math.floor(days / 30)
+    return `Last worn ${months} ${months === 1 ? 'month' : 'months'} ago`
+  }
+  return 'Last worn over a year ago'
+}
 </script>

@@ -45,7 +45,7 @@
             >
               <div
                 v-if="profileOpen"
-                class="absolute right-0 mt-3 w-52 bg-paper border border-rule py-2"
+                class="absolute top-full right-0 mt-3 w-52 bg-paper border border-rule py-2"
               >
                 <NuxtLink
                   to="/profile"
