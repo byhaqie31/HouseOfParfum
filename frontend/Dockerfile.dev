@@ -1,0 +1,20 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install deps inside the container so binaries match the linux/arm64 image
+# instead of inheriting macOS host's node_modules via a bind mount.
+COPY package*.json ./
+RUN npm ci
+
+# Source is bind-mounted by docker-compose.dev.yml; this COPY just primes the
+# image so `docker build` alone produces a runnable container.
+COPY . .
+
+ENV HOST=0.0.0.0
+ENV PORT=3000
+ENV NUXT_TELEMETRY_DISABLED=1
+
+EXPOSE 3000
+
+CMD ["npm", "run", "dev"]
