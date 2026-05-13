@@ -1,29 +1,32 @@
 <template>
   <div class="min-h-screen pt-20 pb-24 px-6">
     <div class="max-w-5xl mx-auto">
-      <header class="flex items-end justify-between border-b border-rule pb-8">
-        <div>
-          <p class="font-mono text-[11px] uppercase tracking-widest text-ink-mute">
-            Your shelf
-          </p>
-          <h1 class="mt-3 font-display text-5xl sm:text-6xl text-ink tracking-tight leading-[1.05]">
-            Vanity
-            <span class="font-mono text-[14px] uppercase tracking-[0.16em] text-ink-mute align-middle ml-3">
-              {{ String(vanity.count).padStart(2, '0') }}
-            </span>
-          </h1>
-        </div>
+      <header class="border-b border-rule pb-8">
+        <p class="font-mono text-[11px] uppercase tracking-widest text-ink-mute">
+          Your shelf
+        </p>
+        <h1 class="mt-3 font-display text-5xl sm:text-6xl text-ink tracking-tight leading-[1.05]">
+          Vanity
+        </h1>
+      </header>
+
+      <!-- Count + add button, on the same line below the bar -->
+      <div v-if="vanity.count > 0" class="mt-8 flex items-center justify-between gap-4">
+        <p class="font-mono text-[11px] uppercase tracking-[0.2em] text-ink-mute">
+          {{ String(vanity.count).padStart(2, '0') }}
+          <span class="text-ink-soft ml-1">{{ vanity.count === 1 ? 'bottle' : 'bottles' }}</span>
+        </p>
         <NuxtLink
           to="/vanity/add"
-          class="hidden sm:inline-flex items-center gap-2 bg-ink text-paper text-xs uppercase tracking-[0.2em] px-6 py-3 hover:bg-ink-soft transition-colors"
+          class="inline-flex items-center gap-2 bg-ink text-paper text-xs uppercase tracking-[0.2em] px-6 py-3 hover:bg-ink-soft transition-colors"
         >
           <Icon name="lucide:plus" size="14" />
           Add a bottle
         </NuxtLink>
-      </header>
+      </div>
 
       <!-- Populated shelf -->
-      <section v-if="vanity.count > 0" class="mt-12 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+      <section v-if="vanity.count > 0" class="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         <NuxtLink
           v-for="item in vanity.items"
           :key="item.id"

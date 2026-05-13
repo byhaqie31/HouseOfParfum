@@ -86,4 +86,11 @@
   a.router-link-active.nav-link {
     border-bottom: 1px solid var(--color-accent);
   }
+
+  /* Mobile drawer tile — active state is a filled highlight, not a hairline */
+  a.router-link-active.mobile-tile {
+    background-color: var(--color-paper-deep);
+    border-color: var(--color-accent);
+    color: var(--color-ink);
+  }
 }
