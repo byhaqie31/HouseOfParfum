@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('image');
             $table->double('price');
             $table->double('rrp')->nullable();
-            $table->double('rrp_rm')->nullabe();
+            $table->double('rrp_rm')->nullable();
             $table->integer('size');
             $table->string('quality');
             $table->string('year');
@@ -32,7 +32,7 @@ return new class extends Migration
             $table->longText('history')->nullable();
             $table->string('suit_season');
             $table->string('suit_time');
-            $table->string('ref_shop')->nullabe();
+            $table->string('ref_shop')->nullable();
 
             $table->timestamps();
         });

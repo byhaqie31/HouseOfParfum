@@ -32,10 +32,13 @@ cd ~/infra && docker compose up -d
 cd ~/HouseOfParfum
 docker compose -f docker-compose.prod.yml up -d --build
 
-# 6. Migrate
+# 6. Migrate + seed (catalog: 13 brands, 42 perfumes)
 docker compose -f docker-compose.prod.yml exec backend php artisan migrate --force
-docker compose -f docker-compose.prod.yml exec backend php artisan config:cache route:cache view:cache
+docker compose -f docker-compose.prod.yml exec backend php artisan db:seed --force
+docker compose -f docker-compose.prod.yml exec backend php artisan config:cache route:cache
 ```
+
+> Don't run `view:cache` — the API has no Blade views (the L11 upgrade removed them).
 
 ## Routine deploy
 
@@ -44,7 +47,7 @@ cd ~/HouseOfParfum
 git pull
 docker compose -f docker-compose.prod.yml up -d --build
 docker compose -f docker-compose.prod.yml exec backend php artisan migrate --force
-docker compose -f docker-compose.prod.yml exec backend php artisan config:cache route:cache view:cache
+docker compose -f docker-compose.prod.yml exec backend php artisan config:cache route:cache
 ```
 
 ## Rollback

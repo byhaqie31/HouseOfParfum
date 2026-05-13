@@ -9,11 +9,8 @@ class Brand extends Model
 {
     use HasFactory;
 
-      //Declare Table Name
-      protected $table = 'brand';
-    
-      //Declare PK
-     public $primaryKey = 'id';
- 
-     public $timestamps = true;
+    protected $table = 'brand';
+
+    /** @var list<string> */
+    protected $fillable = ['code', 'name', 'image'];
 }
