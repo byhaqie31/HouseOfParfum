@@ -1,12 +1,35 @@
 <template>
   <div class="min-h-screen grid grid-cols-1 md:grid-cols-12 bg-paper">
     <!-- Brand panel -->
-    <aside class="hidden md:flex md:col-span-7 bg-paper-deep p-12 lg:p-16 flex-col justify-between">
-      <NuxtLink to="/about" class="font-display text-xl text-ink tracking-tight">
+    <aside class="hidden md:flex md:col-span-7 bg-paper-deep p-12 lg:p-16 flex-col justify-between relative overflow-hidden">
+      <!-- Watermark: rounded-shoulder flacon, vertically centred against the right edge -->
+      <svg
+        class="absolute top-1/2 -translate-y-1/2 right-8 lg:right-12 w-72 lg:w-80 h-auto text-ink pointer-events-none select-none"
+        viewBox="0 0 200 280"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="0.8"
+        style="opacity: 0.09"
+        aria-hidden="true"
+      >
+        <!-- Cap (wider, ornamental) -->
+        <rect x="68" y="0" width="64" height="26" />
+        <line x1="68" y1="13" x2="132" y2="13" />
+        <!-- Neck (narrow) -->
+        <rect x="86" y="26" width="28" height="22" />
+        <!-- Rounded-shoulder body -->
+        <path d="M 30 76 Q 30 48 100 48 Q 170 48 170 76 L 170 246 Q 170 270 146 270 L 54 270 Q 30 270 30 246 Z" />
+        <!-- Oval label -->
+        <ellipse cx="100" cy="170" rx="50" ry="34" />
+        <!-- Rule across label -->
+        <line x1="64" y1="170" x2="136" y2="170" />
+      </svg>
+
+      <NuxtLink to="/about" class="relative z-10 font-display text-xl text-ink tracking-tight">
         House of Parfum
       </NuxtLink>
 
-      <div class="max-w-xl">
+      <div class="relative z-10 max-w-xl">
         <h1 class="font-display text-5xl lg:text-6xl leading-[1.05] text-ink tracking-tight">
           Begin your shelf.<br>
           <em class="text-ink-soft">One bottle at a time.</em>
@@ -23,8 +46,8 @@
         </NuxtLink>
       </div>
 
-      <p class="font-mono text-[11px] text-ink-mute">
-        &copy; {{ new Date().getFullYear() }} AxelNova
+      <p class="relative z-10 font-mono text-[11px] text-ink-mute">
+        &copy; {{ new Date().getFullYear() }} Axel Nova Ventures
       </p>
     </aside>
 

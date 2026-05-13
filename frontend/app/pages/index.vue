@@ -1,12 +1,38 @@
 <template>
   <div class="min-h-screen grid grid-cols-1 md:grid-cols-12 bg-paper">
     <!-- Brand panel -->
-    <aside class="hidden md:flex md:col-span-7 bg-paper-deep p-12 lg:p-16 flex-col justify-between">
-      <NuxtLink to="/about" class="font-display text-xl text-ink tracking-tight">
+    <aside class="hidden md:flex md:col-span-7 bg-paper-deep p-12 lg:p-16 flex-col justify-between relative overflow-hidden">
+      <!-- Watermark: tall apothecary bottle, vertically centred against the right edge -->
+      <svg
+        class="absolute top-1/2 -translate-y-1/2 right-8 lg:right-12 w-72 lg:w-80 h-auto text-ink pointer-events-none select-none"
+        viewBox="0 0 200 280"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="0.8"
+        style="opacity: 0.09"
+        aria-hidden="true"
+      >
+        <!-- Cap -->
+        <rect x="76" y="6" width="48" height="34" />
+        <!-- Collar -->
+        <rect x="80" y="40" width="40" height="10" />
+        <!-- Neck -->
+        <rect x="86" y="50" width="28" height="22" />
+        <!-- Body -->
+        <rect x="22" y="72" width="156" height="200" rx="2" />
+        <!-- Label panel -->
+        <rect x="44" y="166" width="112" height="58" />
+        <!-- Label rule -->
+        <line x1="60" y1="194" x2="140" y2="194" />
+        <!-- Inner shoulder line -->
+        <line x1="22" y1="100" x2="178" y2="100" stroke-dasharray="2 4" />
+      </svg>
+
+      <NuxtLink to="/about" class="relative z-10 font-display text-xl text-ink tracking-tight">
         House of Parfum
       </NuxtLink>
 
-      <div class="max-w-xl">
+      <div class="relative z-10 max-w-xl">
         <h1 class="font-display text-5xl lg:text-6xl leading-[1.05] text-ink tracking-tight">
           A companion for the bottles you wear,<br>
           <em class="text-ink-soft">and the ones you remember.</em>
@@ -24,8 +50,8 @@
         </NuxtLink>
       </div>
 
-      <p class="font-mono text-[11px] text-ink-mute">
-        &copy; {{ new Date().getFullYear() }} AxelNova
+      <p class="relative z-10 font-mono text-[11px] text-ink-mute">
+        &copy; {{ new Date().getFullYear() }} Axel Nova Ventures
       </p>
     </aside>
 
