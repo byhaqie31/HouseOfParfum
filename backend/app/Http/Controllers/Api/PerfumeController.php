@@ -3,14 +3,37 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\DiscoveryPerfume;
 use App\Models\Perfume;
+use App\Support\DiscoveryQuery;
+use App\Support\PerfumeTransformer;
 use Illuminate\Http\Request;
 
+/**
+ * Storefront perfume API.
+ *
+ * `index` / `show` read from the discovery catalogue (`discovery_perfumes`,
+ * ~24k real fragrances) and transform each row into the legacy `CatalogPerfume`
+ * shape the Nuxt frontend expects — see {@see PerfumeTransformer}. The legacy
+ * `perfume` table is no longer the read source for the storefront.
+ *
+ * `store` / `update` / `destroy` are left on the `Perfume` model: they're the
+ * auth-gated admin write paths and aren't reachable from the storefront UI.
+ */
 class PerfumeController extends Controller
 {
-    public function index()
+    /**
+     * Paginated catalogue. Accepts the same query params as `/api/discovery`
+     * (search, brand, gender, note, accord, sort, direction, per_page) and
+     * returns a paginator envelope of transformed perfumes.
+     */
+    public function index(Request $request)
     {
-        return response()->json(Perfume::all());
+        $perfumes = DiscoveryQuery::build($request)
+            ->paginate(DiscoveryQuery::perPage($request))
+            ->through(fn (DiscoveryPerfume $d) => PerfumeTransformer::toCatalog($d));
+
+        return response()->json($perfumes);
     }
 
     public function store(Request $request)
@@ -73,8 +96,9 @@ class PerfumeController extends Controller
 
     public function show($id)
     {
-        $perfume = Perfume::findOrFail($id);
-        return response()->json($perfume);
+        $perfume = DiscoveryPerfume::findOrFail($id);
+
+        return response()->json(PerfumeTransformer::toCatalog($perfume));
     }
 
     public function update(Request $request, $id)

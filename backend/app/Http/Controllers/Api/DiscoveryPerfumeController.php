@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\DiscoveryPerfume;
+use App\Support\DiscoveryQuery;
 use Illuminate\Http\Request;
 
 /**
@@ -23,57 +24,17 @@ use Illuminate\Http\Request;
  *   sort       rating | votes | release_year | name   (default: rating)
  *   direction  asc | desc                             (default: desc)
  *   per_page   1–100                                  (default: 24)
+ *
+ * The query construction lives in {@see DiscoveryQuery} — shared with
+ * `PerfumeController`, which serves the same data in the legacy storefront shape.
  */
 class DiscoveryPerfumeController extends Controller
 {
-    /** Columns allowed in ?sort= — guards against arbitrary-column ordering. */
-    private const SORTABLE = ['rating', 'votes', 'release_year', 'name'];
-
     public function index(Request $request)
     {
-        $query = DiscoveryPerfume::query();
-
-        // Free-text search across name + brand.
-        if ($search = trim((string) $request->query('search', ''))) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('brand', 'like', "%{$search}%");
-            });
-        }
-
-        // Exact-match column filters.
-        if ($brand = $request->query('brand')) {
-            $query->where('brand', $brand);
-        }
-        if ($gender = $request->query('gender')) {
-            $query->where('gender', $gender);
-        }
-
-        // JSON-array membership filters. Stored note/accord values are
-        // lower-case, so the needle is lower-cased to match.
-        if ($note = $request->query('note')) {
-            $note = mb_strtolower($note);
-            $query->where(function ($q) use ($note) {
-                $q->whereJsonContains('notes_top', $note)
-                    ->orWhereJsonContains('notes_middle', $note)
-                    ->orWhereJsonContains('notes_base', $note);
-            });
-        }
-        if ($accord = $request->query('accord')) {
-            $query->whereJsonContains('accords', mb_strtolower($accord));
-        }
-
-        // Whitelisted sort; defaults to highest-rated first.
-        $sort = in_array($request->query('sort'), self::SORTABLE, true)
-            ? $request->query('sort')
-            : 'rating';
-        $direction = $request->query('direction') === 'asc' ? 'asc' : 'desc';
-        $query->orderBy($sort, $direction);
-
-        // Cap per_page so a client can't pull the whole table in one request.
-        $perPage = min(max((int) $request->query('per_page', 24), 1), 100);
-
-        return response()->json($query->paginate($perPage));
+        return response()->json(
+            DiscoveryQuery::build($request)->paginate(DiscoveryQuery::perPage($request)),
+        );
     }
 
     public function show($id)

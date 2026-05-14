@@ -217,7 +217,6 @@
 <script setup lang="ts">
 definePageMeta({ middleware: 'auth' })
 
-type Brand = { id: number; code: string; name: string }
 type Bar = { label: string; value: number }
 
 const route = useRoute()
@@ -225,14 +224,9 @@ const router = useRouter()
 const api = useApi()
 
 const perfume = ref<any>(null)
-const brands = ref<Brand[]>([])
 const loading = ref(true)
 
-const brandName = computed(() => {
-  if (!perfume.value) return ''
-  const found = brands.value.find((b: Brand) => b.code === perfume.value.brand)
-  return found?.name ?? perfume.value.brand
-})
+const brandName = computed(() => perfume.value?.brand ?? '')
 
 const accordChips = computed<string[]>(() => {
   const raw = perfume.value?.main_accord
@@ -283,12 +277,7 @@ const goBack = () => {
 
 onMounted(async () => {
   try {
-    const [perfumeData, brandData] = await Promise.all([
-      api.get(`/perfume/${route.params.id}`),
-      api.get('/brand'),
-    ])
-    perfume.value = perfumeData
-    brands.value = brandData
+    perfume.value = await api.get(`/perfume/${route.params.id}`)
   } catch (e) {
     console.warn('[perfume/:id] load failed', e)
   } finally {
