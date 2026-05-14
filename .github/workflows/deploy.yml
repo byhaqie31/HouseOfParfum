@@ -51,6 +51,10 @@ jobs:
             docker compose -f docker-compose.prod.yml exec -T backend php artisan migrate --force
 
             echo ""
+            echo "=== import discovery catalogue (idempotent upsert) ==="
+            docker compose -f docker-compose.prod.yml exec -T backend php artisan discovery:import
+
+            echo ""
             echo "=== refresh framework caches ==="
             # API-only — no Blade views, so skip view:cache (it errors on missing resources/views/).
             docker compose -f docker-compose.prod.yml exec -T backend php artisan config:cache
