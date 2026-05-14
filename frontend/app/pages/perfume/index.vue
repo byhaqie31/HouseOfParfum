@@ -276,7 +276,7 @@ const letter = ref('')
 const season = ref('')
 const ratingMin = ref('')
 const selectedNotes = ref<string[]>([])
-const sort = ref('rating')
+const sort = ref('name_asc')
 const showFilters = ref(false)
 
 // Facets (brand list + note vocabulary) for the pickers.
@@ -295,8 +295,8 @@ const SEX_OPTIONS = [
 const SORT_OPTIONS = [
   { value: 'name_asc', label: 'A - Z' },
   { value: 'name_desc', label: 'Z - A' },
-  { value: 'rating', label: 'Highest rated' },
-  { value: 'votes', label: 'Most favorite' },
+  { value: 'rating', label: 'Most rated' },
+  { value: 'votes', label: 'Most liked' },
 ]
 const SEASON_OPTIONS = [
   { value: '', label: 'Any season' },
@@ -401,8 +401,11 @@ function resetAndFetch() {
   fetchPage()
 }
 
+// perPage is intentionally NOT watched here — it changes when isLargeScreen is
+// first set in onMounted, which would fire a fetch on top of the explicit one.
+// Viewport changes refetch via the matchMedia listener below.
 watch(
-  [brand, gender, letter, season, ratingMin, sort, selectedNotes, perPage],
+  [brand, gender, letter, season, ratingMin, sort, selectedNotes],
   resetAndFetch,
   { deep: true },
 )
@@ -419,11 +422,14 @@ const formatAccord = (raw: string) =>
 
 onMounted(async () => {
   // Track viewport so per-page count adapts to mobile vs desktop. lg = 1024px.
+  // Setting isLargeScreen here updates perPage before the first fetchPage()
+  // below; later viewport changes refetch explicitly.
   if (typeof window !== 'undefined') {
     const mq = window.matchMedia('(min-width: 1024px)')
     isLargeScreen.value = mq.matches
     mq.addEventListener('change', (e) => {
       isLargeScreen.value = e.matches
+      resetAndFetch()
     })
   }
 
