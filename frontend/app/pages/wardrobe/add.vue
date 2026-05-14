@@ -25,7 +25,7 @@
             to="/perfume"
             class="font-display italic text-[12px] text-ink hover:text-accent-deep pb-px border-b border-accent transition-colors"
           >
-            Browse all {{ perfumes.length }} &rarr;
+            Browse the catalog &rarr;
           </NuxtLink>
         </div>
         <input
@@ -41,7 +41,7 @@
         <!-- Autocomplete dropdown -->
         <div
           v-if="showAutocomplete"
-          class="mt-1.5 bg-paper border border-rule max-h-[260px] overflow-y-auto"
+          class="mt-1.5 bg-paper border border-rule max-h-65 overflow-y-auto"
         >
           <button
             v-for="match in matches"
@@ -55,15 +55,12 @@
             </div>
             <div class="flex-1 min-w-0">
               <p class="font-mono text-[8px] uppercase tracking-[0.14em] text-ink-mute">
-                {{ brandByCode[match.brand]?.name || match.brand }}
+                {{ match.brand }}
               </p>
               <p class="font-display italic text-[14px] text-ink truncate">
                 {{ match.name }}
               </p>
             </div>
-            <span class="font-mono text-[8px] uppercase tracking-[0.14em] text-accent-deep shrink-0">
-              {{ match.quality?.slice(0, 3) || 'EDP' }}
-            </span>
           </button>
         </div>
       </div>
@@ -163,14 +160,11 @@
 <script setup lang="ts">
 definePageMeta({ middleware: 'auth' })
 
-type Brand = { id: number; code: string; name: string }
 type Perfume = {
   id: number
   brand: string
   name: string
-  size: number
-  quality?: string
-  year?: string
+  size?: number | null
 }
 
 const api = useApi()
@@ -178,11 +172,9 @@ const router = useRouter()
 const route = useRoute()
 const wardrobe = useWardrobeStore()
 
-const perfumes = ref<Perfume[]>([])
-const brands = ref<Brand[]>([])
-
 const searchQuery = ref('')
 const searchFocused = ref(false)
+const matches = ref<Perfume[]>([])
 
 const form = reactive({
   brand: '',
@@ -201,24 +193,6 @@ const defaultAcquired = computed(() => {
   return now.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
 })
 
-const brandByCode = computed(() =>
-  Object.fromEntries(brands.value.map((b: Brand) => [b.code, b])),
-)
-
-const matches = computed(() => {
-  const q = searchQuery.value.trim().toLowerCase()
-  if (q.length < 2) return []
-  return perfumes.value
-    .filter((p) => {
-      const brandName = brandByCode.value[p.brand]?.name?.toLowerCase() ?? ''
-      return (
-        p.name.toLowerCase().includes(q)
-        || brandName.includes(q)
-      )
-    })
-    .slice(0, 5)
-})
-
 const showAutocomplete = computed(
   () => searchFocused.value && matches.value.length > 0,
 )
@@ -227,12 +201,34 @@ const canSubmit = computed(
   () => form.brand.trim().length > 0 && form.name.trim().length > 0,
 )
 
+// The catalog is 24k rows — search server-side via /api/perfume rather than
+// filtering a client-side copy. Debounced so each keystroke doesn't hit the API.
+let searchTimer: ReturnType<typeof setTimeout> | undefined
+watch(searchQuery, (q) => {
+  clearTimeout(searchTimer)
+  const term = q.trim()
+  if (term.length < 2) {
+    matches.value = []
+    return
+  }
+  searchTimer = setTimeout(async () => {
+    try {
+      const res = await api.get(`/perfume?search=${encodeURIComponent(term)}&per_page=8`)
+      matches.value = res.data ?? []
+    } catch (e) {
+      console.warn('[wardrobe/add] search failed', e)
+      matches.value = []
+    }
+  }, 300)
+})
+
 const pickFromCatalog = (perfume: Perfume) => {
-  form.brand = brandByCode.value[perfume.brand]?.name || perfume.brand
+  form.brand = perfume.brand
   form.name = perfume.name
-  form.size = String(perfume.size)
+  if (perfume.size != null) form.size = String(perfume.size)
   form.catalog_id = perfume.id
   searchQuery.value = ''
+  matches.value = []
   searchFocused.value = false
 }
 
@@ -259,23 +255,16 @@ const submit = async () => {
 }
 
 onMounted(async () => {
-  try {
-    const [perfumeData, brandData] = await Promise.all([
-      api.get('/perfume'),
-      api.get('/brand'),
-    ])
-    perfumes.value = perfumeData
-    brands.value = brandData
-  } catch (e) {
-    console.warn('[wardrobe/add] catalog load failed', e)
-  }
-
-  // Prefill from /perfume catalog card link: /wardrobe/add?catalog_id=42
+  // Prefill from a /perfume catalog card link: /wardrobe/add?catalog_id=42
   const raw = route.query.catalog_id
-  if (raw) {
-    const id = Number(Array.isArray(raw) ? raw[0] : raw)
-    const match = perfumes.value.find(p => p.id === id)
-    if (match) pickFromCatalog(match)
+  if (!raw) return
+  const id = Number(Array.isArray(raw) ? raw[0] : raw)
+  if (!Number.isFinite(id)) return
+  try {
+    const perfume = await api.get(`/perfume/${id}`)
+    if (perfume?.id) pickFromCatalog(perfume)
+  } catch (e) {
+    console.warn('[wardrobe/add] prefill failed', e)
   }
 })
 </script>

@@ -10,59 +10,14 @@
           Discover
         </h1>
         <p class="mt-4 font-display italic text-[15px] text-ink-soft max-w-xl">
-          Browse what's on file, filter by house, and add what's already on your shelf.
+          Browse the catalogue, search by house or name, and add what's already on your shelf.
         </p>
       </header>
 
-      <!-- Filters row -->
-      <div class="mt-10 flex flex-col lg:flex-row lg:items-start gap-6">
-        <!-- House: full-width dropdown on mobile, chip row on desktop -->
-        <div class="flex-1 min-w-0 order-2 lg:order-1">
-          <label for="catalog-house" class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-3">
-            House
-          </label>
-
-          <!-- Mobile dropdown (custom editorial styling to match the site) -->
-          <EditorialSelect
-            v-model="selectedBrandCode"
-            :options="brandOptions"
-            class="lg:hidden"
-          />
-
-          <!-- Desktop chips -->
-          <div class="hidden lg:flex flex-wrap gap-2">
-            <button
-              type="button"
-              class="px-4 py-2 font-mono text-[10px] uppercase tracking-[0.14em] border transition-colors"
-              :class="selectedBrandCode === 'all'
-                ? 'bg-accent-soft border-accent text-accent-deep font-medium'
-                : 'bg-paper-deep border-rule text-ink hover:border-ink-soft'"
-              @click="selectedBrandCode = 'all'"
-            >
-              All
-              <span class="font-mono text-[9px] text-ink-mute ml-1">{{ perfumes.length }}</span>
-            </button>
-            <button
-              v-for="b in brands"
-              :key="b.code"
-              type="button"
-              class="px-4 py-2 font-mono text-[10px] uppercase tracking-[0.14em] border transition-colors"
-              :class="selectedBrandCode === b.code
-                ? 'bg-accent-soft border-accent text-accent-deep font-medium'
-                : 'bg-paper-deep border-rule text-ink hover:border-ink-soft'"
-              @click="selectedBrandCode = b.code"
-            >
-              {{ b.name }}
-              <span class="font-mono text-[9px] text-ink-mute ml-1">
-                {{ countByBrand[b.code] ?? 0 }}
-              </span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Search -->
-        <div class="lg:w-72 order-1 lg:order-2">
-          <label for="catalog-search" class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-3">
+      <!-- Primary controls: search + house + sex (equal thirds) -->
+      <div class="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div>
+          <label for="catalog-search" class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-2">
             Search
           </label>
           <input
@@ -71,18 +26,161 @@
             type="text"
             autocomplete="off"
             placeholder="Brand or name…"
-            class="w-full bg-paper-deep border border-rule px-4 py-2.5 text-[14px] text-ink placeholder:font-display placeholder:italic placeholder:text-ink-mute focus:outline-none focus:border-ink-soft transition-colors"
+            class="w-full h-11 bg-paper-deep border border-rule px-4 text-[14px] text-ink placeholder:font-display placeholder:italic placeholder:text-ink-mute focus:outline-none focus:border-ink-soft transition-colors"
           >
+        </div>
+        <div>
+          <label class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-2">
+            House
+          </label>
+          <EditorialSelect
+            v-model="brand"
+            :options="brandSelectOptions"
+            searchable
+            placeholder="All houses"
+            search-placeholder="Search houses…"
+          />
+        </div>
+        <div>
+          <label class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-2">
+            For
+          </label>
+          <EditorialSelect v-model="gender" :options="SEX_OPTIONS" placeholder="Anyone" />
         </div>
       </div>
 
-      <!-- Result count + active filter chip -->
-      <p class="mt-8 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-mute">
-        Showing {{ filtered.length }}
-        <template v-if="selectedBrandCode !== 'all' || searchQuery">
-          of {{ perfumes.length }}
-        </template>
-      </p>
+      <!-- Filters toggle — left, below the search row -->
+      <div class="mt-6">
+        <button
+          type="button"
+          class="inline-flex items-center gap-2 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.16em] border transition-colors"
+          :class="showFilters
+            ? 'bg-accent-soft border-accent text-accent-deep'
+            : 'bg-paper-deep border-rule text-ink hover:border-ink-soft'"
+          @click="showFilters = !showFilters"
+        >
+          <Icon name="lucide:sliders-horizontal" size="13" />
+          Filters
+          <span v-if="activeFilterCount" class="font-mono text-[9px] bg-accent text-paper rounded-full px-1.5 py-px">
+            {{ activeFilterCount }}
+          </span>
+        </button>
+      </div>
+
+      <!-- Advanced filter panel -->
+      <div v-if="showFilters" class="mt-4 border border-rule bg-paper-deep p-5 sm:p-6">
+        <!-- A–Z name index -->
+        <div>
+          <label class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-2">
+            Name index
+          </label>
+          <div class="flex flex-wrap items-center gap-1.5">
+            <button
+              type="button"
+              class="px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest border transition-colors"
+              :class="letter === ''
+                ? 'bg-ink text-paper border-ink'
+                : 'bg-paper border-rule text-ink-soft hover:border-ink-soft'"
+              @click="letter = ''"
+            >
+              All
+            </button>
+            <button
+              v-for="l in LETTERS"
+              :key="l"
+              type="button"
+              class="w-7 py-1 font-mono text-[10px] border transition-colors"
+              :class="letter === l
+                ? 'bg-ink text-paper border-ink'
+                : 'bg-paper border-rule text-ink-soft hover:border-ink-soft'"
+              @click="letter = l"
+            >
+              {{ l }}
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-6 grid grid-cols-1 md:grid-cols-[1fr_200px_180px] gap-6">
+          <!-- Notes (multi-select, match all) — picker above, chosen notes below -->
+          <div>
+            <label class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-2">
+              Notes <span class="text-ink-mute normal-case tracking-normal">— must contain all</span>
+            </label>
+            <EditorialSelect
+              :model-value="''"
+              :options="noteSelectOptions"
+              searchable
+              placeholder="Add a note…"
+              search-placeholder="Search notes…"
+              @update:model-value="addNote"
+            />
+            <div v-if="selectedNotes.length" class="flex flex-wrap gap-1.5 mt-2">
+              <button
+                v-for="n in selectedNotes"
+                :key="n"
+                type="button"
+                class="inline-flex items-center gap-1 px-2 py-1 font-mono text-[9px] uppercase tracking-widest bg-accent-soft border border-accent text-accent-deep"
+                @click="removeNote(n)"
+              >
+                {{ n }}
+                <Icon name="lucide:x" size="10" />
+              </button>
+            </div>
+          </div>
+
+          <!-- Season -->
+          <div>
+            <label class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-2">
+              Season
+            </label>
+            <EditorialSelect v-model="season" :options="SEASON_OPTIONS" placeholder="Any season" />
+          </div>
+
+          <!-- Rating -->
+          <div>
+            <label class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-2">
+              Rating
+            </label>
+            <EditorialSelect v-model="ratingMin" :options="RATING_OPTIONS" placeholder="Any rating" />
+          </div>
+        </div>
+
+        <div v-if="activeFilterCount" class="mt-5 pt-4 border-t border-rule">
+          <button
+            type="button"
+            class="font-display italic text-[13px] text-ink-soft hover:text-accent-deep transition-colors"
+            @click="clearFilters"
+          >
+            Clear filters
+          </button>
+        </div>
+      </div>
+
+      <!-- Control bar: count (left) · sort (right) -->
+      <div class="mt-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+        <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-ink-mute">
+          {{ total.toLocaleString() }} {{ total === 1 ? 'fragrance' : 'fragrances' }}
+          <template v-if="!loading && perfumes.length">
+            <span class="text-accent-deep mx-1">·</span>showing {{ perfumes.length }}
+          </template>
+        </p>
+
+        <div class="flex flex-wrap items-center gap-x-2 gap-y-1.5">
+          <span class="font-mono text-[10px] uppercase tracking-[0.14em] text-ink-mute mr-1">Sort</span>
+          <button
+            v-for="opt in SORT_OPTIONS"
+            :key="opt.value"
+            type="button"
+            class="px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.12em] border transition-colors"
+            :class="sort === opt.value
+              ? 'bg-accent-soft border-accent text-accent-deep'
+              : 'bg-paper-deep border-rule text-ink-soft hover:border-ink-soft hover:text-ink'"
+            @click="sort = opt.value"
+          >
+            {{ opt.label }}
+          </button>
+        </div>
+      </div>
 
       <!-- Loading -->
       <p v-if="loading" class="mt-16 text-center font-display italic text-ink-soft">
@@ -90,13 +188,13 @@
       </p>
 
       <!-- Empty -->
-      <p v-else-if="filtered.length === 0" class="mt-16 text-center font-display italic text-ink-soft">
-        Nothing matches that. Try a different house or clear the search.
+      <p v-else-if="perfumes.length === 0" class="mt-16 text-center font-display italic text-ink-soft">
+        Nothing matches that. Loosen a filter or clear the search.
       </p>
 
-      <!-- Grid: 2 cols × 4 rows = 8 on mobile, 4 cols × 3 rows = 12 on desktop -->
-      <ul v-else class="mt-8 grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <li v-for="p in paged" :key="p.id">
+      <!-- Grid: 2 cols × 4 rows = 8 on mobile, 4 cols × 4 rows = 16 on desktop -->
+      <ul v-else class="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <li v-for="p in perfumes" :key="p.id">
           <NuxtLink
             :to="`/perfume/${p.id}`"
             class="group block bg-paper border border-rule p-5 hover:bg-paper-deep transition-colors duration-200"
@@ -105,7 +203,7 @@
               <BottleIcon :size="64" />
             </div>
             <p class="mt-4 font-mono text-[9px] uppercase tracking-[0.16em] text-ink-mute">
-              {{ brandByCode[p.brand]?.name || p.brand }}
+              {{ p.brand }}
             </p>
             <h3 class="mt-1 font-display text-[18px] text-ink leading-tight min-h-[2.5em] line-clamp-2">
               {{ p.name }}
@@ -116,12 +214,6 @@
             >
               {{ formatAccord(p.main_accord) }}
             </p>
-            <p class="mt-2 font-mono text-[9px] uppercase tracking-[0.14em] text-ink-mute">
-              {{ p.size }} ml
-              <template v-if="p.year">
-                <span class="text-accent-deep mx-1">·</span>{{ p.year }}
-              </template>
-            </p>
             <p class="mt-5 font-display italic text-[12px] text-ink hover:text-accent-deep border-b border-accent inline-block pb-px">
               View details →
             </p>
@@ -131,25 +223,25 @@
 
       <!-- Pagination -->
       <div
-        v-if="!loading && totalPages > 1"
+        v-if="!loading && lastPage > 1"
         class="mt-12 flex items-center justify-center gap-6 font-mono text-[10px] uppercase tracking-[0.24em]"
       >
         <button
           type="button"
           class="text-ink hover:text-accent-deep transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-          :disabled="pageIndex === 0"
-          @click="pageIndex--"
+          :disabled="page <= 1"
+          @click="goToPage(page - 1)"
         >
           &larr; Previous
         </button>
         <span class="text-ink-mute">
-          Page {{ pageIndex + 1 }} / {{ totalPages }}
+          Page {{ page }} / {{ lastPage.toLocaleString() }}
         </span>
         <button
           type="button"
           class="text-ink hover:text-accent-deep transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-          :disabled="pageIndex >= totalPages - 1"
-          @click="pageIndex++"
+          :disabled="page >= lastPage"
+          @click="goToPage(page + 1)"
         >
           Next &rarr;
         </button>
@@ -161,83 +253,168 @@
 <script setup lang="ts">
 definePageMeta({ middleware: 'auth' })
 
-type Brand = { id: number; code: string; name: string }
 type Perfume = {
   id: number
   brand: string
   name: string
-  size: number
-  year?: string
-  main_accord?: string
+  main_accord?: string | null
 }
 
 const api = useApi()
 
 const perfumes = ref<Perfume[]>([])
-const brands = ref<Brand[]>([])
+const total = ref(0)
+const lastPage = ref(1)
 const loading = ref(true)
+const page = ref(1)
 
-const selectedBrandCode = ref<'all' | string>('all')
+// Filters — `''` / `[]` mean "no filter".
 const searchQuery = ref('')
+const brand = ref('')
+const gender = ref('')
+const letter = ref('')
+const season = ref('')
+const ratingMin = ref('')
+const selectedNotes = ref<string[]>([])
+const sort = ref('name_asc')
+const showFilters = ref(false)
 
-// Responsive page size: 8 on mobile (2 cols × 4 rows), 12 on desktop (4 cols × 3 rows)
-const isLargeScreen = ref(false)
-const perPage = computed(() => (isLargeScreen.value ? 16 : 8))
-const pageIndex = ref(0)
+// Facets (brand list + note vocabulary) for the pickers.
+const brandOptions = ref<string[]>([])
+const noteOptions = ref<string[]>([])
 
-const brandByCode = computed(() =>
-  Object.fromEntries(brands.value.map((b: Brand) => [b.code, b])),
+const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
+
+// Static dropdown option sets.
+const SEX_OPTIONS = [
+  { value: '', label: 'Anyone' },
+  { value: 'men', label: 'Men' },
+  { value: 'women', label: 'Women' },
+  { value: 'unisex', label: 'Unisex' },
+]
+const SORT_OPTIONS = [
+  { value: 'name_asc', label: 'A - Z' },
+  { value: 'name_desc', label: 'Z - A' },
+  { value: 'rating', label: 'Most rated' },
+  { value: 'votes', label: 'Most liked' },
+]
+const SEASON_OPTIONS = [
+  { value: '', label: 'Any season' },
+  { value: 'Summer', label: 'Summer' },
+  { value: 'Autumn', label: 'Autumn' },
+  { value: 'Winter', label: 'Winter' },
+  { value: 'Spring', label: 'Spring' },
+]
+const RATING_OPTIONS = [
+  { value: '', label: 'Any rating' },
+  { value: '3.5', label: '3.5+' },
+  { value: '4', label: '4.0+' },
+  { value: '4.5', label: '4.5+' },
+]
+
+// Facet-backed option sets.
+const brandSelectOptions = computed(() => [
+  { value: '', label: 'All houses' },
+  ...brandOptions.value.map((b) => ({ value: b, label: b })),
+])
+const noteSelectOptions = computed(() =>
+  noteOptions.value
+    .filter((n) => !selectedNotes.value.includes(n))
+    .map((n) => ({ value: n, label: n })),
 )
 
-const countByBrand = computed(() => {
-  const acc: Record<string, number> = {}
-  for (const p of perfumes.value) {
-    acc[p.brand] = (acc[p.brand] ?? 0) + 1
-  }
-  return acc
-})
+// Responsive page size: 8 on mobile (2 cols × 4 rows), 16 on desktop (4 cols × 4 rows)
+const isLargeScreen = ref(false)
+const perPage = computed(() => (isLargeScreen.value ? 16 : 8))
 
-// Shape brands for the mobile EditorialSelect (label + count + "all" sentinel)
-const brandOptions = computed(() => [
-  { value: 'all', label: 'All houses', count: perfumes.value.length },
-  ...brands.value.map((b: Brand) => ({
-    value: b.code,
-    label: b.name,
-    count: countByBrand.value[b.code] ?? 0,
-  })),
-])
+const activeFilterCount = computed(
+  () =>
+    (letter.value ? 1 : 0)
+    + (season.value ? 1 : 0)
+    + (ratingMin.value ? 1 : 0)
+    + selectedNotes.value.length,
+)
 
-const filtered = computed(() => {
-  let list = perfumes.value
-  if (selectedBrandCode.value !== 'all') {
-    list = list.filter(p => p.brand === selectedBrandCode.value)
-  }
-  const q = searchQuery.value.trim().toLowerCase()
-  if (q.length >= 2) {
-    list = list.filter((p) => {
-      const brandName = brandByCode.value[p.brand]?.name?.toLowerCase() ?? ''
-      return p.name.toLowerCase().includes(q) || brandName.includes(q)
+function addNote(n: string) {
+  if (n && !selectedNotes.value.includes(n)) selectedNotes.value.push(n)
+}
+
+function removeNote(n: string) {
+  selectedNotes.value = selectedNotes.value.filter((x) => x !== n)
+}
+
+function clearFilters() {
+  letter.value = ''
+  season.value = ''
+  ratingMin.value = ''
+  selectedNotes.value = []
+}
+
+// The catalog is 24k rows — every filter is applied server-side via /api/perfume.
+async function fetchPage() {
+  loading.value = true
+  try {
+    const params = new URLSearchParams({
+      per_page: String(perPage.value),
+      page: String(page.value),
     })
+    if (sort.value === 'name_asc') {
+      params.set('sort', 'name')
+      params.set('direction', 'asc')
+    } else if (sort.value === 'name_desc') {
+      params.set('sort', 'name')
+      params.set('direction', 'desc')
+    } else if (sort.value === 'votes') {
+      params.set('sort', 'votes')
+      params.set('direction', 'desc')
+    } else {
+      params.set('sort', 'rating')
+      params.set('direction', 'desc')
+    }
+
+    const q = searchQuery.value.trim()
+    if (q) params.set('search', q)
+    if (brand.value) params.set('brand', brand.value)
+    if (gender.value) params.set('gender', gender.value)
+    if (letter.value) params.set('letter', letter.value)
+    if (season.value) params.set('season', season.value)
+    if (ratingMin.value) params.set('rating_min', ratingMin.value)
+    if (selectedNotes.value.length) params.set('notes', selectedNotes.value.join(','))
+
+    const res = await api.get(`/perfume?${params.toString()}`)
+    perfumes.value = res.data ?? []
+    total.value = res.total ?? 0
+    lastPage.value = res.last_page ?? 1
+  } finally {
+    loading.value = false
   }
-  return list
-})
+}
 
-const totalPages = computed(() => Math.max(1, Math.ceil(filtered.value.length / perPage.value)))
+function goToPage(n: number) {
+  page.value = Math.min(Math.max(n, 1), lastPage.value)
+  fetchPage()
+}
 
-const paged = computed(() => {
-  const start = pageIndex.value * perPage.value
-  return filtered.value.slice(start, start + perPage.value)
-})
+// Any filter change snaps back to page 1 and refetches.
+function resetAndFetch() {
+  page.value = 1
+  fetchPage()
+}
 
-// Snap back to page 1 whenever the filter set changes.
-watch([selectedBrandCode, searchQuery], () => {
-  pageIndex.value = 0
-})
+// perPage is intentionally NOT watched here — it changes when isLargeScreen is
+// first set in onMounted, which would fire a fetch on top of the explicit one.
+// Viewport changes refetch via the matchMedia listener below.
+watch(
+  [brand, gender, letter, season, ratingMin, sort, selectedNotes],
+  resetAndFetch,
+  { deep: true },
+)
 
-// Keep the current page valid when perPage shrinks/grows (e.g. user resizes
-// from desktop to mobile mid-browse and the existing page index would be empty).
-watch(totalPages, (n) => {
-  if (pageIndex.value >= n) pageIndex.value = Math.max(0, n - 1)
+// Search is debounced so each keystroke doesn't hit the API.
+let searchTimer: ReturnType<typeof setTimeout> | undefined
+watch(searchQuery, () => {
+  clearTimeout(searchTimer)
+  searchTimer = setTimeout(resetAndFetch, 300)
 })
 
 const formatAccord = (raw: string) =>
@@ -245,23 +422,25 @@ const formatAccord = (raw: string) =>
 
 onMounted(async () => {
   // Track viewport so per-page count adapts to mobile vs desktop. lg = 1024px.
+  // Setting isLargeScreen here updates perPage before the first fetchPage()
+  // below; later viewport changes refetch explicitly.
   if (typeof window !== 'undefined') {
     const mq = window.matchMedia('(min-width: 1024px)')
     isLargeScreen.value = mq.matches
     mq.addEventListener('change', (e) => {
       isLargeScreen.value = e.matches
+      resetAndFetch()
     })
   }
 
   try {
-    const [perfumeData, brandData] = await Promise.all([
-      api.get('/perfume'),
-      api.get('/brand'),
-    ])
-    perfumes.value = perfumeData
-    brands.value = brandData
-  } finally {
-    loading.value = false
+    const facets = await api.get('/perfume-facets')
+    brandOptions.value = facets.brands ?? []
+    noteOptions.value = facets.notes ?? []
+  } catch (e) {
+    console.warn('[perfume] facets load failed', e)
   }
+
+  fetchPage()
 })
 </script>

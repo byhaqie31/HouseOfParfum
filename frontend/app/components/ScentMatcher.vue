@@ -389,8 +389,10 @@ function saveStored(s: Committed) {
 // ───────── Catalog fetch (needed to derive fingerprints for wardrobe items) ─────────
 async function ensureCatalog() {
   if (catalog.value.length) return
-  const data = await api.get('/perfume')
-  catalog.value = Array.isArray(data) ? data : []
+  // /api/perfume is the 24k discovery catalogue, paginated — pull the
+  // top-rated subset and unwrap the paginator envelope.
+  const data = await api.get('/perfume?sort=rating&direction=desc&per_page=100')
+  catalog.value = Array.isArray(data?.data) ? data.data : []
 }
 
 // ───────── Processing run ─────────

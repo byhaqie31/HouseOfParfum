@@ -184,7 +184,7 @@
             </div>
             <div class="flex flex-col justify-center min-w-0">
               <p class="font-mono text-[9px] uppercase tracking-[0.16em] text-ink-mute">
-                {{ brandByCode[rec.brand]?.name || rec.brand }}
+                {{ rec.brand }}
               </p>
               <h3 class="mt-1 font-display text-[18px] text-ink leading-tight group-hover:text-accent-deep transition-colors">
                 {{ rec.name }}
@@ -209,17 +209,12 @@
 <script setup lang="ts">
 definePageMeta({ middleware: 'auth' })
 
-type Brand = { id: number; code: string; name: string }
 type Perfume = {
   id: number
   brand: string
   name: string
-  size: number
-  year?: string
+  year?: number | string
   main_accord?: string
-  history?: string
-  suit_season?: string
-  suit_time?: string
 }
 
 const auth = useAuthStore()
@@ -258,17 +253,12 @@ const wardrobeGlance = computed(() => wardrobe.items.slice(0, 4))
 
 // ──────────── Recommendations from catalog ────────────
 const catalogPerfumes = ref<Perfume[]>([])
-const brands = ref<Brand[]>([])
 const shuffledRecs = ref<Perfume[]>([])
 const recPage = ref(0)
 const RECS_PER_PAGE = 2
 
 // ──────────── Field notes — daily perfumery knowledge ────────────
 const knowledge = useDailyKnowledge(now)
-
-const brandByCode = computed(() =>
-  Object.fromEntries(brands.value.map((b: Brand) => [b.code, b])),
-)
 
 const formatAccord = (raw: string) =>
   raw.split(',').map((s: string) => s.trim()).filter(Boolean).join(' · ')
@@ -313,12 +303,9 @@ const prevRecPage = () => {
 
 onMounted(async () => {
   try {
-    const [perfumeData, brandData] = await Promise.all([
-      api.get('/perfume'),
-      api.get('/brand'),
-    ])
-    catalogPerfumes.value = perfumeData
-    brands.value = brandData
+    // The catalog is 24k rows — pull the top-rated subset for the cross-sell.
+    const res = await api.get('/perfume?sort=rating&direction=desc&per_page=100')
+    catalogPerfumes.value = res.data ?? []
     buildRecommendations()
   } catch (e) {
     console.warn('[today] catalog load failed', e)

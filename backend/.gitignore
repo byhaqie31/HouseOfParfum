@@ -16,3 +16,8 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+
+# Discovery import sources: fra_cleaned.csv (6.7MB) is committed and used by
+# `discovery:import`. fra_perfumes.csv (32MB) was evaluated and rejected —
+# kept locally for reference only, never committed.
+/database/data/fragrances/fra_perfumes.csv
