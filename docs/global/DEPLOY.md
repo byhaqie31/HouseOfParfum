@@ -90,12 +90,13 @@ git pull
 docker compose -f docker-compose.prod.yml up -d --build
 docker compose -f docker-compose.prod.yml exec backend php artisan migrate --force
 docker compose -f docker-compose.prod.yml exec backend php artisan discovery:import
+docker compose -f docker-compose.prod.yml exec backend php artisan cache:clear
 docker compose -f docker-compose.prod.yml exec backend php artisan config:cache
 docker compose -f docker-compose.prod.yml exec backend php artisan route:cache
 docker compose -f docker-compose.prod.yml exec backend php artisan event:cache
 ```
 
-`discovery:import` upserts on `source_id`, so re-running it on every deploy is harmless — it keeps `discovery_perfumes` in sync with the CSV baked into the image.
+`discovery:import` upserts on `source_id`, so re-running it on every deploy is harmless — it keeps `discovery_perfumes` in sync with the CSV baked into the image. `cache:clear` then busts the cached `discovery.facets` key (file-driver cache survives container rebuilds), so the storefront's brand/note filters reflect the fresh catalogue.
 
 ## Rollback
 

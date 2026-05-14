@@ -53,6 +53,10 @@ jobs:
             echo ""
             echo "=== import discovery catalogue (idempotent upsert) ==="
             docker compose -f docker-compose.prod.yml exec -T backend php artisan discovery:import
+            # Bust the cached discovery.facets key so the brand/note filters
+            # pick up the freshly imported catalogue instead of the stale
+            # (file-driver) cache that survives container rebuilds.
+            docker compose -f docker-compose.prod.yml exec -T backend php artisan cache:clear
 
             echo ""
             echo "=== refresh framework caches ==="
