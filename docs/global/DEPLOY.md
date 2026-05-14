@@ -82,14 +82,14 @@ docker compose -f docker-compose.prod.yml exec backend php artisan event:cache
 
 > `optimize` would error on `view:cache` because the API has no Blade views (the L11 upgrade removed `resources/views/`). Running the three working caches individually keeps deploys green.
 
-## Routine deploy
+## Routine deploy 
 
 ```bash
 cd ~/HouseOfParfum
 git pull
 docker compose -f docker-compose.prod.yml up -d --build
 docker compose -f docker-compose.prod.yml exec backend php artisan migrate --force
-docker compose -f docker-compose.prod.yml exec backend php artisan discovery:import
+docker compose -f docker-compose.prod.yml exec backend php artisan discovery:import 
 docker compose -f docker-compose.prod.yml exec backend php artisan cache:clear
 docker compose -f docker-compose.prod.yml exec backend php artisan config:cache
 docker compose -f docker-compose.prod.yml exec backend php artisan route:cache
