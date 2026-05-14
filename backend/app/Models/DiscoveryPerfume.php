@@ -22,20 +22,30 @@ class DiscoveryPerfume extends Model
         'source_id', 'source_url', 'name', 'brand', 'country', 'gender',
         'rating', 'votes', 'release_year',
         'notes_top', 'notes_middle', 'notes_base', 'accords', 'perfumers',
+        // Derived wear profile (App\Support\AccordProfile), persisted by the importer.
+        'suit_season', 'suit_time',
+        'percent_summer', 'percent_autumn', 'percent_winter',
+        'percent_spring', 'percent_day', 'percent_night',
     ];
 
     /** @return array<string, string> */
     protected function casts(): array
     {
         return [
-            'rating'       => 'float',
-            'votes'        => 'integer',
-            'release_year' => 'integer',
-            'notes_top'    => 'array',
-            'notes_middle' => 'array',
-            'notes_base'   => 'array',
-            'accords'      => 'array',
-            'perfumers'    => 'array',
+            'rating'         => 'float',
+            'votes'          => 'integer',
+            'release_year'   => 'integer',
+            'notes_top'      => 'array',
+            'notes_middle'   => 'array',
+            'notes_base'     => 'array',
+            'accords'        => 'array',
+            'perfumers'      => 'array',
+            'percent_summer' => 'integer',
+            'percent_autumn' => 'integer',
+            'percent_winter' => 'integer',
+            'percent_spring' => 'integer',
+            'percent_day'    => 'integer',
+            'percent_night'  => 'integer',
         ];
     }
 }

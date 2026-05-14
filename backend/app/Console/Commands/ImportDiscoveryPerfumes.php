@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Support\AccordProfile;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -95,23 +96,35 @@ class ImportDiscoveryPerfumes extends Command
                 continue;
             }
 
+            // Accords drive the derived wear profile (season / time-of-day fit).
+            $accords = $this->listArray(implode(',', [$acc1, $acc2, $acc3, $acc4, $acc5]));
+            $profile = AccordProfile::forPerfume($accords);
+
             $buffer[] = [
-                'source_id'    => $sourceId,
-                'source_url'   => $url,
-                'name'         => $this->humanize($perfume),
-                'brand'        => $this->humanize($brand),
-                'country'      => $country !== '' ? $country : null,
-                'gender'       => $gender !== '' ? $gender : null,
-                'rating'       => $this->decimal($ratingValue),
-                'votes'        => is_numeric($ratingCount) ? (int) $ratingCount : null,
-                'release_year' => $this->year($year),
-                'notes_top'    => $this->listJson($top),
-                'notes_middle' => $this->listJson($middle),
-                'notes_base'   => $this->listJson($base),
-                'accords'      => $this->listJson(implode(',', [$acc1, $acc2, $acc3, $acc4, $acc5])),
-                'perfumers'    => $this->perfumersJson([$perfumer1, $perfumer2]),
-                'created_at'   => $now,
-                'updated_at'   => $now,
+                'source_id'      => $sourceId,
+                'source_url'     => $url,
+                'name'           => $this->humanize($perfume),
+                'brand'          => $this->humanize($brand),
+                'country'        => $country !== '' ? $country : null,
+                'gender'         => $gender !== '' ? $gender : null,
+                'rating'         => $this->decimal($ratingValue),
+                'votes'          => is_numeric($ratingCount) ? (int) $ratingCount : null,
+                'release_year'   => $this->year($year),
+                'notes_top'      => $this->listJson($top),
+                'notes_middle'   => $this->listJson($middle),
+                'notes_base'     => $this->listJson($base),
+                'accords'        => $accords === [] ? null : json_encode($accords),
+                'perfumers'      => $this->perfumersJson([$perfumer1, $perfumer2]),
+                'suit_season'    => $profile['suit_season'],
+                'suit_time'      => $profile['suit_time'],
+                'percent_summer' => $profile['percent_summer'],
+                'percent_autumn' => $profile['percent_autumn'],
+                'percent_winter' => $profile['percent_winter'],
+                'percent_spring' => $profile['percent_spring'],
+                'percent_day'    => $profile['percent_day'],
+                'percent_night'  => $profile['percent_night'],
+                'created_at'     => $now,
+                'updated_at'     => $now,
             ];
             $read++;
 
@@ -150,7 +163,8 @@ class ImportDiscoveryPerfumes extends Command
             ['source_id'],
             ['source_url', 'name', 'brand', 'country', 'gender', 'rating', 'votes',
              'release_year', 'notes_top', 'notes_middle', 'notes_base', 'accords',
-             'perfumers', 'updated_at'],
+             'perfumers', 'suit_season', 'suit_time', 'percent_summer', 'percent_autumn',
+             'percent_winter', 'percent_spring', 'percent_day', 'percent_night', 'updated_at'],
         );
     }
 
@@ -187,18 +201,29 @@ class ImportDiscoveryPerfumes extends Command
     }
 
     /**
-     * Comma-separated note/accord string -> JSON array of trimmed, de-duped
-     * values. Empty input -> null, so the column stays NULL rather than "[]".
+     * Comma-separated note/accord string -> array of trimmed, de-duped values.
+     *
+     * @return list<string>
      */
-    private function listJson(string $value): ?string
+    private function listArray(string $value): array
     {
-        $items = collect(explode(',', $value))
+        return collect(explode(',', $value))
             ->map(fn ($item) => trim($item))
             ->filter(fn ($item) => $item !== '')
             ->unique()
-            ->values();
+            ->values()
+            ->all();
+    }
 
-        return $items->isEmpty() ? null : $items->toJson();
+    /**
+     * Comma-separated note/accord string -> JSON array. Empty input -> null,
+     * so the column stays NULL rather than "[]".
+     */
+    private function listJson(string $value): ?string
+    {
+        $items = $this->listArray($value);
+
+        return $items === [] ? null : json_encode($items);
     }
 
     /**

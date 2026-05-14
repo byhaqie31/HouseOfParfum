@@ -8,6 +8,8 @@ use App\Models\Perfume;
 use App\Support\DiscoveryQuery;
 use App\Support\PerfumeTransformer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Storefront perfume API.
@@ -34,6 +36,50 @@ class PerfumeController extends Controller
             ->through(fn (DiscoveryPerfume $d) => PerfumeTransformer::toCatalog($d));
 
         return response()->json($perfumes);
+    }
+
+    /**
+     * Filter facets for the storefront's advanced filters — the distinct
+     * brand list and the flattened note vocabulary. Cached for a day; the
+     * catalogue only changes when `discovery:import` re-runs.
+     */
+    public function facets()
+    {
+        $facets = Cache::remember('discovery.facets', now()->addDay(), function () {
+            $brands = DiscoveryPerfume::query()
+                ->whereNotNull('brand')
+                ->orderBy('brand')
+                ->distinct()
+                ->pluck('brand')
+                ->values();
+
+            // Flatten the three JSON pyramid columns into one sorted vocabulary.
+            // Set-based dedup over a streamed cursor — O(n), no growing collections.
+            $seen = [];
+            foreach (
+                DB::table('discovery_perfumes')
+                    ->select('notes_top', 'notes_middle', 'notes_base')
+                    ->cursor() as $row
+            ) {
+                foreach ([$row->notes_top, $row->notes_middle, $row->notes_base] as $json) {
+                    if (! $json) {
+                        continue;
+                    }
+                    foreach (json_decode($json, true) ?? [] as $note) {
+                        $seen[$note] = true;
+                    }
+                }
+            }
+            $notes = array_keys($seen);
+            sort($notes);
+
+            return [
+                'brands' => $brands,
+                'notes'  => $notes,
+            ];
+        });
+
+        return response()->json($facets);
     }
 
     public function store(Request $request)

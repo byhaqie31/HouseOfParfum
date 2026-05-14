@@ -8,11 +8,11 @@ use App\Models\DiscoveryPerfume;
  * Maps a `discovery_perfumes` row into the legacy storefront `CatalogPerfume`
  * shape the Nuxt frontend expects (see `frontend/app/data/scent-matching.ts`).
  *
- * The discovery table stores notes/accords as JSON arrays and has no commerce
- * or seasonal-fit columns; this flattens the arrays to the comma-separated
- * strings the UI's `split(',')` parsers expect, and derives the season/time
- * fields from accords via {@see AccordProfile}. `image` / `size` / `quality` /
- * `history` have no discovery equivalent and are returned null — every
+ * The discovery table stores notes/accords as JSON arrays; this flattens them
+ * to the comma-separated strings the UI's `split(',')` parsers expect. The
+ * season/time fields are read straight from the persisted wear-profile columns
+ * (derived by {@see AccordProfile} at import time). `image` / `size` / `quality`
+ * / `history` have no discovery equivalent and are returned null — every
  * frontend template v-if-guards them.
  */
 class PerfumeTransformer
@@ -22,8 +22,6 @@ class PerfumeTransformer
      */
     public static function toCatalog(DiscoveryPerfume $d): array
     {
-        $profile = AccordProfile::forPerfume($d->accords);
-
         return [
             'id'             => $d->id,
             'brand'          => $d->brand,
@@ -34,14 +32,15 @@ class PerfumeTransformer
             'base_notes'     => self::commaList($d->notes_base),
             'year'           => $d->release_year,
             'suit'           => $d->gender,
-            'suit_season'    => $profile['suit_season'],
-            'suit_time'      => $profile['suit_time'],
-            'percent_summer' => $profile['percent_summer'],
-            'percent_autumn' => $profile['percent_autumn'],
-            'percent_winter' => $profile['percent_winter'],
-            'percent_spring' => $profile['percent_spring'],
-            'percent_day'    => $profile['percent_day'],
-            'percent_night'  => $profile['percent_night'],
+            // Derived wear profile — persisted columns (see AccordProfile + the importer).
+            'suit_season'    => $d->suit_season,
+            'suit_time'      => $d->suit_time,
+            'percent_summer' => $d->percent_summer,
+            'percent_autumn' => $d->percent_autumn,
+            'percent_winter' => $d->percent_winter,
+            'percent_spring' => $d->percent_spring,
+            'percent_day'    => $d->percent_day,
+            'percent_night'  => $d->percent_night,
             // No discovery equivalent — frontend templates guard these.
             'image'   => null,
             'size'    => null,

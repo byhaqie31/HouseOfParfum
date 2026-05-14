@@ -11,8 +11,19 @@ use Illuminate\Http\Request;
  * sort logic behind both `DiscoveryPerfumeController` (raw discovery shape) and
  * `PerfumeController` (transformed into the legacy storefront shape).
  *
- * Supported query params: search, brand, gender, note, accord, sort, direction,
- * per_page. See `DiscoveryPerfumeController`'s docblock for the full contract.
+ * Supported query params:
+ *   search      free text matched against name + brand
+ *   brand       exact brand match
+ *   gender      exact gender match (men | unisex | women)
+ *   season      exact season match (summer | autumn | winter | spring)
+ *   rating_min  minimum rating, inclusive
+ *   letter      A–Z index — names beginning with this letter
+ *   notes       comma-separated notes, match ALL (each must be in the pyramid)
+ *   note        legacy single-note alias for `notes`
+ *   accord      single accord — matched inside the accords array
+ *   sort        rating | votes | release_year | name   (default: rating)
+ *   direction   asc | desc                             (default: desc)
+ *   per_page    1–100                                  (default: 24)
  */
 class DiscoveryQuery
 {
@@ -38,17 +49,37 @@ class DiscoveryQuery
         if ($gender = $request->query('gender')) {
             $query->where('gender', $gender);
         }
-
-        // JSON-array membership filters. Stored note/accord values are
-        // lower-case, so the needle is lower-cased to match.
-        if ($note = $request->query('note')) {
-            $note = mb_strtolower($note);
-            $query->where(function ($q) use ($note) {
-                $q->whereJsonContains('notes_top', $note)
-                    ->orWhereJsonContains('notes_middle', $note)
-                    ->orWhereJsonContains('notes_base', $note);
-            });
+        if ($season = $request->query('season')) {
+            // suit_season is stored title-cased (Summer / Autumn / Winter / Spring).
+            $query->where('suit_season', ucfirst(mb_strtolower(trim($season))));
         }
+        if (is_numeric($ratingMin = $request->query('rating_min'))) {
+            $query->where('rating', '>=', (float) $ratingMin);
+        }
+
+        // A–Z index strip — names beginning with the given letter.
+        if ($letter = $request->query('letter')) {
+            $query->where('name', 'like', mb_substr(trim($letter), 0, 1).'%');
+        }
+
+        // Note filter — accepts `notes` (comma-separated, match ALL) or the
+        // legacy single `note`. Each note must appear in one of the three
+        // pyramid columns; stored note values are lower-case.
+        $noteParam = $request->query('notes') ?? $request->query('note');
+        if ($noteParam) {
+            $notes = collect(explode(',', $noteParam))
+                ->map(fn ($n) => mb_strtolower(trim($n)))
+                ->filter()
+                ->all();
+            foreach ($notes as $note) {
+                $query->where(function ($q) use ($note) {
+                    $q->whereJsonContains('notes_top', $note)
+                        ->orWhereJsonContains('notes_middle', $note)
+                        ->orWhereJsonContains('notes_base', $note);
+                });
+            }
+        }
+
         if ($accord = $request->query('accord')) {
             $query->whereJsonContains('accords', mb_strtolower($accord));
         }

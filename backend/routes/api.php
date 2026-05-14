@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\Route;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+// Storefront filter facets (brand list + note vocabulary) — declared before
+// the resource so "perfume-facets" can't be mistaken for a {perfume} id.
+Route::get('/perfume-facets', [PerfumeController::class, 'facets']);
+
 Route::apiResource('perfume', PerfumeController::class)->only(['index', 'show']);
 Route::apiResource('brand', BrandController::class)->only(['index', 'show']);
 
