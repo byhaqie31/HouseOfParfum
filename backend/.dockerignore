@@ -7,3 +7,6 @@ storage/framework/sessions/*
 storage/framework/views/*
 .env
 .env.production
+
+# 32MB rejected dataset — kept locally, must not bloat the image
+database/data/fragrances/fra_perfumes.csv
