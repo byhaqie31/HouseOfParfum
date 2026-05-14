@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BrandController;
+use App\Http\Controllers\Api\DiscoveryPerfumeController;
 use App\Http\Controllers\Api\PerfumeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -12,6 +13,9 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::apiResource('perfume', PerfumeController::class)->only(['index', 'show']);
 Route::apiResource('brand', BrandController::class)->only(['index', 'show']);
+
+// Discovery catalogue — read-only, populated by `php artisan discovery:import`.
+Route::apiResource('discovery', DiscoveryPerfumeController::class)->only(['index', 'show']);
 
 // Authenticated (sanctum bearer token)
 Route::middleware('auth:sanctum')->group(function () {
