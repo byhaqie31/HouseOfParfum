@@ -16,13 +16,13 @@
         </p>
         <div v-if="!auth.isLoggedIn" class="mt-12 flex items-center justify-center gap-6">
           <NuxtLink
-            to="/"
+            to="/auth/login"
             class="inline-block bg-ink text-paper text-xs uppercase tracking-widest px-8 py-3.5 hover:bg-ink-soft transition-colors"
           >
             Sign in
           </NuxtLink>
           <NuxtLink
-            to="/register"
+            to="/auth/register"
             class="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-ink hover:text-accent transition-colors"
           >
             Create an account
@@ -67,7 +67,7 @@
           Begin with the bottle <em class="text-ink-soft">you reached for today.</em>
         </h2>
         <NuxtLink
-          to="/register"
+          to="/auth/register"
           class="mt-10 inline-block bg-ink text-paper text-xs uppercase tracking-widest px-8 py-3.5 hover:bg-ink-soft transition-colors"
         >
           Create your shelf

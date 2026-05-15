@@ -5,15 +5,15 @@ export type Longevity = 'brief' | 'settled' | 'lasting' | 'all-day' | 'into-nigh
 export type JournalEntry = {
   id: string
   wardrobe_item_id: string | null   // links to WardrobeItem when worn from your shelf
-  brand: string                   // denormalized so the entry survives a wardrobe edit
+  brand: string                     // denormalized so the entry survives a wardrobe edit
   name: string
-  worn_at: string                 // ISO timestamp
+  worn_at: string                   // ISO timestamp
 
   // Diary fields. All optional — quick wears from /today log with none of these set;
   // detailed wears from /wardrobe/[id] can fill any subset.
-  experience?: string             // personal feeling — how it sat with you today
-  compliments?: string            // what others said
-  longevity?: Longevity | null    // how long it lasted
+  experience?: string               // personal feeling — how it sat with you today
+  compliments?: string              // what others said
+  longevity?: Longevity | null      // how long it lasted
 
   // Legacy single-field note kept for entries created before the diary fields landed.
   notes?: string
@@ -64,34 +64,65 @@ export const useJournalStore = defineStore('journal', {
       this.hydrated = true
     },
 
+    /** Fetch all entries from the API — call this only from the journal page. */
+    async load() {
+      if (!import.meta.client) return
+      const auth = useAuthStore()
+      if (!auth.token) return
+      try {
+        const api = useApi()
+        const data = await api.get('/journal') as JournalEntry[]
+        this.entries = Array.isArray(data) ? data : []
+        this.persist()
+      } catch {
+        // keep using local state on failure
+      }
+    },
+
     persist() {
       if (!import.meta.client) return
       localStorage.setItem(STORAGE_KEY, JSON.stringify(this.entries))
     },
 
-    log(input: Omit<JournalEntry, 'id' | 'worn_at'> & { worn_at?: string }) {
+    async log(input: Omit<JournalEntry, 'id' | 'worn_at'> & { worn_at?: string }) {
       const entry: JournalEntry = {
         ...input,
         id: crypto.randomUUID(),
-        worn_at: input.worn_at ?? new Date().toISOString(),
+        worn_at: input.worn_at ?? localTimestamp(),
       }
-      this.entries.unshift(entry)
+      const auth = useAuthStore()
+      if (auth.token) {
+        const api = useApi()
+        const saved = await api.post('/journal', entry) as JournalEntry
+        this.entries.unshift(saved)
+      } else {
+        this.entries.unshift(entry)
+      }
       this.persist()
       return entry
     },
 
-    /**
-     * Patch a journal entry. Used as the user updates today's diary
-     * (experience, compliments, longevity) over the course of a wear.
-     */
-    update(id: string, patch: Partial<Omit<JournalEntry, 'id'>>) {
-      const idx = this.entries.findIndex(e => e.id === id)
-      if (idx === -1) return
-      this.entries[idx] = { ...this.entries[idx], ...patch } as JournalEntry
+    async update(id: string, patch: Partial<Omit<JournalEntry, 'id'>>) {
+      const auth = useAuthStore()
+      if (auth.token) {
+        const api = useApi()
+        const saved = await api.patch(`/journal/${id}`, patch) as JournalEntry
+        const idx = this.entries.findIndex(e => e.id === id)
+        if (idx !== -1) this.entries[idx] = { ...this.entries[idx], ...saved }
+      } else {
+        const idx = this.entries.findIndex(e => e.id === id)
+        if (idx === -1) return
+        this.entries[idx] = { ...this.entries[idx], ...patch } as JournalEntry
+      }
       this.persist()
     },
 
-    remove(id: string) {
+    async remove(id: string) {
+      const auth = useAuthStore()
+      if (auth.token) {
+        const api = useApi()
+        await api.delete(`/journal/${id}`)
+      }
       this.entries = this.entries.filter(e => e.id !== id)
       this.persist()
     },

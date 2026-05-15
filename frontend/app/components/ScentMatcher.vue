@@ -19,7 +19,7 @@
           Add a bottle to your wardrobe first — we match against what you own.
         </p>
         <NuxtLink
-          to="/wardrobe/add"
+          to="/user/wardrobe/add"
           class="mt-6 inline-flex items-center gap-2 bg-ink text-paper text-xs uppercase tracking-[0.2em] px-6 py-3 hover:bg-ink-soft transition-colors"
         >
           Add a bottle
@@ -206,16 +206,8 @@
               Show the dossier &rarr;
             </NuxtLink>
 
-            <p
-              class="mt-5 pt-4 border-t border-rule font-display italic text-[15px] leading-normal max-w-prose"
-              :class="isPickWornToday ? 'text-accent-deep' : 'text-ink-soft'"
-            >
-              <template v-if="isPickWornToday">
-                You're wearing this now.
-              </template>
-              <template v-else>
-                {{ matchReason }}
-              </template>
+            <p class="mt-5 pt-4 border-t border-rule font-display italic text-[15px] text-ink-soft leading-normal max-w-prose">
+              {{ matchReason }}
             </p>
 
             <!-- Accord chips (from catalog enrichment) -->
@@ -237,32 +229,36 @@
             <!-- Action row pinned to the bottom of the right column -->
             <div class="mt-auto pt-8">
               <div class="border-t border-rule pt-6 flex flex-wrap items-center justify-between gap-4">
-                <button
-                  v-if="matches.length > 1 && !isPickWornToday"
-                  type="button"
-                  class="font-display italic text-[14px] text-ink hover:text-accent-deep pb-1 border-b border-accent transition-colors"
-                  @click="cycleMatch"
-                >
-                  Show me another
-                </button>
-                <span v-else aria-hidden="true" />
-
-                <NuxtLink
-                  v-if="isPickWornToday"
-                  :to="`/wardrobe/${topMatch.item.id}`"
-                  class="inline-flex items-center gap-2 bg-ink text-paper text-[11px] uppercase tracking-[0.2em] font-medium px-6 py-3 hover:bg-ink-soft transition-colors"
-                >
-                  Update diary
-                  <Icon name="lucide:arrow-right" size="14" />
-                </NuxtLink>
-                <button
-                  v-else
-                  type="button"
-                  class="bg-ink text-paper text-[11px] uppercase tracking-[0.2em] font-medium px-6 py-3 hover:bg-ink-soft transition-colors"
-                  @click="wearThis"
-                >
-                  I'm wearing this
-                </button>
+                <template v-if="isPickWornToday">
+                  <p class="font-display italic text-[14px] text-accent-deep">
+                    You're wearing this now.
+                  </p>
+                  <NuxtLink
+                    :to="`/wardrobe/${topMatch.item.id}`"
+                    class="inline-flex items-center gap-2 bg-ink text-paper text-[11px] uppercase tracking-[0.2em] font-medium px-6 py-3 hover:bg-ink-soft transition-colors"
+                  >
+                    Update diary
+                    <Icon name="lucide:arrow-right" size="14" />
+                  </NuxtLink>
+                </template>
+                <template v-else>
+                  <button
+                    v-if="matches.length > 1"
+                    type="button"
+                    class="font-display italic text-[14px] text-ink hover:text-accent-deep pb-1 border-b border-accent transition-colors"
+                    @click="cycleMatch"
+                  >
+                    Show me another
+                  </button>
+                  <span v-else aria-hidden="true" />
+                  <button
+                    type="button"
+                    class="bg-ink text-paper text-[11px] uppercase tracking-[0.2em] font-medium px-6 py-3 hover:bg-ink-soft transition-colors"
+                    @click="wearThis"
+                  >
+                    I'm wearing this
+                  </button>
+                </template>
               </div>
             </div>
           </div>
@@ -276,7 +272,7 @@
           none of them are linked to the catalog yet.
         </p>
         <NuxtLink
-          to="/perfume"
+          to="/user/perfume"
           class="font-mono text-[10px] uppercase tracking-[0.18em] text-ink hover:text-accent-deep pb-1 border-b border-accent transition-colors"
         >
           Browse the catalog &rarr;
@@ -307,6 +303,8 @@ import type { JournalEntry } from '~/stores/journal'
 const api = useApi()
 const wardrobe = useWardrobeStore()
 const journal = useJournalStore()
+const moodStore = useMoodStore()
+const toast = useToast()
 
 // ───────── State ─────────
 type Mode = 'picking' | 'processing' | 'result' | 'error'
@@ -352,47 +350,30 @@ function labelStatus(i: number) {
   return 'text-ink-mute opacity-50'
 }
 
-// ───────── Persistence (daily) ─────────
-const STORAGE_KEY = 'hop:scent-match:v1'
-
-interface Stored extends Committed {
-  date: string
-}
-
-function todayStr(): string {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-}
-
-function loadStored(): Stored | null {
-  if (typeof window === 'undefined') return null
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY)
-    if (!raw) return null
-    const parsed = JSON.parse(raw) as Stored
-    if (parsed.date !== todayStr()) return null
-    return parsed
-  } catch {
-    return null
-  }
-}
-
-function saveStored(s: Committed) {
-  if (typeof window === 'undefined') return
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ date: todayStr(), ...s }))
-  } catch {
-    /* quota / disabled — non-critical */
-  }
-}
+// ───────── Persistence (daily) — delegated to useMoodStore ─────────
 
 // ───────── Catalog fetch (needed to derive fingerprints for wardrobe items) ─────────
+// Only fetch the entries actually referenced by wardrobe items — a generic top-N
+// subset would miss any item whose catalog_id falls outside that window.
 async function ensureCatalog() {
-  if (catalog.value.length) return
-  // /api/perfume is the 24k discovery catalogue, paginated — pull the
-  // top-rated subset and unwrap the paginator envelope.
-  const data = await api.get('/perfume?sort=rating&direction=desc&per_page=100')
-  catalog.value = Array.isArray(data?.data) ? data.data : []
+  const ids = wardrobe.items
+    .filter((i): i is WardrobeItem & { catalog_id: number } => typeof i.catalog_id === 'number')
+    .map(i => i.catalog_id)
+
+  if (!ids.length) {
+    catalog.value = []
+    return
+  }
+
+  const cached = new Set(catalog.value.map(e => e.id))
+  const missing = ids.filter(id => !cached.has(id))
+  if (!missing.length) return
+
+  const results = await Promise.all(
+    missing.map(id => api.get(`/perfume/${id}`).catch(() => null))
+  )
+  const fetched = results.filter((r): r is CatalogPerfume => r !== null && typeof r?.id === 'number')
+  catalog.value = [...catalog.value, ...fetched]
 }
 
 // ───────── Processing run ─────────
@@ -426,7 +407,7 @@ function commitAndProcess() {
     occasion: occasion.value!,
   }
   committed.value = c
-  saveStored(c)
+  moodStore.save(c.mood, c.weather, c.occasion)
   matchIndex.value = 0
   runProcessing()
 }
@@ -461,13 +442,14 @@ function cancelEdit() {
 }
 
 // ───────── Hydration ─────────
-onMounted(() => {
-  const stored = loadStored()
-  if (stored) {
-    committed.value = { mood: stored.mood, weather: stored.weather, occasion: stored.occasion }
-    mood.value = stored.mood
-    weather.value = stored.weather
-    occasion.value = stored.occasion
+onMounted(async () => {
+  await moodStore.init()
+  const today = moodStore.today
+  if (today) {
+    committed.value = { mood: today.mood, weather: today.weather, occasion: today.occasion }
+    mood.value = today.mood
+    weather.value = today.weather
+    occasion.value = today.occasion
     mode.value = 'result'
     ensureCatalog().catch(() => {
       mode.value = 'error'
@@ -545,14 +527,19 @@ const isPickWornToday = computed(() => {
   )
 })
 
-function wearThis() {
+async function wearThis() {
   const m = topMatch.value
   if (!m || isPickWornToday.value) return
-  journal.log({
-    wardrobe_item_id: m.item.id,
-    brand: m.item.brand,
-    name: m.item.name,
-  })
+  try {
+    await journal.log({
+      wardrobe_item_id: m.item.id,
+      brand: m.item.brand,
+      name: m.item.name,
+    })
+    toast.success('Logged to your diary.')
+  } catch {
+    toast.error('Could not log the wear — please try again.')
+  }
 }
 
 // ───────── Header sentence ─────────
