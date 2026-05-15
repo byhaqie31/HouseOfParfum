@@ -307,6 +307,7 @@ import type { JournalEntry } from '~/stores/journal'
 const api = useApi()
 const wardrobe = useWardrobeStore()
 const journal = useJournalStore()
+const moodStore = useMoodStore()
 
 // ───────── State ─────────
 type Mode = 'picking' | 'processing' | 'result' | 'error'
@@ -352,39 +353,7 @@ function labelStatus(i: number) {
   return 'text-ink-mute opacity-50'
 }
 
-// ───────── Persistence (daily) ─────────
-const STORAGE_KEY = 'hop:scent-match:v1'
-
-interface Stored extends Committed {
-  date: string
-}
-
-function todayStr(): string {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-}
-
-function loadStored(): Stored | null {
-  if (typeof window === 'undefined') return null
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY)
-    if (!raw) return null
-    const parsed = JSON.parse(raw) as Stored
-    if (parsed.date !== todayStr()) return null
-    return parsed
-  } catch {
-    return null
-  }
-}
-
-function saveStored(s: Committed) {
-  if (typeof window === 'undefined') return
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ date: todayStr(), ...s }))
-  } catch {
-    /* quota / disabled — non-critical */
-  }
-}
+// ───────── Persistence (daily) — delegated to useMoodStore ─────────
 
 // ───────── Catalog fetch (needed to derive fingerprints for wardrobe items) ─────────
 // Only fetch the entries actually referenced by wardrobe items — a generic top-N
@@ -441,7 +410,7 @@ function commitAndProcess() {
     occasion: occasion.value!,
   }
   committed.value = c
-  saveStored(c)
+  moodStore.save(c.mood, c.weather, c.occasion)
   matchIndex.value = 0
   runProcessing()
 }
@@ -476,13 +445,14 @@ function cancelEdit() {
 }
 
 // ───────── Hydration ─────────
-onMounted(() => {
-  const stored = loadStored()
-  if (stored) {
-    committed.value = { mood: stored.mood, weather: stored.weather, occasion: stored.occasion }
-    mood.value = stored.mood
-    weather.value = stored.weather
-    occasion.value = stored.occasion
+onMounted(async () => {
+  await moodStore.init()
+  const today = moodStore.today
+  if (today) {
+    committed.value = { mood: today.mood, weather: today.weather, occasion: today.occasion }
+    mood.value = today.mood
+    weather.value = today.weather
+    occasion.value = today.occasion
     mode.value = 'result'
     ensureCatalog().catch(() => {
       mode.value = 'error'

@@ -235,6 +235,8 @@ definePageMeta({ middleware: 'auth' })
 
 const journal = useJournalStore()
 
+onMounted(() => { journal.load() })
+
 // Week starts Monday for editorial / international feel.
 const weekdayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 

@@ -33,4 +33,19 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function dailyMoods()
+    {
+        return $this->hasMany(DailyMood::class);
+    }
+
+    public function wardrobeItems()
+    {
+        return $this->hasMany(WardrobeItem::class);
+    }
+
+    public function journalEntries()
+    {
+        return $this->hasMany(JournalEntry::class);
+    }
 }

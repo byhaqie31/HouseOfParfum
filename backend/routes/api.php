@@ -3,7 +3,10 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BrandController;
 use App\Http\Controllers\Api\DiscoveryPerfumeController;
+use App\Http\Controllers\Api\JournalController;
+use App\Http\Controllers\Api\MoodController;
 use App\Http\Controllers\Api\PerfumeController;
+use App\Http\Controllers\Api\WardrobeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -28,4 +31,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('perfume', PerfumeController::class)->except(['index', 'show']);
     Route::apiResource('brand', BrandController::class)->except(['index', 'show']);
+
+    Route::apiResource('wardrobe', WardrobeController::class)->only(['index', 'store', 'destroy']);
+    Route::apiResource('journal', JournalController::class)->only(['index', 'store', 'update', 'destroy']);
+
+    Route::get('/mood/today', [MoodController::class, 'show']);
+    Route::post('/mood/today', [MoodController::class, 'store']);
 });

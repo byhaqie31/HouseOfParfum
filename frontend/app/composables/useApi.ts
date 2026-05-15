@@ -35,6 +35,8 @@ export const useApi = () => {
       request(endpoint, { method: 'POST', body: JSON.stringify(body) }),
     put: (endpoint: string, body: unknown) =>
       request(endpoint, { method: 'PUT', body: JSON.stringify(body) }),
+    patch: (endpoint: string, body: unknown) =>
+      request(endpoint, { method: 'PATCH', body: JSON.stringify(body) }),
     delete: (endpoint: string) => request(endpoint, { method: 'DELETE' }),
   }
 }

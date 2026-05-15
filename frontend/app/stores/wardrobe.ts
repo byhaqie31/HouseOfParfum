@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 
 export type WardrobeItem = {
-  id: string                  // local UUID, scoped to this device until backend persistence lands
+  id: string                  // UUID — generated client-side, used as PK on the backend too
   catalog_id: number | null   // optional reference to /api/perfume id (free entry leaves it null)
   brand: string               // brand display name (denormalized — survives catalog edits)
   name: string                // fragrance name
@@ -25,15 +25,31 @@ export const useWardrobeStore = defineStore('wardrobe', {
   },
 
   actions: {
-    init() {
+    async init() {
       if (!import.meta.client || this.hydrated) return
+      const auth = useAuthStore()
+      if (auth.token) {
+        try {
+          const api = useApi()
+          const data = await api.get('/wardrobe')
+          this.items = Array.isArray(data) ? data : []
+          this.persist()
+        } catch {
+          this._loadFromStorage()
+        }
+      } else {
+        this._loadFromStorage()
+      }
+      this.hydrated = true
+    },
+
+    _loadFromStorage() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY)
         if (raw) this.items = JSON.parse(raw)
       } catch {
         // corrupted cache — start fresh
       }
-      this.hydrated = true
     },
 
     persist() {
@@ -41,18 +57,30 @@ export const useWardrobeStore = defineStore('wardrobe', {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(this.items))
     },
 
-    add(input: Omit<WardrobeItem, 'id' | 'created_at'>) {
+    async add(input: Omit<WardrobeItem, 'id' | 'created_at'>) {
       const item: WardrobeItem = {
         ...input,
         id: crypto.randomUUID(),
         created_at: new Date().toISOString(),
       }
-      this.items.unshift(item)
+      const auth = useAuthStore()
+      if (auth.token) {
+        const api = useApi()
+        const saved = await api.post('/wardrobe', item) as WardrobeItem
+        this.items.unshift(saved)
+      } else {
+        this.items.unshift(item)
+      }
       this.persist()
       return item
     },
 
-    remove(id: string) {
+    async remove(id: string) {
+      const auth = useAuthStore()
+      if (auth.token) {
+        const api = useApi()
+        await api.delete(`/wardrobe/${id}`)
+      }
       this.items = this.items.filter(i => i.id !== id)
       this.persist()
     },
