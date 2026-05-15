@@ -187,7 +187,7 @@
             </p>
             <h3 class="mt-1 font-display text-3xl sm:text-4xl text-ink tracking-[-0.005em] leading-[1.05]">
               <NuxtLink
-                :to="`/wardrobe/${topMatch.item.id}`"
+                :to="`/user/wardrobe/${topMatch.item.id}`"
                 class="hover:text-accent-deep transition-colors"
               >
                 {{ topMatch.item.name }}
@@ -200,7 +200,7 @@
 
             <NuxtLink
               v-if="topMatch.entry?.id"
-              :to="`/perfume/${topMatch.entry.id}`"
+              :to="`/user/perfume/${topMatch.entry.id}`"
               class="mt-3 inline-block self-start font-display italic text-[13px] text-ink hover:text-accent-deep pb-px border-b border-accent transition-colors"
             >
               Show the dossier &rarr;
@@ -234,7 +234,7 @@
                     You're wearing this now.
                   </p>
                   <NuxtLink
-                    :to="`/wardrobe/${topMatch.item.id}`"
+                    :to="`/user/wardrobe/${topMatch.item.id}`"
                     class="inline-flex items-center gap-2 bg-ink text-paper text-[11px] uppercase tracking-[0.2em] font-medium px-6 py-3 hover:bg-ink-soft transition-colors"
                   >
                     Update diary
