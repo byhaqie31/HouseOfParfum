@@ -19,7 +19,7 @@
               <th class="px-6 py-3 text-left font-mono text-[10px] uppercase tracking-widest text-ink-mute">Email</th>
               <th class="px-6 py-3 text-left font-mono text-[10px] uppercase tracking-widest text-ink-mute">Role</th>
               <th class="px-6 py-3 text-left font-mono text-[10px] uppercase tracking-widest text-ink-mute">Joined</th>
-              <th class="px-6 py-3" />
+              <th class="px-6 py-3 text-right font-mono text-[10px] uppercase tracking-widest text-ink-mute">Actions</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-rule">

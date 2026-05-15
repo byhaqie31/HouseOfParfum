@@ -17,6 +17,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'preferences',
     ];
 
     /** @var list<string> */
@@ -30,7 +31,8 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'password'          => 'hashed',
+            'preferences'       => 'array',
         ];
     }
 

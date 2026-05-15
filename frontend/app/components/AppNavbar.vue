@@ -54,7 +54,7 @@
                 class="absolute top-full right-0 mt-3 w-72 bg-paper border border-rule overflow-hidden"
               >
                 <!-- Summary header -->
-                <div class="px-5 pt-6 pb-5 bg-paper-deep border-b border-rule text-center">
+                <div class="px-5 pt-6 pb-6 bg-paper-deep text-center">
                   <div class="mx-auto h-14 w-14 rounded-full bg-accent-soft border border-accent flex items-center justify-center">
                     <span
                       v-if="userInitials"
@@ -76,31 +76,33 @@
                   >
                     Member since {{ memberSinceShort }}
                   </p>
-                </div>
 
-                <NuxtLink
-                  v-if="auth.user?.role === 'admin'"
-                  to="/admin"
-                  class="block px-5 py-3 text-xs uppercase tracking-[0.2em] font-medium text-ink-soft hover:text-ink hover:bg-paper-deep transition-colors"
-                  @click="profileOpen = false"
-                >
-                  Back to Admin
-                </NuxtLink>
-                <NuxtLink
-                  v-else
-                  to="/user/profile"
-                  class="block px-5 py-3 text-xs uppercase tracking-[0.2em] font-medium text-ink-soft hover:text-ink hover:bg-paper-deep transition-colors"
-                  @click="profileOpen = false"
-                >
-                  View profile
-                </NuxtLink>
-                <div class="border-t border-rule" />
-                <button
-                  class="block w-full text-left px-5 py-3 font-display italic text-[15px] text-ink-soft hover:text-ink hover:bg-paper-deep transition-colors"
-                  @click="handleLogout"
-                >
-                  Sign out
-                </button>
+                  <!-- Actions -->
+                  <div class="mt-5 space-y-2">
+                    <NuxtLink
+                      v-if="auth.user?.role === 'admin'"
+                      to="/admin"
+                      class="block w-full py-2 border border-rule font-mono text-[10px] uppercase tracking-[0.18em] text-ink-soft hover:text-ink hover:border-ink-soft transition-colors"
+                      @click="profileOpen = false"
+                    >
+                      Back to Admin
+                    </NuxtLink>
+                    <NuxtLink
+                      v-else
+                      to="/user/profile"
+                      class="block w-full py-2 border border-rule font-mono text-[10px] uppercase tracking-[0.18em] text-ink-soft hover:text-ink hover:border-ink-soft transition-colors"
+                      @click="profileOpen = false"
+                    >
+                      View profile
+                    </NuxtLink>
+                    <button
+                      class="block w-full py-2 font-display italic text-[15px] text-ink-mute hover:text-ink transition-colors"
+                      @click="handleLogout"
+                    >
+                      Sign out
+                    </button>
+                  </div>
+                </div>
               </div>
             </Transition>
           </div>

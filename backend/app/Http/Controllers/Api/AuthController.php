@@ -55,4 +55,24 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'Logged out successfully']);
     }
+
+    public function updateProfile(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $validated = $request->validate([
+            'name'                              => 'sometimes|string|max:255',
+            'preferences'                       => 'sometimes|array',
+            'preferences.families'              => 'array',
+            'preferences.families.*'            => 'string|max:50',
+            'preferences.season'                => 'nullable|string|max:50',
+            'preferences.signatureScents'       => 'array',
+            'preferences.signatureScents.*'     => 'string|max:80',
+            'preferences.dailyNudge'            => 'boolean',
+            'preferences.weeklyRecap'           => 'boolean',
+        ]);
+
+        $user = $request->user();
+        $user->update($validated);
+
+        return response()->json($user);
+    }
 }

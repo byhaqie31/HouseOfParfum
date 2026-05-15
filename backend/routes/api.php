@@ -35,6 +35,7 @@ Route::apiResource('discovery', DiscoveryPerfumeController::class)->only(['index
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', fn (Request $request) => $request->user());
+    Route::patch('/user', [AuthController::class, 'updateProfile']);
 
     Route::apiResource('perfume', PerfumeController::class)->except(['index', 'show']);
     Route::apiResource('brand', BrandController::class)->except(['index', 'show']);
