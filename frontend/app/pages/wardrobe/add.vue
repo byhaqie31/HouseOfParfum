@@ -65,6 +65,13 @@
         </div>
       </div>
 
+      <!-- Divider -->
+      <div class="mt-10 flex items-center gap-4">
+        <div class="flex-1 h-px bg-rule" />
+        <span class="font-mono text-[9px] uppercase tracking-[0.22em] text-ink-mute shrink-0">or enter manually</span>
+        <div class="flex-1 h-px bg-rule" />
+      </div>
+
       <!-- Form -->
       <div class="mt-8 space-y-5">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -76,7 +83,8 @@
               id="brand"
               v-model="form.brand"
               type="text"
-              class="w-full bg-paper-deep border border-rule px-4 py-2.5 text-[14px] text-ink focus:outline-none focus:border-ink-soft transition-colors"
+              placeholder="e.g. Chanel"
+              class="w-full bg-paper-deep border border-rule px-4 py-2.5 text-[14px] text-ink placeholder:font-display placeholder:italic placeholder:text-ink-mute focus:outline-none focus:border-ink-soft transition-colors"
             >
           </div>
           <div>
@@ -87,7 +95,8 @@
               id="name"
               v-model="form.name"
               type="text"
-              class="w-full bg-paper-deep border border-rule px-4 py-2.5 text-[14px] text-ink focus:outline-none focus:border-ink-soft transition-colors"
+              placeholder="e.g. No. 5"
+              class="w-full bg-paper-deep border border-rule px-4 py-2.5 text-[14px] text-ink placeholder:font-display placeholder:italic placeholder:text-ink-mute focus:outline-none focus:border-ink-soft transition-colors"
             >
           </div>
         </div>
@@ -102,7 +111,8 @@
               v-model="form.size"
               type="text"
               inputmode="numeric"
-              class="w-full bg-paper-deep border border-rule px-4 py-2.5 text-[14px] text-ink focus:outline-none focus:border-ink-soft transition-colors"
+              placeholder="e.g. 50"
+              class="w-full bg-paper-deep border border-rule px-4 py-2.5 text-[14px] text-ink placeholder:font-display placeholder:italic placeholder:text-ink-mute focus:outline-none focus:border-ink-soft transition-colors"
             >
           </div>
           <div>
@@ -113,7 +123,7 @@
               id="acquired"
               v-model="form.acquired"
               type="text"
-              :placeholder="defaultAcquired"
+              :placeholder="`e.g. ${defaultAcquired}`"
               class="w-full bg-paper-deep border border-rule px-4 py-2.5 text-[14px] text-ink placeholder:font-display placeholder:italic placeholder:text-ink-mute focus:outline-none focus:border-ink-soft transition-colors"
             >
           </div>
@@ -127,13 +137,11 @@
             id="notes"
             v-model="form.notes"
             type="text"
-            placeholder="Smells like a hotel lobby in Kyoto…"
+            placeholder="e.g. Smells like a hotel lobby in Kyoto…"
             class="w-full bg-paper-deep border border-rule px-4 py-2.5 text-[14px] text-ink placeholder:font-display placeholder:italic placeholder:text-ink-mute focus:outline-none focus:border-ink-soft transition-colors"
           >
         </div>
       </div>
-
-      <p v-if="error" class="mt-5 text-[13px] text-accent-deep">{{ error }}</p>
 
       <!-- Actions -->
       <div class="mt-8 pt-5 border-t border-rule flex items-center justify-between">
@@ -171,6 +179,7 @@ const api = useApi()
 const router = useRouter()
 const route = useRoute()
 const wardrobe = useWardrobeStore()
+const toast = useToast()
 
 const searchQuery = ref('')
 const searchFocused = ref(false)
@@ -179,13 +188,12 @@ const matches = ref<Perfume[]>([])
 const form = reactive({
   brand: '',
   name: '',
-  size: '50',
+  size: '',
   acquired: '',
   notes: '',
   catalog_id: null as number | null,
 })
 
-const error = ref('')
 const submitting = ref(false)
 
 const defaultAcquired = computed(() => {
@@ -201,8 +209,6 @@ const canSubmit = computed(
   () => form.brand.trim().length > 0 && form.name.trim().length > 0,
 )
 
-// The catalog is 24k rows — search server-side via /api/perfume rather than
-// filtering a client-side copy. Debounced so each keystroke doesn't hit the API.
 let searchTimer: ReturnType<typeof setTimeout> | undefined
 watch(searchQuery, (q) => {
   clearTimeout(searchTimer)
@@ -215,8 +221,7 @@ watch(searchQuery, (q) => {
     try {
       const res = await api.get(`/perfume?search=${encodeURIComponent(term)}&per_page=8`)
       matches.value = res.data ?? []
-    } catch (e) {
-      console.warn('[wardrobe/add] search failed', e)
+    } catch {
       matches.value = []
     }
   }, 300)
@@ -236,26 +241,27 @@ const cancel = () => router.push('/wardrobe')
 
 const submit = async () => {
   if (!canSubmit.value || submitting.value) return
-  error.value = ''
   submitting.value = true
-
-  wardrobe.add({
-    catalog_id: form.catalog_id,
-    brand: form.brand.trim(),
-    name: form.name.trim(),
-    size: Number.parseInt(form.size, 10) || 0,
-    acquired: form.acquired.trim() || defaultAcquired.value,
-    notes: form.notes.trim(),
-  })
-
-  // small pause so the press-feedback reads, then route to the shelf
-  await new Promise(r => setTimeout(r, 350))
-  submitting.value = false
-  router.push('/wardrobe')
+  try {
+    await wardrobe.add({
+      catalog_id: form.catalog_id,
+      brand: form.brand.trim(),
+      name: form.name.trim(),
+      size: Number.parseInt(form.size, 10) || 0,
+      acquired: form.acquired.trim() || defaultAcquired.value,
+      notes: form.notes.trim(),
+    })
+    toast.success('Bottle added to your wardrobe.')
+    await new Promise(r => setTimeout(r, 400))
+    router.push('/wardrobe')
+  } catch {
+    toast.error('Could not add the bottle — please try again.')
+  } finally {
+    submitting.value = false
+  }
 }
 
 onMounted(async () => {
-  // Prefill from a /perfume catalog card link: /wardrobe/add?catalog_id=42
   const raw = route.query.catalog_id
   if (!raw) return
   const id = Number(Array.isArray(raw) ? raw[0] : raw)
@@ -263,8 +269,8 @@ onMounted(async () => {
   try {
     const perfume = await api.get(`/perfume/${id}`)
     if (perfume?.id) pickFromCatalog(perfume)
-  } catch (e) {
-    console.warn('[wardrobe/add] prefill failed', e)
+  } catch {
+    toast.error('Could not prefill from catalog.')
   }
 })
 </script>

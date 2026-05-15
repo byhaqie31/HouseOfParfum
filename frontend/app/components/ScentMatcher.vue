@@ -206,16 +206,8 @@
               Show the dossier &rarr;
             </NuxtLink>
 
-            <p
-              class="mt-5 pt-4 border-t border-rule font-display italic text-[15px] leading-normal max-w-prose"
-              :class="isPickWornToday ? 'text-accent-deep' : 'text-ink-soft'"
-            >
-              <template v-if="isPickWornToday">
-                You're wearing this now.
-              </template>
-              <template v-else>
-                {{ matchReason }}
-              </template>
+            <p class="mt-5 pt-4 border-t border-rule font-display italic text-[15px] text-ink-soft leading-normal max-w-prose">
+              {{ matchReason }}
             </p>
 
             <!-- Accord chips (from catalog enrichment) -->
@@ -237,32 +229,36 @@
             <!-- Action row pinned to the bottom of the right column -->
             <div class="mt-auto pt-8">
               <div class="border-t border-rule pt-6 flex flex-wrap items-center justify-between gap-4">
-                <button
-                  v-if="matches.length > 1 && !isPickWornToday"
-                  type="button"
-                  class="font-display italic text-[14px] text-ink hover:text-accent-deep pb-1 border-b border-accent transition-colors"
-                  @click="cycleMatch"
-                >
-                  Show me another
-                </button>
-                <span v-else aria-hidden="true" />
-
-                <NuxtLink
-                  v-if="isPickWornToday"
-                  :to="`/wardrobe/${topMatch.item.id}`"
-                  class="inline-flex items-center gap-2 bg-ink text-paper text-[11px] uppercase tracking-[0.2em] font-medium px-6 py-3 hover:bg-ink-soft transition-colors"
-                >
-                  Update diary
-                  <Icon name="lucide:arrow-right" size="14" />
-                </NuxtLink>
-                <button
-                  v-else
-                  type="button"
-                  class="bg-ink text-paper text-[11px] uppercase tracking-[0.2em] font-medium px-6 py-3 hover:bg-ink-soft transition-colors"
-                  @click="wearThis"
-                >
-                  I'm wearing this
-                </button>
+                <template v-if="isPickWornToday">
+                  <p class="font-display italic text-[14px] text-accent-deep">
+                    You're wearing this now.
+                  </p>
+                  <NuxtLink
+                    :to="`/wardrobe/${topMatch.item.id}`"
+                    class="inline-flex items-center gap-2 bg-ink text-paper text-[11px] uppercase tracking-[0.2em] font-medium px-6 py-3 hover:bg-ink-soft transition-colors"
+                  >
+                    Update diary
+                    <Icon name="lucide:arrow-right" size="14" />
+                  </NuxtLink>
+                </template>
+                <template v-else>
+                  <button
+                    v-if="matches.length > 1"
+                    type="button"
+                    class="font-display italic text-[14px] text-ink hover:text-accent-deep pb-1 border-b border-accent transition-colors"
+                    @click="cycleMatch"
+                  >
+                    Show me another
+                  </button>
+                  <span v-else aria-hidden="true" />
+                  <button
+                    type="button"
+                    class="bg-ink text-paper text-[11px] uppercase tracking-[0.2em] font-medium px-6 py-3 hover:bg-ink-soft transition-colors"
+                    @click="wearThis"
+                  >
+                    I'm wearing this
+                  </button>
+                </template>
               </div>
             </div>
           </div>
