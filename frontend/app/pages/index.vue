@@ -117,6 +117,14 @@
             Create an account
           </NuxtLink>
         </p>
+
+        <NuxtLink
+          to="/about"
+          class="md:hidden mt-8 flex items-center justify-center gap-2 text-xs uppercase tracking-widest text-ink-soft hover:text-ink transition-colors"
+        >
+          Learn more
+          <Icon name="lucide:arrow-right" class="h-3.5 w-3.5" />
+        </NuxtLink>
       </div>
     </section>
   </div>
