@@ -304,6 +304,7 @@ const api = useApi()
 const wardrobe = useWardrobeStore()
 const journal = useJournalStore()
 const moodStore = useMoodStore()
+const toast = useToast()
 
 // ───────── State ─────────
 type Mode = 'picking' | 'processing' | 'result' | 'error'
@@ -526,14 +527,19 @@ const isPickWornToday = computed(() => {
   )
 })
 
-function wearThis() {
+async function wearThis() {
   const m = topMatch.value
   if (!m || isPickWornToday.value) return
-  journal.log({
-    wardrobe_item_id: m.item.id,
-    brand: m.item.brand,
-    name: m.item.name,
-  })
+  try {
+    await journal.log({
+      wardrobe_item_id: m.item.id,
+      brand: m.item.brand,
+      name: m.item.name,
+    })
+    toast.success('Logged to your diary.')
+  } catch {
+    toast.error('Could not log the wear — please try again.')
+  }
 }
 
 // ───────── Header sentence ─────────

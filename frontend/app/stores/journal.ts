@@ -88,7 +88,7 @@ export const useJournalStore = defineStore('journal', {
       const entry: JournalEntry = {
         ...input,
         id: crypto.randomUUID(),
-        worn_at: input.worn_at ?? new Date().toISOString(),
+        worn_at: input.worn_at ?? localTimestamp(),
       }
       const auth = useAuthStore()
       if (auth.token) {

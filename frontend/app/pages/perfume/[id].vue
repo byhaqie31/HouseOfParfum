@@ -8,7 +8,7 @@
         @click="goBack"
       >
         <Icon name="lucide:arrow-left" size="14" />
-        Back to the catalog
+        Back
       </button>
 
       <template v-if="loading">

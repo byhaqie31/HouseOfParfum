@@ -266,7 +266,7 @@ const monthLabelTitle = computed(() =>
 const wearsByDay = computed(() => {
   const map = new Map<string, JournalEntry[]>()
   for (const e of journal.entries) {
-    const key = new Date(e.worn_at).toDateString()
+    const key = parseTimestamp(e.worn_at).toDateString()
     if (!map.has(key)) map.set(key, [])
     map.get(key)!.push(e)
   }
@@ -361,17 +361,10 @@ const selectedDayHeadline = computed(() => {
 
 const selectedDayWears = computed(() => {
   const raw = wearsByDay.value.get(selectedDate.value.toDateString()) ?? []
-  return raw.map((entry: JournalEntry) => {
-    const d = new Date(entry.worn_at)
-    return {
-      ...entry,
-      timeLabel: d.toLocaleTimeString('en-GB', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-      }),
-    }
-  })
+  return raw.map((entry: JournalEntry) => ({
+    ...entry,
+    timeLabel: formatTime(entry.worn_at),
+  }))
 })
 
 // Cap the right column to the 3 most recent wears for the day; everything

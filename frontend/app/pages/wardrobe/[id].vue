@@ -222,12 +222,6 @@
                     </span>
                   </div>
 
-                  <p
-                    v-if="savedFlash"
-                    class="mt-6 font-display italic text-[13px] text-accent-deep"
-                  >
-                    Saved.
-                  </p>
                 </div>
               </div>
             </Transition>
@@ -343,6 +337,7 @@ const route = useRoute()
 const router = useRouter()
 const wardrobe = useWardrobeStore()
 const journal = useJournalStore()
+const toast = useToast()
 
 const id = computed(() => String(route.params.id))
 const item = computed(() => wardrobe.byId(id.value) ?? null)
@@ -359,7 +354,7 @@ const longevityLabel = (v: Longevity) =>
   longevityOptions.find(o => o.value === v)?.label ?? ''
 
 const isSameDay = (iso: string) => {
-  const a = new Date(iso)
+  const a = parseTimestamp(iso)
   const b = new Date()
   return (
     a.getFullYear() === b.getFullYear()
@@ -375,11 +370,7 @@ const todayEntry = computed(() =>
 
 const wearStartedAt = computed(() => {
   if (!todayEntry.value) return ''
-  return new Date(todayEntry.value.worn_at).toLocaleTimeString('en-GB', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  })
+  return formatTime(todayEntry.value.worn_at)
 })
 
 const form = reactive({
@@ -423,33 +414,33 @@ const toggleLongevity = (v: Longevity) => {
   form.longevity = form.longevity === v ? null : v
 }
 
-const savedFlash = ref(false)
-let savedFlashTimer: ReturnType<typeof setTimeout> | null = null
-
-const startWear = () => {
+const startWear = async () => {
   if (!item.value || todayEntry.value) return
-  journal.log({
-    wardrobe_item_id: item.value.id,
-    brand: item.value.brand,
-    name: item.value.name,
-  })
-  // No need to flip editingOverride — the fresh empty entry already triggers
-  // isEditingDiary via the !hasDiaryContent branch.
+  try {
+    await journal.log({
+      wardrobe_item_id: item.value.id,
+      brand: item.value.brand,
+      name: item.value.name,
+    })
+    toast.success('Logged to your diary.')
+  } catch {
+    toast.error('Could not log the wear — please try again.')
+  }
 }
 
-const saveDiary = () => {
+const saveDiary = async () => {
   if (!todayEntry.value) return
-  journal.update(todayEntry.value.id, {
-    experience: form.experience.trim() || undefined,
-    compliments: form.compliments.trim() || undefined,
-    longevity: form.longevity ?? undefined,
-  })
-  editingOverride.value = false
-  savedFlash.value = true
-  if (savedFlashTimer) clearTimeout(savedFlashTimer)
-  savedFlashTimer = setTimeout(() => {
-    savedFlash.value = false
-  }, 1800)
+  try {
+    await journal.update(todayEntry.value.id, {
+      experience: form.experience.trim() || undefined,
+      compliments: form.compliments.trim() || undefined,
+      longevity: form.longevity ?? undefined,
+    })
+    editingOverride.value = false
+    toast.success('Diary saved.')
+  } catch {
+    toast.error('Could not save the diary — please try again.')
+  }
 }
 
 const editDiary = () => {
@@ -487,27 +478,28 @@ const wears = computed(() => {
     .filter(e => e.wardrobe_item_id === id.value)
     .sort((a, b) => (a.worn_at < b.worn_at ? 1 : -1))
     .map((entry) => {
-      const d = new Date(entry.worn_at)
+      const d = parseTimestamp(entry.worn_at)
       return {
         ...entry,
         isToday: isSameDay(entry.worn_at),
         dayName: d.toLocaleDateString('en-GB', { weekday: 'short' }).toUpperCase(),
         dayNum: String(d.getDate()).padStart(2, '0'),
         monthLabel: d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }).toUpperCase(),
-        timeLabel: d.toLocaleTimeString('en-GB', {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false,
-        }),
+        timeLabel: formatTime(entry.worn_at),
       }
     })
 })
 
-const confirmRemove = () => {
+const confirmRemove = async () => {
   if (!item.value) return
   // eslint-disable-next-line no-alert
   if (!window.confirm(`Remove ${item.value.brand} ${item.value.name} from your shelf?`)) return
-  wardrobe.remove(item.value.id)
-  router.push('/wardrobe')
+  try {
+    await wardrobe.remove(item.value.id)
+    toast.success('Removed from your shelf.')
+    router.push('/wardrobe')
+  } catch {
+    toast.error('Could not remove the bottle — please try again.')
+  }
 }
 </script>

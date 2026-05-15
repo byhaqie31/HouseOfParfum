@@ -77,7 +77,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <div>
             <label for="brand" class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-2">
-              Brand
+              Brand <span class="text-accent-deep">*</span>
             </label>
             <input
               id="brand"
@@ -89,7 +89,7 @@
           </div>
           <div>
             <label for="name" class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-2">
-              Name
+              Name <span class="text-accent-deep">*</span>
             </label>
             <input
               id="name"
@@ -104,7 +104,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <div>
             <label for="size" class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-2">
-              Size (ml)
+              Size (ml) <span class="text-accent-deep">*</span>
             </label>
             <input
               id="size"
@@ -117,7 +117,7 @@
           </div>
           <div>
             <label for="acquired" class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-2">
-              Acquired
+              Acquired <span class="text-accent-deep">*</span>
             </label>
             <input
               id="acquired"
@@ -206,7 +206,11 @@ const showAutocomplete = computed(
 )
 
 const canSubmit = computed(
-  () => form.brand.trim().length > 0 && form.name.trim().length > 0,
+  () =>
+    form.brand.trim().length > 0
+    && form.name.trim().length > 0
+    && Number.parseInt(form.size, 10) > 0
+    && form.acquired.trim().length > 0,
 )
 
 let searchTimer: ReturnType<typeof setTimeout> | undefined
@@ -248,7 +252,7 @@ const submit = async () => {
       brand: form.brand.trim(),
       name: form.name.trim(),
       size: Number.parseInt(form.size, 10) || 0,
-      acquired: form.acquired.trim() || defaultAcquired.value,
+      acquired: form.acquired.trim(),
       notes: form.notes.trim(),
     })
     toast.success('Bottle added to your wardrobe.')

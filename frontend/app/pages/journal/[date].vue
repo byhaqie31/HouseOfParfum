@@ -32,8 +32,8 @@
             {{ wears.length === 1 ? 'wear' : 'wears' }}
             <template v-if="wears.length > 0">
               <span class="text-accent-deep mx-1">·</span>
-              From {{ wears[wears.length - 1].timeLabel }}
-              <template v-if="wears.length > 1"> to {{ wears[0].timeLabel }}</template>
+              From {{ wears.at(0)?.timeLabel }}
+              <template v-if="wears.length > 1"> to {{ wears.at(-1)?.timeLabel }}</template>
             </template>
           </p>
         </header>
@@ -46,86 +46,96 @@
           Nothing logged on this day.
         </p>
 
-        <!-- Timeline -->
+        <!-- Timeline — ascending, grouped by period -->
         <div v-else class="mt-12 relative grid grid-cols-[16px_1fr] gap-x-5">
-          <!-- continuous vertical hairline spanning the marker column -->
-          <div class="absolute top-2 bottom-2 left-[7px] w-px bg-rule" />
+          <!-- Continuous vertical hairline -->
+          <div class="absolute top-2 bottom-2 left-1.75 w-px bg-rule" />
 
-          <template v-for="entry in wears" :key="entry.id">
-            <!-- Marker column -->
-            <div class="relative">
-              <div
-                class="w-3 h-3 rounded-full mt-1.5 mx-auto relative z-10"
-                :class="entry.isToday
-                  ? 'bg-accent ring-1 ring-accent-deep'
-                  : 'bg-paper border border-ink-soft'"
-              />
+          <template v-for="group in groups" :key="group.period">
+            <!-- Period label spans both columns -->
+            <div class="col-span-2 flex items-center gap-4 mt-8 mb-5 first:mt-0">
+              <span class="relative z-10 bg-paper pr-3 font-mono text-[9px] uppercase tracking-[0.22em] text-accent-deep">
+                {{ group.label }}
+              </span>
+              <div class="flex-1 h-px bg-rule" />
             </div>
 
-            <!-- Content -->
-            <div class="pb-12">
-              <div class="flex items-baseline justify-between gap-3 mb-2 flex-wrap">
-                <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-ink">
-                  {{ entry.timeLabel }}
-                </p>
-                <span
-                  v-if="entry.longevity"
-                  class="shrink-0 px-2.5 py-1 font-mono text-[8px] uppercase tracking-[0.16em] bg-accent-soft border border-accent text-accent-deep"
-                >
-                  {{ longevityLabel(entry.longevity) }}
-                </span>
+            <template v-for="entry in group.entries" :key="entry.id">
+              <!-- Timeline dot -->
+              <div class="relative">
+                <div
+                  class="w-3 h-3 rounded-full mt-1.5 mx-auto relative z-10"
+                  :class="entry.isToday
+                    ? 'bg-accent ring-1 ring-accent-deep'
+                    : 'bg-paper border border-ink-soft'"
+                />
               </div>
 
-              <p class="font-display italic text-[14px] text-ink-soft leading-tight">
-                {{ entry.brand }}
-              </p>
-              <NuxtLink
-                v-if="entry.wardrobe_item_id"
-                :to="`/wardrobe/${entry.wardrobe_item_id}`"
-                class="block mt-0.5 font-display text-2xl text-ink hover:text-accent-deep leading-tight transition-colors"
-              >
-                {{ entry.name }}
-              </NuxtLink>
-              <h3 v-else class="mt-0.5 font-display text-2xl text-ink leading-tight">
-                {{ entry.name }}
-              </h3>
+              <!-- Entry content -->
+              <div class="pb-10">
+                <div class="flex items-baseline justify-between gap-3 mb-2 flex-wrap">
+                  <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-ink">
+                    {{ entry.timeLabel }}
+                  </p>
+                  <span
+                    v-if="entry.longevity"
+                    class="shrink-0 px-2.5 py-1 font-mono text-[8px] uppercase tracking-[0.16em] bg-accent-soft border border-accent text-accent-deep"
+                  >
+                    {{ longevityLabel(entry.longevity) }}
+                  </span>
+                </div>
 
-              <p
-                v-if="entry.experience || entry.notes"
-                class="mt-3 font-display italic text-[16px] text-ink-soft leading-normal"
-              >
-                &ldquo;{{ entry.experience ?? entry.notes }}&rdquo;
-              </p>
-              <p
-                v-else
-                class="mt-3 font-display italic text-[13px] text-ink-mute"
-              >
-                <template v-if="entry.isToday">
-                  Diary blank — write something from the bottle as the day unfolds.
-                </template>
-                <template v-else>
-                  Worn, no words.
-                </template>
-              </p>
+                <p class="font-display italic text-[14px] text-ink-soft leading-tight">
+                  {{ entry.brand }}
+                </p>
+                <NuxtLink
+                  v-if="entry.wardrobe_item_id"
+                  :to="`/wardrobe/${entry.wardrobe_item_id}`"
+                  class="block mt-0.5 font-display text-2xl text-ink hover:text-accent-deep leading-tight transition-colors"
+                >
+                  {{ entry.name }}
+                </NuxtLink>
+                <h3 v-else class="mt-0.5 font-display text-2xl text-ink leading-tight">
+                  {{ entry.name }}
+                </h3>
 
-              <p
-                v-if="entry.compliments"
-                class="mt-3 flex items-baseline gap-3 font-display italic text-[15px] text-ink-soft"
-              >
-                <span class="font-mono not-italic text-[8px] uppercase tracking-[0.18em] text-accent-deep shrink-0">
-                  Heard
-                </span>
-                &ldquo;{{ entry.compliments }}&rdquo;
-              </p>
+                <p
+                  v-if="entry.experience || entry.notes"
+                  class="mt-3 font-display italic text-[16px] text-ink-soft leading-normal"
+                >
+                  &ldquo;{{ entry.experience ?? entry.notes }}&rdquo;
+                </p>
+                <p
+                  v-else
+                  class="mt-3 font-display italic text-[13px] text-ink-mute"
+                >
+                  <template v-if="entry.isToday">
+                    Diary blank — write something from the bottle as the day unfolds.
+                  </template>
+                  <template v-else>
+                    Worn, no words.
+                  </template>
+                </p>
 
-              <NuxtLink
-                v-if="entry.wardrobe_item_id"
-                :to="`/wardrobe/${entry.wardrobe_item_id}`"
-                class="mt-4 inline-block font-display italic text-[12px] text-ink hover:text-accent-deep border-b border-accent pb-px transition-colors"
-              >
-                Open diary &rarr;
-              </NuxtLink>
-            </div>
+                <p
+                  v-if="entry.compliments"
+                  class="mt-3 flex items-baseline gap-3 font-display italic text-[15px] text-ink-soft"
+                >
+                  <span class="font-mono not-italic text-[8px] uppercase tracking-[0.18em] text-accent-deep shrink-0">
+                    Heard
+                  </span>
+                  &ldquo;{{ entry.compliments }}&rdquo;
+                </p>
+
+                <NuxtLink
+                  v-if="entry.wardrobe_item_id"
+                  :to="`/wardrobe/${entry.wardrobe_item_id}`"
+                  class="mt-4 inline-block font-display italic text-[12px] text-ink hover:text-accent-deep border-b border-accent pb-px transition-colors"
+                >
+                  Open diary &rarr;
+                </NuxtLink>
+              </div>
+            </template>
           </template>
         </div>
       </template>
@@ -150,7 +160,6 @@ const longevityLabels: Record<Longevity, string> = {
 }
 const longevityLabel = (v: Longevity) => longevityLabels[v] ?? ''
 
-// Parse the YYYY-MM-DD route param into a Date (validates strictly).
 const parsedDate = computed<Date | null>(() => {
   const raw = String(route.params.date ?? '')
   const m = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/)
@@ -180,7 +189,6 @@ const isToday = computed(() =>
 
 const headlineLong = computed(() => {
   if (!parsedDate.value) return ''
-  // "Wednesday, 13 May 2026"
   return parsedDate.value.toLocaleDateString('en-GB', {
     weekday: 'long',
     day: 'numeric',
@@ -192,27 +200,51 @@ const headlineLong = computed(() => {
 type DecoratedEntry = JournalEntry & {
   isToday: boolean
   timeLabel: string
+  hour: number
 }
 
-// Newest first within the day so the most recent wear is at the top of the timeline.
+type Period = 'morning' | 'afternoon' | 'evening' | 'night'
+
+const PERIODS: Array<{ period: Period; label: string }> = [
+  { period: 'morning',   label: 'Morning' },
+  { period: 'afternoon', label: 'Afternoon' },
+  { period: 'evening',   label: 'Evening' },
+  { period: 'night',     label: 'Night' },
+]
+
+function toPeriod(hour: number): Period {
+  if (hour >= 1 && hour < 12) return 'morning'
+  if (hour >= 12 && hour < 17) return 'afternoon'
+  if (hour >= 17 && hour < 21) return 'evening'
+  return 'night' // 9 PM – 12:59 AM (hour 21-23 and 0)
+}
+
+// Ascending (oldest → newest) so the timeline reads morning → night.
 const wears = computed<DecoratedEntry[]>(() => {
   if (!parsedDate.value) return []
   const dateStr = parsedDate.value.toDateString()
   const todayStr = new Date().toDateString()
   return journal.entries
-    .filter((e: JournalEntry) => new Date(e.worn_at).toDateString() === dateStr)
-    .sort((a: JournalEntry, b: JournalEntry) => (a.worn_at < b.worn_at ? 1 : -1))
+    .filter((e: JournalEntry) => parseTimestamp(e.worn_at).toDateString() === dateStr)
+    .sort((a: JournalEntry, b: JournalEntry) => (a.worn_at < b.worn_at ? -1 : 1))
     .map((entry: JournalEntry) => {
-      const d = new Date(entry.worn_at)
+      const d = parseTimestamp(entry.worn_at)
       return {
         ...entry,
         isToday: d.toDateString() === todayStr,
-        timeLabel: d.toLocaleTimeString('en-GB', {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false,
-        }),
+        timeLabel: formatTime(entry.worn_at),
+        hour: d.getHours(),
       }
     })
 })
+
+// Group entries by period, skipping empty periods.
+const groups = computed(() =>
+  PERIODS
+    .map(p => ({
+      ...p,
+      entries: wears.value.filter(e => toPeriod(e.hour) === p.period),
+    }))
+    .filter(g => g.entries.length > 0),
+)
 </script>
