@@ -213,9 +213,10 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onBeforeUnmount, ref, nextTick } from 'vue'
-import { PERFUME_FAQ } from '~/data/perfume-faq'
+import type { FaqChapter } from '~/data/perfume-faq'
 
-const chapters = PERFUME_FAQ
+const props = defineProps<{ chapters: FaqChapter[] }>()
+const chapters = computed(() => props.chapters)
 const bookEl = ref<HTMLElement | null>(null)
 const currentPage = ref(0)
 const totalPages = ref(0)
@@ -229,7 +230,7 @@ const TOC_PAGE = 3
 const chapterPage = computed(() => {
   const map = new Map<string, number>()
   let idx = FRONT_MATTER_PAGES
-  for (const ch of chapters) {
+  for (const ch of chapters.value) {
     map.set(ch.id, idx)
     idx += 1 + ch.entries.length
   }

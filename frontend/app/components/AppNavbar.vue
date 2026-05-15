@@ -79,6 +79,15 @@
                 </div>
 
                 <NuxtLink
+                  v-if="auth.user?.role === 'admin'"
+                  to="/admin"
+                  class="block px-5 py-3 text-xs uppercase tracking-[0.2em] font-medium text-ink-soft hover:text-ink hover:bg-paper-deep transition-colors"
+                  @click="profileOpen = false"
+                >
+                  Back to Admin
+                </NuxtLink>
+                <NuxtLink
+                  v-else
                   to="/user/profile"
                   class="block px-5 py-3 text-xs uppercase tracking-[0.2em] font-medium text-ink-soft hover:text-ink hover:bg-paper-deep transition-colors"
                   @click="profileOpen = false"

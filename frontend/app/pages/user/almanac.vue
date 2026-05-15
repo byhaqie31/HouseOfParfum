@@ -11,7 +11,7 @@
       </header>
 
       <ClientOnly>
-        <AlmanacBook />
+        <AlmanacBook v-if="chapters.length" :chapters="chapters" />
         <template #fallback>
           <div class="text-center font-mono text-[11px] uppercase tracking-[0.24em] text-ink-mute py-32">
             Binding the book…
@@ -23,6 +23,9 @@
 </template>
 
 <script setup lang="ts">
+import { PERFUME_FAQ } from '~/data/perfume-faq'
+import type { FaqChapter } from '~/data/perfume-faq'
+
 definePageMeta({ middleware: 'auth' })
 
 useHead({
@@ -33,5 +36,19 @@ useHead({
       content: 'A field guide to perfume: how it is made, how it wears, how to choose. A reference volume from House of Parfum.',
     },
   ],
+})
+
+const api = useApi()
+const chapters = ref<FaqChapter[]>([])
+
+onMounted(async () => {
+  try {
+    const res = await api.get('/almanac')
+    chapters.value = Array.isArray(res) ? res : (res.data ?? [])
+    if (!chapters.value.length) throw new Error('empty')
+  }
+  catch {
+    chapters.value = PERFUME_FAQ
+  }
 })
 </script>

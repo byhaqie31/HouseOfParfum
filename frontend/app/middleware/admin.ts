@@ -3,7 +3,11 @@ export default defineNuxtRouteMiddleware(() => {
 
   const auth = useAuthStore()
 
-  if (!auth.token || auth.user?.role !== 'admin') {
+  if (!auth.token) {
     return navigateTo('/auth/login')
+  }
+
+  if (auth.user?.role !== 'admin') {
+    return navigateTo('/user/today')
   }
 })

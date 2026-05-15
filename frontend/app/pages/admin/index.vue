@@ -1,39 +1,25 @@
 <template>
-  <div class="space-y-8">
-    <!-- Stats -->
-    <div class="grid grid-cols-3 gap-6">
+  <div class="space-y-10">
+
+    <!-- Stats 2×2 -->
+    <div class="grid grid-cols-2 gap-4">
       <div
         v-for="stat in stats"
         :key="stat.label"
-        class="border border-rule p-6"
+        class="relative border border-rule bg-paper-deep p-6 overflow-hidden"
       >
-        <p class="font-mono text-[10px] uppercase tracking-widest text-ink-mute mb-3">
+        <!-- Accent hairline -->
+        <div class="absolute top-0 left-0 w-8 h-px bg-accent" />
+
+        <p class="font-mono text-[9px] uppercase tracking-[0.2em] text-ink-mute mb-4">
           {{ stat.label }}
         </p>
-        <p class="font-display text-4xl text-ink">
-          {{ stat.value ?? '—' }}
+        <p class="font-display text-5xl text-ink leading-none">
+          {{ stat.value !== null ? stat.value.toLocaleString() : '—' }}
         </p>
       </div>
     </div>
 
-    <!-- Quick links -->
-    <div class="border border-rule divide-y divide-rule">
-      <div class="px-6 py-4">
-        <p class="font-mono text-[10px] uppercase tracking-widest text-ink-mute">Quick actions</p>
-      </div>
-      <NuxtLink
-        v-for="link in quickLinks"
-        :key="link.to"
-        :to="link.to"
-        class="flex items-center justify-between px-6 py-4 hover:bg-paper-deep transition-colors group"
-      >
-        <div class="flex items-center gap-3">
-          <Icon :name="link.icon" class="h-4 w-4 text-ink-mute" />
-          <span class="text-sm text-ink">{{ link.label }}</span>
-        </div>
-        <Icon name="lucide:arrow-right" class="h-3.5 w-3.5 text-ink-mute group-hover:text-ink transition-colors" />
-      </NuxtLink>
-    </div>
   </div>
 </template>
 
@@ -42,19 +28,21 @@ definePageMeta({ layout: 'admin', middleware: 'admin' })
 
 const api = useApi()
 
-const data = ref<{ users: number; wardrobe_items: number; journal_entries: number } | null>(null)
+interface Stats {
+  users: number
+  perfumes: number
+  wardrobe_items: number
+  journal_entries: number
+}
+
+const data = ref<Stats | null>(null)
 
 const stats = computed(() => [
-  { label: 'Total users', value: data.value?.users },
-  { label: 'Wardrobe items', value: data.value?.wardrobe_items },
-  { label: 'Journal entries', value: data.value?.journal_entries },
+  { label: 'Users',           value: data.value?.users          ?? null },
+  { label: 'Perfume registry', value: data.value?.perfumes       ?? null },
+  { label: 'Wardrobe items',  value: data.value?.wardrobe_items  ?? null },
+  { label: 'Journal entries', value: data.value?.journal_entries ?? null },
 ])
-
-const quickLinks = [
-  { to: '/admin/users', label: 'Manage users', icon: 'lucide:users' },
-  { to: '/admin/perfumes', label: 'Manage perfumes', icon: 'lucide:spray-can' },
-  { to: '/admin/almanac', label: 'Manage almanac', icon: 'lucide:book-open' },
-]
 
 onMounted(async () => {
   data.value = await api.get('/admin/stats')

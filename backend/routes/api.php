@@ -15,6 +15,12 @@ use Illuminate\Support\Facades\Route;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+Route::get('/almanac', fn () => response()->json(
+    \App\Models\AlmanacChapter::orderBy('sort_order')
+        ->with(['entries' => fn ($q) => $q->orderBy('sort_order')])
+        ->get()
+));
+
 // Storefront filter facets (brand list + note vocabulary) — declared before
 // the resource so "perfume-facets" can't be mistaken for a {perfume} id.
 Route::get('/perfume-facets', [PerfumeController::class, 'facets']);
@@ -44,5 +50,18 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/stats', [AdminController::class, 'stats']);
         Route::get('/users', [AdminController::class, 'users']);
         Route::patch('/users/{user}', [AdminController::class, 'updateUser']);
+
+        // Admin perfumes (discovery editorial)
+        Route::get('/perfumes', [AdminController::class, 'perfumeIndex']);
+        Route::patch('/perfumes/{discoveryPerfume}', [AdminController::class, 'updatePerfume']);
+
+        // Admin almanac
+        Route::get('/almanac', [AdminController::class, 'almanacChapters']);
+        Route::post('/almanac', [AdminController::class, 'storeChapter']);
+        Route::patch('/almanac/{chapter}', [AdminController::class, 'updateChapter']);
+        Route::delete('/almanac/{chapter}', [AdminController::class, 'destroyChapter']);
+        Route::post('/almanac/{chapter}/entries', [AdminController::class, 'storeEntry']);
+        Route::patch('/almanac/entries/{entry}', [AdminController::class, 'updateEntry']);
+        Route::delete('/almanac/entries/{entry}', [AdminController::class, 'destroyEntry']);
     });
 });
