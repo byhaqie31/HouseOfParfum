@@ -29,12 +29,12 @@
           <h4 class="text-ink text-xs font-medium uppercase tracking-[0.2em] mb-5">Account</h4>
           <ul class="space-y-3">
             <li>
-              <NuxtLink to="/register" class="text-sm text-ink-soft hover:text-ink transition-colors">
+              <NuxtLink to="/auth/register" class="text-sm text-ink-soft hover:text-ink transition-colors">
                 Create Account
               </NuxtLink>
             </li>
             <li>
-              <NuxtLink to="/" class="text-sm text-ink-soft hover:text-ink transition-colors">
+              <NuxtLink to="/auth/login" class="text-sm text-ink-soft hover:text-ink transition-colors">
                 Sign In
               </NuxtLink>
             </li>

@@ -3,7 +3,7 @@
     <div class="max-w-6xl mx-auto">
       <!-- Back -->
       <NuxtLink
-        to="/wardrobe"
+        to="/user/wardrobe"
         class="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-ink-soft hover:text-ink transition-colors"
       >
         <Icon name="lucide:arrow-left" size="14" />
@@ -33,7 +33,7 @@
             </template>
             <template v-if="item.catalog_id">
               <span class="text-accent-deep mx-1">·</span>
-              <NuxtLink :to="`/perfume/${item.catalog_id}`" class="text-ink-soft hover:text-ink transition-colors">
+              <NuxtLink :to="`/user/perfume/${item.catalog_id}`" class="text-ink-soft hover:text-ink transition-colors">
                 Catalog details &rarr;
               </NuxtLink>
             </template>
@@ -497,7 +497,7 @@ const confirmRemove = async () => {
   try {
     await wardrobe.remove(item.value.id)
     toast.success('Removed from your shelf.')
-    router.push('/wardrobe')
+    router.push('/user/wardrobe')
   } catch {
     toast.error('Could not remove the bottle — please try again.')
   }

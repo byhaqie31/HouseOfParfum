@@ -22,7 +22,7 @@
             Search the catalog
           </label>
           <NuxtLink
-            to="/perfume"
+            to="/user/perfume"
             class="font-display italic text-[12px] text-ink hover:text-accent-deep pb-px border-b border-accent transition-colors"
           >
             Browse the catalog &rarr;
@@ -241,7 +241,7 @@ const pickFromCatalog = (perfume: Perfume) => {
   searchFocused.value = false
 }
 
-const cancel = () => router.push('/wardrobe')
+const cancel = () => router.push('/user/wardrobe')
 
 const submit = async () => {
   if (!canSubmit.value || submitting.value) return
@@ -257,7 +257,7 @@ const submit = async () => {
     })
     toast.success('Bottle added to your wardrobe.')
     await new Promise(r => setTimeout(r, 400))
-    router.push('/wardrobe')
+    router.push('/user/wardrobe')
   } catch {
     toast.error('Could not add the bottle — please try again.')
   } finally {

@@ -302,6 +302,6 @@ const memberSinceFull = computed(() => {
 
 const handleSignOut = () => {
   auth.logout()
-  router.push('/')
+  router.push('/auth/login')
 }
 </script>

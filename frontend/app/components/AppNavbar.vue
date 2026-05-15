@@ -79,7 +79,7 @@
                 </div>
 
                 <NuxtLink
-                  to="/profile"
+                  to="/user/profile"
                   class="block px-5 py-3 text-xs uppercase tracking-[0.2em] font-medium text-ink-soft hover:text-ink hover:bg-paper-deep transition-colors"
                   @click="profileOpen = false"
                 >
@@ -113,7 +113,7 @@
       <!-- Public nav (unauthenticated) -->
       <template v-else>
         <NuxtLink
-          to="/"
+          to="/auth/login"
           class="text-xs uppercase tracking-[0.2em] font-medium text-ink hover:text-ink-soft transition-colors"
         >
           Sign in
@@ -193,16 +193,16 @@ const mobileButtonRef = ref<HTMLElement | null>(null)
 const mobileDrawerRef = ref<HTMLElement | null>(null)
 
 const appLinks = [
-  { to: '/today', label: 'Today' },
-  { to: '/wardrobe', label: 'Wardrobe' },
-  { to: '/journal', label: 'Journal' },
-  { to: '/almanac', label: 'Almanac' },
-  { to: '/perfume', label: 'Discover' },
+  { to: '/user/today', label: 'Today' },
+  { to: '/user/wardrobe', label: 'Wardrobe' },
+  { to: '/user/journal', label: 'Journal' },
+  { to: '/user/almanac', label: 'Almanac' },
+  { to: '/user/perfume', label: 'Discover' },
 ]
 
 const mobileGridLinks = [
   ...appLinks,
-  { to: '/profile', label: 'Profile' },
+  { to: '/user/profile', label: 'Profile' },
 ]
 
 const userInitials = computed(() => {
@@ -262,6 +262,6 @@ const handleLogout = () => {
   auth.logout()
   mobileMenuOpen.value = false
   profileOpen.value = false
-  router.push('/')
+  router.push('/auth/login')
 }
 </script>

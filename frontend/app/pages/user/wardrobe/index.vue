@@ -17,7 +17,7 @@
           <span class="text-ink-soft ml-1">{{ wardrobe.count === 1 ? 'bottle' : 'bottles' }}</span>
         </p>
         <NuxtLink
-          to="/wardrobe/add"
+          to="/user/wardrobe/add"
           class="inline-flex items-center gap-2 bg-ink text-paper text-xs uppercase tracking-[0.2em] px-6 py-3 hover:bg-ink-soft transition-colors"
         >
           <Icon name="lucide:plus" size="14" />
@@ -30,7 +30,7 @@
         <NuxtLink
           v-for="item in wardrobe.items"
           :key="item.id"
-          :to="`/wardrobe/${item.id}`"
+          :to="`/user/wardrobe/${item.id}`"
           class="group flex flex-col"
         >
           <div class="aspect-3/4 bg-paper-deep border border-rule flex items-center justify-center group-hover:bg-paper transition-colors duration-200">
@@ -69,7 +69,7 @@
           Begin with the bottle you reached for today.
         </p>
         <NuxtLink
-          to="/wardrobe/add"
+          to="/user/wardrobe/add"
           class="mt-12 inline-flex items-center gap-2 bg-ink text-paper text-xs uppercase tracking-[0.2em] px-8 py-3.5 hover:bg-ink-soft transition-colors"
         >
           Add your first bottle

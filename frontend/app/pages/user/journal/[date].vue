@@ -3,7 +3,7 @@
     <div class="max-w-3xl mx-auto">
       <!-- Back to calendar -->
       <NuxtLink
-        to="/journal"
+        to="/user/journal"
         class="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-ink-soft hover:text-ink transition-colors"
       >
         <Icon name="lucide:arrow-left" size="14" />
@@ -90,7 +90,7 @@
                 </p>
                 <NuxtLink
                   v-if="entry.wardrobe_item_id"
-                  :to="`/wardrobe/${entry.wardrobe_item_id}`"
+                  :to="`/user/wardrobe/${entry.wardrobe_item_id}`"
                   class="block mt-0.5 font-display text-2xl text-ink hover:text-accent-deep leading-tight transition-colors"
                 >
                   {{ entry.name }}
@@ -129,7 +129,7 @@
 
                 <NuxtLink
                   v-if="entry.wardrobe_item_id"
-                  :to="`/wardrobe/${entry.wardrobe_item_id}`"
+                  :to="`/user/wardrobe/${entry.wardrobe_item_id}`"
                   class="mt-4 inline-block font-display italic text-[12px] text-ink hover:text-accent-deep border-b border-accent pb-px transition-colors"
                 >
                   Open diary &rarr;

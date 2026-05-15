@@ -23,6 +23,8 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({ middleware: 'auth' })
+
 useHead({
   title: 'The Almanac — House of Parfum',
   meta: [

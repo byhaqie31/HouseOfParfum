@@ -117,7 +117,7 @@
             >
               <NuxtLink
                 v-if="entry.wardrobe_item_id"
-                :to="`/wardrobe/${entry.wardrobe_item_id}`"
+                :to="`/user/wardrobe/${entry.wardrobe_item_id}`"
                 class="group block py-5 -mx-3 px-3 hover:bg-paper-deep transition-colors cursor-pointer"
               >
                 <div class="flex items-baseline justify-between gap-2 mb-2">
@@ -216,7 +216,7 @@
             </p>
             <span v-else />
             <NuxtLink
-              :to="`/journal/${dateParam}`"
+              :to="`/user/journal/${dateParam}`"
               class="font-display italic text-[14px] text-ink hover:text-accent-deep pb-px border-b border-accent transition-colors"
             >
               View timeline &rarr;

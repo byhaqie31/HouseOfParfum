@@ -50,7 +50,7 @@
             Add a bottle to track what you wear and when.
           </p>
           <NuxtLink
-            to="/wardrobe/add"
+            to="/user/wardrobe/add"
             class="mt-8 inline-flex items-center gap-2 bg-ink text-paper text-xs uppercase tracking-[0.2em] px-6 py-3 hover:bg-ink-soft transition-colors"
           >
             Add a bottle
@@ -66,7 +66,7 @@
             <span class="font-mono text-accent-deep mr-2">/</span>Your wardrobe
           </p>
           <NuxtLink
-            to="/wardrobe"
+            to="/user/wardrobe"
             class="font-display italic text-[12px] text-ink-soft hover:text-ink transition-colors"
           >
             View all {{ wardrobe.count }} &rarr;
@@ -77,7 +77,7 @@
           <NuxtLink
             v-for="item in wardrobeGlance"
             :key="item.id"
-            :to="`/wardrobe/${item.id}`"
+            :to="`/user/wardrobe/${item.id}`"
             class="group aspect-3/4 bg-paper-deep border border-rule p-4 flex flex-col hover:bg-paper transition-colors duration-200"
           >
             <div class="flex-1 flex items-center justify-center">
@@ -126,7 +126,7 @@
         <!-- Bridge into the long-form reference -->
         <div class="mt-8 flex justify-end">
           <NuxtLink
-            to="/almanac"
+            to="/user/almanac"
             class="inline-flex items-center gap-2 font-display italic text-[14px] text-ink hover:text-accent-deep pb-1 border-b border-accent transition-colors"
           >
             Learn more in The Almanac
@@ -176,7 +176,7 @@
           <NuxtLink
             v-for="rec in visibleRecommendations"
             :key="rec.id"
-            :to="`/perfume/${rec.id}`"
+            :to="`/user/perfume/${rec.id}`"
             class="group grid grid-cols-[100px_1fr] sm:grid-cols-[120px_1fr] gap-4 bg-paper border border-rule p-4 hover:bg-paper-deep transition-colors duration-200"
           >
             <div class="aspect-3/4 bg-paper-deep border border-rule flex items-center justify-center group-hover:bg-paper transition-colors duration-200">

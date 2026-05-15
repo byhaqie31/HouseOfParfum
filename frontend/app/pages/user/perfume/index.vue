@@ -196,7 +196,7 @@
       <ul v-else class="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-4">
         <li v-for="p in perfumes" :key="p.id">
           <NuxtLink
-            :to="`/perfume/${p.id}`"
+            :to="`/user/perfume/${p.id}`"
             class="group block bg-paper border border-rule p-5 hover:bg-paper-deep transition-colors duration-200"
           >
             <div class="aspect-3/4 bg-paper-deep border border-rule flex items-center justify-center group-hover:bg-paper transition-colors duration-200">

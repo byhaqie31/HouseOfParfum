@@ -89,14 +89,14 @@
             <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
               <NuxtLink
                 v-if="ownedItem"
-                :to="`/wardrobe/${ownedItem.id}`"
+                :to="`/user/wardrobe/${ownedItem.id}`"
                 class="inline-block bg-ink text-paper text-[11px] uppercase tracking-[0.2em] font-medium px-6 py-3 hover:bg-ink-soft transition-colors"
               >
                 Show in wardrobe
               </NuxtLink>
               <NuxtLink
                 v-else
-                :to="`/wardrobe/add?catalog_id=${perfume.id}`"
+                :to="`/user/wardrobe/add?catalog_id=${perfume.id}`"
                 class="inline-block bg-ink text-paper text-[11px] uppercase tracking-[0.2em] font-medium px-6 py-3 hover:bg-ink-soft transition-colors"
               >
                 Add to wardrobe
@@ -294,7 +294,7 @@ const hasWearBars = computed(
 
 const goBack = () => {
   if (window.history.length > 1) router.back()
-  else router.push('/perfume')
+  else router.push('/user/perfume')
 }
 
 onMounted(async () => {

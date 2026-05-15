@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BrandController;
 use App\Http\Controllers\Api\DiscoveryPerfumeController;
@@ -37,4 +38,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/mood/today', [MoodController::class, 'show']);
     Route::post('/mood/today', [MoodController::class, 'store']);
+
+    // Admin-only
+    Route::middleware('admin')->prefix('admin')->group(function () {
+        Route::get('/stats', [AdminController::class, 'stats']);
+        Route::get('/users', [AdminController::class, 'users']);
+        Route::patch('/users/{user}', [AdminController::class, 'updateUser']);
+    });
 });

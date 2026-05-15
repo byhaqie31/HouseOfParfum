@@ -19,7 +19,7 @@
           Add a bottle to your wardrobe first — we match against what you own.
         </p>
         <NuxtLink
-          to="/wardrobe/add"
+          to="/user/wardrobe/add"
           class="mt-6 inline-flex items-center gap-2 bg-ink text-paper text-xs uppercase tracking-[0.2em] px-6 py-3 hover:bg-ink-soft transition-colors"
         >
           Add a bottle
@@ -272,7 +272,7 @@
           none of them are linked to the catalog yet.
         </p>
         <NuxtLink
-          to="/perfume"
+          to="/user/perfume"
           class="font-mono text-[10px] uppercase tracking-[0.18em] text-ink hover:text-accent-deep pb-1 border-b border-accent transition-colors"
         >
           Browse the catalog &rarr;
