@@ -387,12 +387,27 @@ function saveStored(s: Committed) {
 }
 
 // ───────── Catalog fetch (needed to derive fingerprints for wardrobe items) ─────────
+// Only fetch the entries actually referenced by wardrobe items — a generic top-N
+// subset would miss any item whose catalog_id falls outside that window.
 async function ensureCatalog() {
-  if (catalog.value.length) return
-  // /api/perfume is the 24k discovery catalogue, paginated — pull the
-  // top-rated subset and unwrap the paginator envelope.
-  const data = await api.get('/perfume?sort=rating&direction=desc&per_page=100')
-  catalog.value = Array.isArray(data?.data) ? data.data : []
+  const ids = wardrobe.items
+    .filter((i): i is WardrobeItem & { catalog_id: number } => typeof i.catalog_id === 'number')
+    .map(i => i.catalog_id)
+
+  if (!ids.length) {
+    catalog.value = []
+    return
+  }
+
+  const cached = new Set(catalog.value.map(e => e.id))
+  const missing = ids.filter(id => !cached.has(id))
+  if (!missing.length) return
+
+  const results = await Promise.all(
+    missing.map(id => api.get(`/perfume/${id}`).catch(() => null))
+  )
+  const fetched = results.filter((r): r is CatalogPerfume => r !== null && typeof r?.id === 'number')
+  catalog.value = [...catalog.value, ...fetched]
 }
 
 // ───────── Processing run ─────────
