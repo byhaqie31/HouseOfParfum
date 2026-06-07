@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen pt-20 pb-24 px-6">
+  <div>
     <div class="max-w-6xl mx-auto">
       <!-- Header -->
       <header class="border-b border-rule pb-8">
@@ -251,7 +251,7 @@
 </template>
 
 <script setup lang="ts">
-definePageMeta({ middleware: 'auth' })
+definePageMeta({ layout: 'app', middleware: 'auth' })
 
 type Perfume = {
   id: number

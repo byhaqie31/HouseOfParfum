@@ -25,6 +25,10 @@ class JournalController extends Controller
             'brand'            => 'required|string|max:255',
             'name'             => 'required|string|max:255',
             'worn_at'          => 'required|date',
+            'sprays'           => 'nullable|integer|min:0|max:8',
+            'mood'             => 'nullable|string|max:60',
+            'occasion'         => 'nullable|string|max:60',
+            'weather'          => 'nullable|string|max:60',
             'experience'       => 'nullable|string',
             'compliments'      => 'nullable|string',
             'longevity'        => 'nullable|string|in:brief,settled,lasting,all-day,into-night',
@@ -41,6 +45,10 @@ class JournalController extends Controller
         $entry = $request->user()->journalEntries()->findOrFail($id);
 
         $data = $request->validate([
+            'sprays'      => 'nullable|integer|min:0|max:8',
+            'mood'        => 'nullable|string|max:60',
+            'occasion'    => 'nullable|string|max:60',
+            'weather'     => 'nullable|string|max:60',
             'experience'  => 'nullable|string',
             'compliments' => 'nullable|string',
             'longevity'   => 'nullable|string|in:brief,settled,lasting,all-day,into-night',

@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen pt-20 pb-24 px-6">
+  <div>
     <div class="max-w-5xl mx-auto">
       <!-- Back link -->
       <button
@@ -235,7 +235,7 @@
 </template>
 
 <script setup lang="ts">
-definePageMeta({ middleware: 'auth' })
+definePageMeta({ layout: 'app', middleware: 'auth' })
 
 type Bar = { label: string; value: number }
 

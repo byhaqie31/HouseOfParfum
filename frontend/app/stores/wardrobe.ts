@@ -1,10 +1,23 @@
 import { defineStore } from 'pinia'
+import type { ScentFamilyKey } from '~/utils/scent'
 
 export type WardrobeItem = {
   id: string                  // UUID — generated client-side, used as PK on the backend too
   catalog_id: number | null   // optional reference to /api/perfume id (free entry leaves it null)
   brand: string               // brand display name (denormalized — survives catalog edits)
   name: string                // fragrance name
+
+  // Scent-driven colour: the family drives this bottle's colour world. Nullable
+  // for legacy rows — the UI falls back to deriving from the linked catalogue.
+  family?: ScentFamilyKey | null
+  tagline?: string | null     // short evocative line
+  concentration?: string | null // Eau de toilette / Eau de parfum / Extrait …
+
+  // Notes pyramid — top / heart / base note names.
+  notes_top?: string[] | null
+  notes_heart?: string[] | null
+  notes_base?: string[] | null
+
   size: number                // ml
   acquired: string            // free text — "March 2025"
   notes: string

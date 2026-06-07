@@ -1,178 +1,19 @@
-<template>
-  <div class="min-h-screen pt-20 pb-24 px-6">
-    <div class="max-w-3xl mx-auto">
-      <!-- Heading -->
-      <h1 class="font-display text-4xl sm:text-5xl text-ink tracking-[-0.005em] leading-[1.1]">
-        A new bottle <em class="text-ink">in the library.</em>
-      </h1>
-      <p class="mt-2 font-display italic text-[15px] text-ink-soft">
-        <template v-if="form.catalog_id">
-          From the catalog — adjust the details below.
-        </template>
-        <template v-else>
-          Search the catalog, browse the full list, or enter freely.
-        </template>
-      </p>
-      <div class="mt-3 w-9 h-px bg-accent" />
-
-      <!-- Search -->
-      <div class="mt-10 relative">
-        <div class="flex items-baseline justify-between mb-2">
-          <label for="search" class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft">
-            Search the catalog
-          </label>
-          <NuxtLink
-            to="/user/perfume"
-            class="font-display italic text-[12px] text-ink hover:text-accent-deep pb-px border-b border-accent transition-colors"
-          >
-            Browse the catalog &rarr;
-          </NuxtLink>
-        </div>
-        <input
-          id="search"
-          v-model="searchQuery"
-          type="text"
-          autocomplete="off"
-          placeholder="Search by brand or name…"
-          class="w-full bg-paper-deep border border-rule px-4 py-2.5 text-[14px] text-ink placeholder:font-display placeholder:italic placeholder:text-ink-mute focus:outline-none focus:border-ink-soft transition-colors"
-          @focus="searchFocused = true"
-        >
-
-        <!-- Autocomplete dropdown -->
-        <div
-          v-if="showAutocomplete"
-          class="mt-1.5 bg-paper border border-rule max-h-65 overflow-y-auto"
-        >
-          <button
-            v-for="match in matches"
-            :key="match.id"
-            type="button"
-            class="w-full flex items-center gap-3 px-3.5 py-2.5 text-left border-b border-rule last:border-b-0 hover:bg-paper-deep transition-colors"
-            @click="pickFromCatalog(match)"
-          >
-            <div class="w-7 h-9 bg-paper-deep border border-rule flex items-center justify-center shrink-0">
-              <BottleIcon :size="16" />
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="font-mono text-[8px] uppercase tracking-[0.14em] text-ink-mute">
-                {{ match.brand }}
-              </p>
-              <p class="font-display italic text-[14px] text-ink truncate">
-                {{ match.name }}
-              </p>
-            </div>
-          </button>
-        </div>
-      </div>
-
-      <!-- Divider -->
-      <div class="mt-10 flex items-center gap-4">
-        <div class="flex-1 h-px bg-rule" />
-        <span class="font-mono text-[9px] uppercase tracking-[0.22em] text-ink-mute shrink-0">or enter manually</span>
-        <div class="flex-1 h-px bg-rule" />
-      </div>
-
-      <!-- Form -->
-      <div class="mt-8 space-y-5">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <div>
-            <label for="brand" class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-2">
-              Brand <span class="text-accent-deep">*</span>
-            </label>
-            <input
-              id="brand"
-              v-model="form.brand"
-              type="text"
-              placeholder="e.g. Chanel"
-              class="w-full bg-paper-deep border border-rule px-4 py-2.5 text-[14px] text-ink placeholder:font-display placeholder:italic placeholder:text-ink-mute focus:outline-none focus:border-ink-soft transition-colors"
-            >
-          </div>
-          <div>
-            <label for="name" class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-2">
-              Name <span class="text-accent-deep">*</span>
-            </label>
-            <input
-              id="name"
-              v-model="form.name"
-              type="text"
-              placeholder="e.g. No. 5"
-              class="w-full bg-paper-deep border border-rule px-4 py-2.5 text-[14px] text-ink placeholder:font-display placeholder:italic placeholder:text-ink-mute focus:outline-none focus:border-ink-soft transition-colors"
-            >
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <div>
-            <label for="size" class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-2">
-              Size (ml) <span class="text-accent-deep">*</span>
-            </label>
-            <input
-              id="size"
-              v-model="form.size"
-              type="text"
-              inputmode="numeric"
-              placeholder="e.g. 50"
-              class="w-full bg-paper-deep border border-rule px-4 py-2.5 text-[14px] text-ink placeholder:font-display placeholder:italic placeholder:text-ink-mute focus:outline-none focus:border-ink-soft transition-colors"
-            >
-          </div>
-          <div>
-            <label for="acquired" class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-2">
-              Acquired <span class="text-accent-deep">*</span>
-            </label>
-            <input
-              id="acquired"
-              v-model="form.acquired"
-              type="text"
-              :placeholder="`e.g. ${defaultAcquired}`"
-              class="w-full bg-paper-deep border border-rule px-4 py-2.5 text-[14px] text-ink placeholder:font-display placeholder:italic placeholder:text-ink-mute focus:outline-none focus:border-ink-soft transition-colors"
-            >
-          </div>
-        </div>
-
-        <div>
-          <label for="notes" class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-2">
-            Personal notes
-          </label>
-          <input
-            id="notes"
-            v-model="form.notes"
-            type="text"
-            placeholder="e.g. Smells like a hotel lobby in Kyoto…"
-            class="w-full bg-paper-deep border border-rule px-4 py-2.5 text-[14px] text-ink placeholder:font-display placeholder:italic placeholder:text-ink-mute focus:outline-none focus:border-ink-soft transition-colors"
-          >
-        </div>
-      </div>
-
-      <!-- Actions -->
-      <div class="mt-8 pt-5 border-t border-rule flex items-center justify-between">
-        <button
-          type="button"
-          class="font-display italic text-[14px] text-ink hover:text-accent-deep pb-1 border-b border-accent transition-colors"
-          @click="cancel"
-        >
-          Cancel
-        </button>
-        <button
-          type="button"
-          :disabled="submitting || !canSubmit"
-          class="bg-ink text-paper text-[11px] uppercase tracking-[0.2em] font-medium px-7 py-3 hover:bg-ink-soft transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-          @click="submit"
-        >
-          {{ submitting ? 'Adding…' : 'Add to wardrobe' }}
-        </button>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
-definePageMeta({ middleware: 'auth' })
+import { FAMILY_ORDER, scentWorld, type ScentFamilyKey } from '~/utils/scent'
+import { deriveFamily } from '~/utils/scentFamily'
+
+definePageMeta({ layout: 'app', middleware: 'auth' })
+useHead({ title: 'Add a bottle' })
 
 type Perfume = {
   id: number
   brand: string
   name: string
   size?: number | null
+  main_accord?: string | null
+  top_notes?: string | null
+  middle_notes?: string | null
+  base_notes?: string | null
 }
 
 const api = useApi()
@@ -180,6 +21,7 @@ const router = useRouter()
 const route = useRoute()
 const wardrobe = useWardrobeStore()
 const toast = useToast()
+const { worldFor, isDark } = useScentWorld()
 
 const searchQuery = ref('')
 const searchFocused = ref(false)
@@ -188,62 +30,80 @@ const matches = ref<Perfume[]>([])
 const form = reactive({
   brand: '',
   name: '',
+  family: null as ScentFamilyKey | null,
+  concentration: '',
   size: '',
   acquired: '',
   notes: '',
   catalog_id: null as number | null,
+  notes_top: null as string[] | null,
+  notes_heart: null as string[] | null,
+  notes_base: null as string[] | null,
 })
 
 const submitting = ref(false)
 
-const defaultAcquired = computed(() => {
-  const now = new Date()
-  return now.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
-})
+const previewWorld = worldFor(() => form.family ?? 'woody', () => form.brand + form.name)
 
-const showAutocomplete = computed(
-  () => searchFocused.value && matches.value.length > 0,
+const defaultAcquired = computed(() =>
+  new Date().toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }),
+)
+const showAutocomplete = computed(() => searchFocused.value && matches.value.length > 0)
+const canSubmit = computed(() =>
+  form.brand.trim().length > 0
+  && form.name.trim().length > 0
+  && !!form.family
+  && Number.parseInt(form.size, 10) > 0,
 )
 
-const canSubmit = computed(
-  () =>
-    form.brand.trim().length > 0
-    && form.name.trim().length > 0
-    && Number.parseInt(form.size, 10) > 0
-    && form.acquired.trim().length > 0,
-)
+function familyWorld(key: ScentFamilyKey) {
+  return scentWorld(key, 0.5, isDark.value)
+}
+function splitNotes(s?: string | null): string[] | null {
+  if (!s) return null
+  const arr = s.split(',').map((x) => x.trim()).filter(Boolean)
+  return arr.length ? arr : null
+}
 
 let searchTimer: ReturnType<typeof setTimeout> | undefined
 watch(searchQuery, (q) => {
   clearTimeout(searchTimer)
   const term = q.trim()
-  if (term.length < 2) {
-    matches.value = []
-    return
-  }
+  if (term.length < 2) { matches.value = []; return }
   searchTimer = setTimeout(async () => {
     try {
       const res = await api.get(`/perfume?search=${encodeURIComponent(term)}&per_page=8`)
       matches.value = res.data ?? []
-    } catch {
-      matches.value = []
-    }
+    } catch { matches.value = [] }
   }, 300)
 })
 
-const pickFromCatalog = (perfume: Perfume) => {
-  form.brand = perfume.brand
-  form.name = perfume.name
-  if (perfume.size != null) form.size = String(perfume.size)
-  form.catalog_id = perfume.id
+// Pull full catalog detail so we can derive the family + notes pyramid.
+async function applyCatalog(p: Perfume) {
+  form.brand = p.brand
+  form.name = p.name
+  form.catalog_id = p.id
+  if (p.size != null) form.size = String(p.size)
+  try {
+    const detail = await api.get(`/perfume/${p.id}`) as Perfume
+    const accords = (detail.main_accord ?? '').split(',').map((x) => x.trim()).filter(Boolean)
+    if (accords.length) form.family = deriveFamily(accords)
+    form.notes_top = splitNotes(detail.top_notes)
+    form.notes_heart = splitNotes(detail.middle_notes)
+    form.notes_base = splitNotes(detail.base_notes)
+  } catch { /* keep manual fields */ }
+}
+
+function pickFromCatalog(p: Perfume) {
+  applyCatalog(p)
   searchQuery.value = ''
   matches.value = []
   searchFocused.value = false
 }
 
-const cancel = () => router.push('/user/wardrobe')
+function cancel() { router.push('/user/wardrobe') }
 
-const submit = async () => {
+async function submit() {
   if (!canSubmit.value || submitting.value) return
   submitting.value = true
   try {
@@ -251,15 +111,20 @@ const submit = async () => {
       catalog_id: form.catalog_id,
       brand: form.brand.trim(),
       name: form.name.trim(),
+      family: form.family,
+      concentration: form.concentration.trim() || null,
+      notes_top: form.notes_top,
+      notes_heart: form.notes_heart,
+      notes_base: form.notes_base,
       size: Number.parseInt(form.size, 10) || 0,
       acquired: form.acquired.trim(),
       notes: form.notes.trim(),
     })
-    toast.success('Bottle added to your wardrobe.')
-    await new Promise(r => setTimeout(r, 400))
+    toast.success('Bottle added to your shelf.')
+    await new Promise((r) => setTimeout(r, 350))
     router.push('/user/wardrobe')
   } catch {
-    toast.error('Could not add the bottle — please try again.')
+    toast.error('Could not add the bottle. Try again.')
   } finally {
     submitting.value = false
   }
@@ -271,10 +136,134 @@ onMounted(async () => {
   const id = Number(Array.isArray(raw) ? raw[0] : raw)
   if (!Number.isFinite(id)) return
   try {
-    const perfume = await api.get(`/perfume/${id}`)
-    if (perfume?.id) pickFromCatalog(perfume)
-  } catch {
-    toast.error('Could not prefill from catalog.')
-  }
+    const p = await api.get(`/perfume/${id}`)
+    if (p?.id) await applyCatalog(p)
+  } catch { /* ignore */ }
 })
+
+const inputClass =
+  'w-full rounded-field border px-3.5 py-2.5 fb focus:outline-none'
+const inputStyle =
+  'border-color: var(--color-rule); background: var(--color-surface); color: var(--color-ink); font-size: 14px;'
 </script>
+
+<template>
+  <div class="mx-auto max-w-2xl">
+    <header class="mb-6">
+      <div class="kicker">Your vanity</div>
+      <h1 class="fd mt-1" style="font-size: clamp(28px, 5vw, 38px); line-height: 1.05;">Add a bottle</h1>
+      <p class="fb mt-2 italic" style="font-size: 14px; color: var(--color-ink-soft);">Pick a scent family and the bottle finds its colour.</p>
+    </header>
+
+    <!-- live preview -->
+    <div
+      class="mb-8 flex items-center gap-5 rounded-hero p-6"
+      :style="{ background: previewWorld.bloom, color: previewWorld.onGrad }"
+    >
+      <ScentFlacon :world="previewWorld" :size="64" />
+      <div class="min-w-0">
+        <div class="fm uppercase" style="font-size: 10px; letter-spacing: 0.18em; opacity: 0.8;">{{ form.brand || 'House' }}</div>
+        <div class="fd leading-tight" style="font-size: 26px;">{{ form.name || 'Your bottle' }}</div>
+        <div class="fm mt-1 uppercase" style="font-size: 10px; letter-spacing: 0.16em; opacity: 0.85;">{{ previewWorld.family.label }}</div>
+      </div>
+    </div>
+
+    <!-- catalog search -->
+    <div class="relative mb-6">
+      <div class="mb-2 flex items-baseline justify-between">
+        <label for="search" class="fb" style="font-size: 13px; color: var(--color-ink-soft);">Search the catalogue</label>
+        <NuxtLink to="/user/perfume" class="fb italic" style="font-size: 12px; color: var(--color-ink);">Browse all →</NuxtLink>
+      </div>
+      <input
+        id="search"
+        v-model="searchQuery"
+        type="text"
+        autocomplete="off"
+        placeholder="Search by house or name…"
+        :class="inputClass"
+        :style="inputStyle"
+        @focus="searchFocused = true"
+      >
+      <div
+        v-if="showAutocomplete"
+        class="absolute z-10 mt-1.5 max-h-64 w-full overflow-y-auto rounded-field border"
+        style="border-color: var(--color-rule); background: var(--color-surface);"
+      >
+        <button
+          v-for="m in matches"
+          :key="m.id"
+          type="button"
+          class="flex w-full items-center gap-3 border-b px-3.5 py-2.5 text-left last:border-b-0"
+          style="border-color: var(--color-rule);"
+          @click="pickFromCatalog(m)"
+        >
+          <div class="min-w-0">
+            <p class="kicker">{{ m.brand }}</p>
+            <p class="fb truncate" style="font-size: 14px; color: var(--color-ink);">{{ m.name }}</p>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- family chips (drive the colour) -->
+    <div class="mb-6">
+      <div class="mb-2 fb" style="font-size: 13px; color: var(--color-ink-soft);">Scent family <span :style="{ color: previewWorld.accent }">*</span></div>
+      <div class="flex flex-wrap gap-2">
+        <ScentChip
+          v-for="key in FAMILY_ORDER"
+          :key="key"
+          :active="form.family === key"
+          :world="familyWorld(key)"
+          @click="form.family = key"
+        >{{ familyWorld(key).family.label }}</ScentChip>
+      </div>
+    </div>
+
+    <!-- fields -->
+    <div class="space-y-4">
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label for="brand" class="mb-1.5 block fb" style="font-size: 13px; color: var(--color-ink-soft);">House *</label>
+          <input id="brand" v-model="form.brand" type="text" placeholder="e.g. Maison Selat" :class="inputClass" :style="inputStyle">
+        </div>
+        <div>
+          <label for="name" class="mb-1.5 block fb" style="font-size: 13px; color: var(--color-ink-soft);">Name *</label>
+          <input id="name" v-model="form.name" type="text" placeholder="e.g. Limau Pagi" :class="inputClass" :style="inputStyle">
+        </div>
+      </div>
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label for="size" class="mb-1.5 block fb" style="font-size: 13px; color: var(--color-ink-soft);">Size (ml) *</label>
+          <input id="size" v-model="form.size" type="text" inputmode="numeric" placeholder="e.g. 50" :class="inputClass" :style="inputStyle">
+        </div>
+        <div>
+          <label for="conc" class="mb-1.5 block fb" style="font-size: 13px; color: var(--color-ink-soft);">Concentration</label>
+          <input id="conc" v-model="form.concentration" type="text" placeholder="e.g. Eau de parfum" :class="inputClass" :style="inputStyle">
+        </div>
+      </div>
+      <div>
+        <label for="acquired" class="mb-1.5 block fb" style="font-size: 13px; color: var(--color-ink-soft);">Acquired</label>
+        <input id="acquired" v-model="form.acquired" type="text" :placeholder="`e.g. ${defaultAcquired}`" :class="inputClass" :style="inputStyle">
+      </div>
+      <div>
+        <label for="notes" class="mb-1.5 block fb" style="font-size: 13px; color: var(--color-ink-soft);">A personal note</label>
+        <input id="notes" v-model="form.notes" type="text" placeholder="e.g. The one she noticed first." :class="inputClass" :style="inputStyle">
+      </div>
+    </div>
+
+    <!-- actions -->
+    <div class="mt-7 flex items-center justify-between border-t pt-5" style="border-color: var(--color-rule);">
+      <button type="button" class="fb italic" style="font-size: 14px; color: var(--color-ink-soft);" @click="cancel">Cancel</button>
+      <button
+        type="button"
+        :disabled="submitting || !canSubmit"
+        class="flex items-center gap-2 rounded-full px-6 py-3 disabled:opacity-40"
+        :style="{ background: previewWorld.gradient, color: previewWorld.onGrad }"
+        @click="submit"
+      >
+        <Icon name="lucide:plus" size="16" />
+        <span class="fb" style="font-weight: 700;">{{ submitting ? 'Adding…' : 'Add to shelf' }}</span>
+      </button>
+    </div>
+  </div>
+</template>

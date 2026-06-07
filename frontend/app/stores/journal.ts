@@ -9,6 +9,13 @@ export type JournalEntry = {
   name: string
   worn_at: string                   // ISO timestamp
 
+  // Per-wear detail captured in the log-wear flow. All optional — quick wears
+  // log with none of these set; the full log flow can fill any subset.
+  sprays?: number | null            // 1–8
+  mood?: string | null              // Confident | Calm | Playful | Romantic | Focused | Cosy
+  occasion?: string | null          // Everyday | Work | Date | Evening out | Travel | At home
+  weather?: string | null           // Humid day | After rain | Cool evening | Hot noon
+
   // Diary fields. All optional — quick wears from /today log with none of these set;
   // detailed wears from /wardrobe/[id] can fill any subset.
   experience?: string               // personal feeling — how it sat with you today

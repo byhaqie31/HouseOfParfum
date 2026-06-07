@@ -1,250 +1,128 @@
-<template>
-  <div class="min-h-screen pt-20 pb-24 px-6">
-    <div class="max-w-3xl mx-auto">
-      <!-- Back to calendar -->
-      <NuxtLink
-        to="/user/journal"
-        class="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-ink-soft hover:text-ink transition-colors"
-      >
-        <Icon name="lucide:arrow-left" size="14" />
-        Back to the calendar
-      </NuxtLink>
-
-      <template v-if="!validDate">
-        <p class="mt-20 text-center font-display italic text-ink-soft">
-          That date doesn't read right.
-        </p>
-      </template>
-
-      <template v-else>
-        <!-- Header -->
-        <header class="mt-8 border-y border-ink relative py-8">
-          <div class="absolute -top-px left-0 w-20 h-px bg-accent" />
-          <p class="font-mono text-[10px] uppercase tracking-[0.22em] text-accent-deep">
-            <template v-if="isToday">Today &middot; the wear log</template>
-            <template v-else>The wear log</template>
-          </p>
-          <h1 class="mt-2 font-display text-4xl sm:text-5xl text-ink tracking-[-0.005em] leading-none">
-            {{ headlineLong }}
-          </h1>
-          <p class="mt-4 font-mono text-[10px] uppercase tracking-[0.16em] text-ink-mute">
-            {{ String(wears.length).padStart(2, '0') }}
-            {{ wears.length === 1 ? 'wear' : 'wears' }}
-            <template v-if="wears.length > 0">
-              <span class="text-accent-deep mx-1">·</span>
-              From {{ wears.at(0)?.timeLabel }}
-              <template v-if="wears.length > 1"> to {{ wears.at(-1)?.timeLabel }}</template>
-            </template>
-          </p>
-        </header>
-
-        <!-- Empty state -->
-        <p
-          v-if="wears.length === 0"
-          class="mt-16 font-display italic text-[15px] text-ink-soft text-center py-12"
-        >
-          Nothing logged on this day.
-        </p>
-
-        <!-- Timeline — ascending, grouped by period -->
-        <div v-else class="mt-12 relative grid grid-cols-[16px_1fr] gap-x-5">
-          <!-- Continuous vertical hairline -->
-          <div class="absolute top-2 bottom-2 left-1.75 w-px bg-rule" />
-
-          <template v-for="group in groups" :key="group.period">
-            <!-- Period label spans both columns -->
-            <div class="col-span-2 flex items-center gap-4 mt-8 mb-5 first:mt-0">
-              <span class="relative z-10 bg-paper pr-3 font-mono text-[9px] uppercase tracking-[0.22em] text-accent-deep">
-                {{ group.label }}
-              </span>
-              <div class="flex-1 h-px bg-rule" />
-            </div>
-
-            <template v-for="entry in group.entries" :key="entry.id">
-              <!-- Timeline dot -->
-              <div class="relative">
-                <div
-                  class="w-3 h-3 rounded-full mt-1.5 mx-auto relative z-10"
-                  :class="entry.isToday
-                    ? 'bg-accent ring-1 ring-accent-deep'
-                    : 'bg-paper border border-ink-soft'"
-                />
-              </div>
-
-              <!-- Entry content -->
-              <div class="pb-10">
-                <div class="flex items-baseline justify-between gap-3 mb-2 flex-wrap">
-                  <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-ink">
-                    {{ entry.timeLabel }}
-                  </p>
-                  <span
-                    v-if="entry.longevity"
-                    class="shrink-0 px-2.5 py-1 font-mono text-[8px] uppercase tracking-[0.16em] bg-accent-soft border border-accent text-accent-deep"
-                  >
-                    {{ longevityLabel(entry.longevity) }}
-                  </span>
-                </div>
-
-                <p class="font-display italic text-[14px] text-ink-soft leading-tight">
-                  {{ entry.brand }}
-                </p>
-                <NuxtLink
-                  v-if="entry.wardrobe_item_id"
-                  :to="`/user/wardrobe/${entry.wardrobe_item_id}`"
-                  class="block mt-0.5 font-display text-2xl text-ink hover:text-accent-deep leading-tight transition-colors"
-                >
-                  {{ entry.name }}
-                </NuxtLink>
-                <h3 v-else class="mt-0.5 font-display text-2xl text-ink leading-tight">
-                  {{ entry.name }}
-                </h3>
-
-                <p
-                  v-if="entry.experience || entry.notes"
-                  class="mt-3 font-display italic text-[16px] text-ink-soft leading-normal"
-                >
-                  &ldquo;{{ entry.experience ?? entry.notes }}&rdquo;
-                </p>
-                <p
-                  v-else
-                  class="mt-3 font-display italic text-[13px] text-ink-mute"
-                >
-                  <template v-if="entry.isToday">
-                    Diary blank — write something from the bottle as the day unfolds.
-                  </template>
-                  <template v-else>
-                    Worn, no words.
-                  </template>
-                </p>
-
-                <p
-                  v-if="entry.compliments"
-                  class="mt-3 flex items-baseline gap-3 font-display italic text-[15px] text-ink-soft"
-                >
-                  <span class="font-mono not-italic text-[8px] uppercase tracking-[0.18em] text-accent-deep shrink-0">
-                    Heard
-                  </span>
-                  &ldquo;{{ entry.compliments }}&rdquo;
-                </p>
-
-                <NuxtLink
-                  v-if="entry.wardrobe_item_id"
-                  :to="`/user/wardrobe/${entry.wardrobe_item_id}`"
-                  class="mt-4 inline-block font-display italic text-[12px] text-ink hover:text-accent-deep border-b border-accent pb-px transition-colors"
-                >
-                  Open diary &rarr;
-                </NuxtLink>
-              </div>
-            </template>
-          </template>
-        </div>
-      </template>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
-import type { JournalEntry, Longevity } from '~/stores/journal'
+import { scentWorld, hashSeed } from '~/utils/scent'
+import { longevityLabel } from '~/utils/wear'
+import type { JournalEntry } from '~/stores/journal'
 
-definePageMeta({ middleware: 'auth' })
+definePageMeta({ layout: 'app', middleware: 'auth' })
 
 const route = useRoute()
 const journal = useJournalStore()
-
-const longevityLabels: Record<Longevity, string> = {
-  brief: 'Brief',
-  settled: 'Settled',
-  lasting: 'Lasting',
-  'all-day': 'All day',
-  'into-night': 'Into the night',
-}
-const longevityLabel = (v: Longevity) => longevityLabels[v] ?? ''
+const wardrobe = useWardrobeStore()
+const toast = useToast()
+const { isDark } = useScentWorld()
 
 const parsedDate = computed<Date | null>(() => {
   const raw = String(route.params.date ?? '')
   const m = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/)
   if (!m) return null
-  const year = Number(m[1])
-  const month = Number(m[2])
-  const day = Number(m[3])
-  const d = new Date(year, month - 1, day)
-  if (
-    d.getFullYear() !== year
-    || d.getMonth() !== month - 1
-    || d.getDate() !== day
-  ) return null
+  const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]))
+  if (d.getMonth() !== Number(m[2]) - 1) return null
   return d
 })
 
-const validDate = computed(() => parsedDate.value !== null)
-
-const isSameDay = (a: Date, b: Date) =>
-  a.getFullYear() === b.getFullYear()
-  && a.getMonth() === b.getMonth()
-  && a.getDate() === b.getDate()
-
-const isToday = computed(() =>
-  parsedDate.value !== null && isSameDay(parsedDate.value, new Date()),
+const isToday = computed(() => parsedDate.value !== null && dateKey(parsedDate.value) === dateKey(new Date()))
+const headline = computed(() =>
+  parsedDate.value
+    ? parsedDate.value.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+    : '',
 )
+useHead({ title: () => headline.value || 'Journal' })
 
-const headlineLong = computed(() => {
-  if (!parsedDate.value) return ''
-  return parsedDate.value.toLocaleDateString('en-GB', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  })
-})
-
-type DecoratedEntry = JournalEntry & {
-  isToday: boolean
-  timeLabel: string
-  hour: number
-}
-
-type Period = 'morning' | 'afternoon' | 'evening' | 'night'
-
-const PERIODS: Array<{ period: Period; label: string }> = [
-  { period: 'morning',   label: 'Morning' },
-  { period: 'afternoon', label: 'Afternoon' },
-  { period: 'evening',   label: 'Evening' },
-  { period: 'night',     label: 'Night' },
-]
-
-function toPeriod(hour: number): Period {
-  if (hour >= 1 && hour < 12) return 'morning'
-  if (hour >= 12 && hour < 17) return 'afternoon'
-  if (hour >= 17 && hour < 21) return 'evening'
-  return 'night' // 9 PM – 12:59 AM (hour 21-23 and 0)
-}
-
-// Ascending (oldest → newest) so the timeline reads morning → night.
-const wears = computed<DecoratedEntry[]>(() => {
+const wears = computed<JournalEntry[]>(() => {
   if (!parsedDate.value) return []
-  const dateStr = parsedDate.value.toDateString()
-  const todayStr = new Date().toDateString()
+  const key = dateKey(parsedDate.value)
   return journal.entries
-    .filter((e: JournalEntry) => parseTimestamp(e.worn_at).toDateString() === dateStr)
-    .sort((a: JournalEntry, b: JournalEntry) => (a.worn_at < b.worn_at ? -1 : 1))
-    .map((entry: JournalEntry) => {
-      const d = parseTimestamp(entry.worn_at)
-      return {
-        ...entry,
-        isToday: d.toDateString() === todayStr,
-        timeLabel: formatTime(entry.worn_at),
-        hour: d.getHours(),
-      }
-    })
+    .filter((e) => dateKey(e.worn_at) === key)
+    .sort((a, b) => (a.worn_at < b.worn_at ? -1 : 1))
 })
 
-// Group entries by period, skipping empty periods.
-const groups = computed(() =>
-  PERIODS
-    .map(p => ({
-      ...p,
-      entries: wears.value.filter(e => toPeriod(e.hour) === p.period),
-    }))
-    .filter(g => g.entries.length > 0),
-)
+function entryWorld(e: JournalEntry) {
+  const item = e.wardrobe_item_id ? wardrobe.byId(e.wardrobe_item_id) : undefined
+  const fam = item?.family ?? 'woody'
+  return scentWorld(fam, hashSeed((item?.id ?? '') + e.name), isDark.value)
+}
+
+async function removeEntry(e: JournalEntry) {
+  if (!window.confirm(`Remove this ${e.name} wear from your journal?`)) return
+  try {
+    await journal.remove(e.id)
+    toast.success('Wear removed.')
+  } catch {
+    toast.error('Could not remove that wear. Try again.')
+  }
+}
 </script>
+
+<template>
+  <div class="mx-auto max-w-3xl">
+    <NuxtLink
+      to="/user/journal"
+      class="mb-5 inline-flex items-center gap-2 fm uppercase"
+      style="font-size: 10px; letter-spacing: 0.16em; color: var(--color-ink-soft);"
+    >
+      <Icon name="lucide:arrow-left" size="14" /> Back to the calendar
+    </NuxtLink>
+
+    <p v-if="!parsedDate" class="mt-20 text-center fb italic" style="color: var(--color-ink-soft);">That date doesn't read right.</p>
+
+    <template v-else>
+      <header class="mb-8">
+        <div class="kicker">{{ isToday ? 'Today · the wear log' : 'The wear log' }}</div>
+        <h1 class="fd mt-1" style="font-size: clamp(28px, 5vw, 40px); line-height: 1.05;">{{ headline }}</h1>
+        <p class="fm mt-2" style="font-size: 12px; color: var(--color-ink-mute);">
+          {{ wears.length }} {{ wears.length === 1 ? 'wear' : 'wears' }}
+        </p>
+      </header>
+
+      <p v-if="!wears.length" class="py-12 text-center fb italic" style="color: var(--color-ink-soft);">Nothing logged on this day.</p>
+
+      <ul v-else class="space-y-3">
+        <li
+          v-for="e in wears"
+          :key="e.id"
+          class="flex gap-3 overflow-hidden rounded-panel border"
+          style="border-color: var(--color-rule); background: var(--color-surface);"
+        >
+          <span class="w-1.5 shrink-0" :style="{ background: entryWorld(e).gradient }" />
+          <div class="min-w-0 flex-1 py-4 pr-4">
+            <div class="flex items-center justify-between gap-2">
+              <span class="fm" style="font-size: 11px; color: var(--color-ink-soft);">{{ formatTime(e.worn_at) }}</span>
+              <span
+                v-if="e.longevity"
+                class="rounded-full px-2 py-0.5 fm uppercase"
+                style="font-size: 9px; letter-spacing: 0.1em;"
+                :style="{ background: entryWorld(e).soft, color: entryWorld(e).accent }"
+              >{{ longevityLabel(e.longevity) }}</span>
+            </div>
+            <div class="kicker mt-1.5">{{ e.brand }}</div>
+            <component
+              :is="e.wardrobe_item_id ? 'NuxtLink' : 'h3'"
+              :to="e.wardrobe_item_id ? `/user/wardrobe/${e.wardrobe_item_id}` : undefined"
+              class="fd block leading-tight"
+              style="font-size: 22px;"
+            >{{ e.name }}</component>
+            <p class="fb mt-1.5" style="font-size: 12px; color: var(--color-ink-mute);">
+              <span v-if="e.mood">{{ e.mood }}</span>
+              <span v-if="e.occasion"> · {{ e.occasion }}</span>
+              <span v-if="e.weather"> · {{ e.weather }}</span>
+              <span v-if="e.sprays"> · {{ e.sprays }} {{ e.sprays === 1 ? 'spray' : 'sprays' }}</span>
+            </p>
+            <p v-if="e.experience || e.notes" class="fb mt-2 italic" style="font-size: 14px; color: var(--color-ink-soft);">"{{ e.experience ?? e.notes }}"</p>
+            <p v-if="e.compliments" class="fb mt-2 italic" style="font-size: 13px; color: var(--color-ink-soft);">
+              <span class="fm not-italic uppercase" style="font-size: 8px; letter-spacing: 0.16em;" :style="{ color: entryWorld(e).accent }">Heard</span>
+              "{{ e.compliments }}"
+            </p>
+            <div class="mt-3 flex items-center gap-4">
+              <NuxtLink
+                v-if="e.wardrobe_item_id"
+                :to="`/user/wardrobe/${e.wardrobe_item_id}`"
+                class="fb italic" style="font-size: 12px; color: var(--color-ink);"
+              >Open bottle →</NuxtLink>
+              <button type="button" class="fb italic" style="font-size: 12px; color: var(--color-ink-mute);" @click="removeEntry(e)">Remove</button>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </template>
+  </div>
+</template>

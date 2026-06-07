@@ -49,11 +49,13 @@ Route::middleware('auth:sanctum')->group(function () {
     // Admin-only
     Route::middleware('admin')->prefix('admin')->group(function () {
         Route::get('/stats', [AdminController::class, 'stats']);
+        Route::get('/dashboard', [AdminController::class, 'dashboard']);
         Route::get('/users', [AdminController::class, 'users']);
         Route::patch('/users/{user}', [AdminController::class, 'updateUser']);
 
-        // Admin perfumes (discovery editorial)
+        // Admin perfumes (discovery curation)
         Route::get('/perfumes', [AdminController::class, 'perfumeIndex']);
+        Route::get('/perfumes/{discoveryPerfume}', [AdminController::class, 'perfumeShow']);
         Route::patch('/perfumes/{discoveryPerfume}', [AdminController::class, 'updatePerfume']);
 
         // Admin almanac

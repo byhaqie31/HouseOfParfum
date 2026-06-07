@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen pt-20 pb-24 px-6">
-    <div class="max-w-6xl mx-auto">
+  <div>
+    <div class="max-w-4xl mx-auto">
       <!-- Greeting eyebrow -->
       <p class="font-mono text-[10px] uppercase tracking-[0.22em] text-ink-mute leading-[1.7]">
         Your account
@@ -276,19 +276,15 @@
             <div class="flex items-center justify-between gap-x-6 py-4 first:pt-0 last:pb-0">
               <div class="min-w-0">
                 <dt class="font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft">
-                  Theme
+                  Canvas
                 </dt>
                 <dd class="mt-1 font-display italic text-[13px] text-ink-mute">
-                  Dark mode and custom themes are on the way.
+                  Daytime, or an after-dark canvas that lets the scent gradients glow.
                 </dd>
               </div>
-              <button
-                type="button"
-                disabled
-                class="shrink-0 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-mute border border-rule px-4 py-2 cursor-not-allowed"
-              >
-                Soon
-              </button>
+              <div class="w-44 shrink-0">
+                <CanvasToggle variant="row" />
+              </div>
             </div>
           </dl>
         </section>
@@ -357,7 +353,7 @@
 </template>
 
 <script setup lang="ts">
-definePageMeta({ middleware: 'auth' })
+definePageMeta({ layout: 'app', middleware: 'auth' })
 
 const auth = useAuthStore()
 const router = useRouter()

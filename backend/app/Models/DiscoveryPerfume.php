@@ -20,6 +20,8 @@ class DiscoveryPerfume extends Model
     /** @var list<string> */
     protected $fillable = [
         'source_id', 'source_url', 'image', 'history', 'name', 'brand', 'country', 'gender',
+        // Editorial: scent family drives the per-fragrance colour world (frontend scentWorld()).
+        'family',
         'rating', 'votes', 'release_year',
         'notes_top', 'notes_middle', 'notes_base', 'accords', 'perfumers',
         // Derived wear profile (App\Support\AccordProfile), persisted by the importer.
