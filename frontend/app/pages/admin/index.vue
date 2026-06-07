@@ -35,10 +35,10 @@ onMounted(async () => {
 
 // ── Stat tiles ──────────────────────────────────────────────────────────────
 const tiles = computed(() => [
-  { label: 'Members', my: 'ahli', value: data.value?.stats.users ?? null, growth: data.value?.growth.users },
-  { label: 'Perfume registry', my: 'daftar wangian', value: data.value?.stats.perfumes ?? null, growth: data.value?.growth.perfumes },
-  { label: 'Wardrobe items', my: 'koleksi', value: data.value?.stats.wardrobe_items ?? null, growth: data.value?.growth.wardrobe_items },
-  { label: 'Wears logged', my: 'rekod pakaian', value: data.value?.stats.journal_entries ?? null, growth: data.value?.growth.journal_entries },
+  { label: 'Members', value: data.value?.stats.users ?? null, growth: data.value?.growth.users },
+  { label: 'Perfume registry', value: data.value?.stats.perfumes ?? null, growth: data.value?.growth.perfumes },
+  { label: 'Wardrobe items', value: data.value?.stats.wardrobe_items ?? null, growth: data.value?.growth.wardrobe_items },
+  { label: 'Wears logged', value: data.value?.stats.journal_entries ?? null, growth: data.value?.growth.journal_entries },
 ])
 
 // ── Scent spectrum (family distribution) ─────────────────────────────────────
@@ -94,7 +94,7 @@ const cardStyle = 'background: var(--color-surface); border-color: var(--color-r
 
 <template>
   <div>
-    <AdminPageHeader title="Overview" sub="The house at a glance. Pandangan keseluruhan." />
+    <AdminPageHeader title="Overview" sub="The house at a glance." />
 
     <!-- Stat tiles -->
     <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -102,7 +102,6 @@ const cardStyle = 'background: var(--color-surface); border-color: var(--color-r
         v-for="t in tiles"
         :key="t.label"
         :label="t.label"
-        :my="t.my"
         :value="t.value"
         :growth="t.growth"
       />
@@ -115,7 +114,7 @@ const cardStyle = 'background: var(--color-surface); border-color: var(--color-r
         <div class="flex items-start justify-between gap-4">
           <div>
             <h2 class="fd" style="font-size: 22px; color: var(--color-ink);">Scent spectrum</h2>
-            <p class="fb mt-0.5 italic" style="font-size: 12.5px; color: var(--color-ink-mute);">How the catalogue and your members lean. Kecenderungan keluarga wangian.</p>
+            <p class="fb mt-0.5 italic" style="font-size: 12.5px; color: var(--color-ink-mute);">How the catalogue and your members lean.</p>
           </div>
           <div class="flex shrink-0 gap-1.5 rounded-full p-1" style="background: var(--color-surface-2);">
             <button
@@ -158,7 +157,7 @@ const cardStyle = 'background: var(--color-surface); border-color: var(--color-r
           <span class="shrink-0 rounded-full" style="width: 13px; height: 13px; border: 1.5px dashed var(--color-ink-mute);" />
           <span class="fb" style="font-size: 12.5px; color: var(--color-ink-soft);">
             <strong style="color: var(--color-ink);">{{ data?.families.uncategorised }} perfumes</strong>
-            have no scent family yet, so they generate no colour. Belum ada keluarga.
+            have no scent family yet, so they generate no colour.
           </span>
         </div>
       </section>
@@ -249,7 +248,7 @@ const cardStyle = 'background: var(--color-surface); border-color: var(--color-r
       <!-- Most logged -->
       <section class="rounded-panel border p-[26px]" :style="cardStyle">
         <h2 class="fd" style="font-size: 22px; color: var(--color-ink);">Most logged</h2>
-        <p class="fb mt-0.5 italic" style="font-size: 12.5px; color: var(--color-ink-mute);">Your members’ signatures. Wangian paling kerap.</p>
+        <p class="fb mt-0.5 italic" style="font-size: 12.5px; color: var(--color-ink-mute);">Your members’ signatures.</p>
 
         <div v-if="topLogged.length" class="mt-4">
           <button
@@ -270,7 +269,7 @@ const cardStyle = 'background: var(--color-surface); border-color: var(--color-r
             <span class="fm whitespace-nowrap" style="font-size: 13px; color: var(--color-ink);">{{ p.wears.toLocaleString() }}</span>
           </button>
         </div>
-        <div v-else-if="!loading" class="fb mt-6 italic" style="font-size: 13px; color: var(--color-ink-mute);">No wears logged yet. Belum ada rekod.</div>
+        <div v-else-if="!loading" class="fb mt-6 italic" style="font-size: 13px; color: var(--color-ink-mute);">No wears logged yet.</div>
       </section>
     </div>
   </div>

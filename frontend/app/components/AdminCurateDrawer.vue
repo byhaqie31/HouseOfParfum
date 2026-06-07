@@ -36,9 +36,9 @@ const familyChips = computed(() =>
 )
 
 const tiers = [
-  { key: 'top' as const, en: 'Top notes', my: 'Nota atas' },
-  { key: 'heart' as const, en: 'Heart notes', my: 'Nota tengah' },
-  { key: 'base' as const, en: 'Base notes', my: 'Nota dasar' },
+  { key: 'top' as const, en: 'Top notes' },
+  { key: 'heart' as const, en: 'Heart notes' },
+  { key: 'base' as const, en: 'Base notes' },
 ]
 
 function parse(v: string): string[] {
@@ -124,13 +124,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
             <!-- Notes pyramid -->
             <div class="mt-6">
               <span class="fm uppercase" style="font-size: 9px; letter-spacing: 0.14em; color: var(--color-ink-mute);">Notes pyramid</span>
-              <div class="fb mt-0.5 italic" style="font-size: 11px; color: var(--color-ink-mute);">Comma separated. Dipisahkan dengan koma.</div>
+              <div class="fb mt-0.5 italic" style="font-size: 11px; color: var(--color-ink-mute);">Comma separated.</div>
               <div class="mt-2.5 flex flex-col gap-3">
                 <div v-for="t in tiers" :key="t.key">
-                  <div class="flex items-baseline justify-between">
-                    <span class="fb" style="font-size: 12px; font-weight: 600; color: var(--color-ink-soft);">{{ t.en }}</span>
-                    <span class="fb italic" style="font-size: 10px; color: var(--color-ink-mute);">{{ t.my }}</span>
-                  </div>
+                  <span class="fb" style="font-size: 12px; font-weight: 600; color: var(--color-ink-soft);">{{ t.en }}</span>
                   <input
                     v-model="notesInput[t.key]"
                     class="admin-input fb mt-1.5"

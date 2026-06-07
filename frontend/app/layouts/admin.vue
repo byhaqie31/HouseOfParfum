@@ -9,15 +9,14 @@ const { worldFor } = useScentWorld()
 // The admin chrome borrows the day's accent, same as the app shell.
 const houseWorld = worldFor(() => familyOfTheHour())
 
-// Back-office IA — English label + smaller italic Malay sub-label. Houses and
-// Community are designed-next placeholders (see pages/admin/{brands,community}).
+// Back-office IA. Houses and Community are designed-next placeholders.
 const nav = [
-  { to: '/admin', label: 'Overview', my: 'keseluruhan', icon: 'lucide:layout-dashboard', exact: true },
-  { to: '/admin/perfumes', label: 'Registry', my: 'daftar', icon: 'lucide:spray-can' },
-  { to: '/admin/brands', label: 'Houses', my: 'rumah', icon: 'lucide:building-2' },
-  { to: '/admin/users', label: 'Members', my: 'ahli', icon: 'lucide:users' },
-  { to: '/admin/almanac', label: 'Almanac', my: 'almanak', icon: 'lucide:book-open' },
-  { to: '/admin/community', label: 'Community', my: 'komuniti', icon: 'lucide:messages-square' },
+  { to: '/admin', label: 'Overview', icon: 'lucide:layout-dashboard', exact: true },
+  { to: '/admin/perfumes', label: 'Registry', icon: 'lucide:spray-can' },
+  { to: '/admin/brands', label: 'Houses', icon: 'lucide:building-2' },
+  { to: '/admin/users', label: 'Members', icon: 'lucide:users' },
+  { to: '/admin/almanac', label: 'Almanac', icon: 'lucide:book-open' },
+  { to: '/admin/community', label: 'Community', icon: 'lucide:messages-square' },
 ]
 
 const sidebarOpen = ref(false)
@@ -63,18 +62,18 @@ async function handleLogout() {
         />
       </Transition>
 
-      <!-- ── Sidebar ─────────────────────────────────────────────────────── -->
+      <!-- ── Sidebar (matches the app shell: 248px) ──────────────────────── -->
       <aside
-        class="fixed inset-y-0 left-0 z-50 flex w-[236px] flex-col border-r px-[18px] py-[26px]
+        class="fixed inset-y-0 left-0 z-50 flex w-[248px] flex-col border-r px-5 py-6
                transition-transform duration-200 ease-in-out
                -translate-x-full lg:sticky lg:top-0 lg:h-screen lg:translate-x-0"
         :class="{ 'translate-x-0': sidebarOpen }"
         style="border-color: var(--color-rule); background: var(--color-surface);"
       >
         <!-- Wordmark -->
-        <div class="flex items-start justify-between px-2">
+        <div class="flex items-start justify-between px-1">
           <NuxtLink to="/admin" class="block">
-            <div class="fd leading-tight" style="font-size: 20px; color: var(--color-ink);">House of Parfum</div>
+            <div class="fd leading-tight" style="font-size: 22px; color: var(--color-ink);">House of Parfum</div>
             <div
               class="fm mt-1 uppercase"
               :style="{ fontSize: '8.5px', letterSpacing: '0.2em', color: houseWorld.accent }"
@@ -91,36 +90,26 @@ async function handleLogout() {
         </div>
 
         <!-- Nav -->
-        <nav class="mt-8 flex flex-col gap-[3px]">
+        <nav class="mt-8 flex flex-col gap-1">
           <NuxtLink
             v-for="item in nav"
             :key="item.to"
             :to="item.to"
-            class="flex items-center gap-3 rounded-field px-[13px] py-[11px]"
-            :style="{ background: isActive(item) ? 'var(--color-surface-2)' : 'transparent' }"
+            class="flex items-center gap-3 rounded-field px-3 py-2.5"
+            :style="isActive(item)
+              ? { background: houseWorld.soft, color: houseWorld.accent }
+              : { color: 'var(--color-ink-soft)' }"
           >
-            <span class="flex w-[22px] shrink-0 justify-center">
-              <Icon
-                :name="item.icon"
-                size="19"
-                :style="{ color: isActive(item) ? houseWorld.accent : 'var(--color-ink-mute)' }"
-              />
-            </span>
-            <span class="min-w-0">
-              <span
-                class="fb block leading-tight"
-                :style="{ fontSize: '14px', fontWeight: 600, color: isActive(item) ? 'var(--color-ink)' : 'var(--color-ink-soft)' }"
-              >{{ item.label }}</span>
-              <span class="fb block italic leading-tight" style="font-size: 10px; color: var(--color-ink-mute);">{{ item.my }}</span>
-            </span>
+            <Icon :name="item.icon" size="19" />
+            <span class="fb" style="font-size: 14px;">{{ item.label }}</span>
           </NuxtLink>
         </nav>
 
         <!-- Footer: preview · canvas toggle · account -->
-        <div class="mt-auto flex flex-col gap-[10px] pt-5">
+        <div class="mt-auto flex flex-col gap-2.5 pt-5">
           <NuxtLink
             to="/user/today"
-            class="flex items-center gap-2 px-[13px] py-1 fm uppercase"
+            class="flex items-center gap-2 px-3 py-1 fm uppercase"
             style="font-size: 9.5px; letter-spacing: 0.14em; color: var(--color-ink-mute);"
           >
             <Icon name="lucide:eye" size="13" /> View the app
@@ -128,7 +117,7 @@ async function handleLogout() {
 
           <CanvasToggle variant="row" />
 
-          <div class="flex items-center gap-[11px] rounded-field border px-3 py-2.5" style="border-color: var(--color-rule);">
+          <div class="flex items-center gap-2.5 rounded-field border px-3 py-2.5" style="border-color: var(--color-rule);">
             <span
               class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
               :style="{ background: houseWorld.gradient, color: houseWorld.onGrad }"
@@ -166,7 +155,8 @@ async function handleLogout() {
           <span class="fm ml-auto uppercase" :style="{ fontSize: '9px', letterSpacing: '0.18em', color: houseWorld.accent }">Admin</span>
         </header>
 
-        <main class="mx-auto w-full max-w-[1280px] flex-1 px-5 py-7 md:px-11 md:py-9">
+        <!-- Content — matches the app shell exactly: max-w-1320, px-5/md:px-8 -->
+        <main class="mx-auto w-full max-w-[1320px] flex-1 px-5 pb-12 pt-5 md:px-8 md:pt-8">
           <slot />
         </main>
       </div>

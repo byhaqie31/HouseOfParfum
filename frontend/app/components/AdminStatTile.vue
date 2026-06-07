@@ -1,7 +1,6 @@
 <script setup lang="ts">
 const props = defineProps<{
   label: string
-  my: string
   value: number | null
   growth?: number
 }>()
@@ -18,9 +17,8 @@ const up = computed(() => (props.growth ?? 0) >= 0)
     <div class="absolute left-0 top-0 h-[3px] w-9" style="background: var(--color-accent);" />
 
     <div class="fm uppercase" style="font-size: 9.5px; letter-spacing: 0.16em; color: var(--color-ink-mute);">{{ label }}</div>
-    <div class="fb italic" style="font-size: 10px; color: var(--color-ink-mute);">{{ my }}</div>
 
-    <div class="fd" style="font-size: 42px; line-height: 1; margin-top: 14px; color: var(--color-ink);">
+    <div class="fd" style="font-size: 42px; line-height: 1; margin-top: 16px; color: var(--color-ink);">
       {{ value !== null ? value.toLocaleString() : '—' }}
     </div>
 

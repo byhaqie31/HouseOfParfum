@@ -5,7 +5,7 @@ definePageMeta({ layout: 'admin', middleware: 'admin' })
 <template>
   <AdminStub
     title="Houses"
-    my="rumah wangian"
+    sub="Maisons and brands behind the catalogue."
     blurb="Manage maisons and brands — logo, blurb, and merging duplicates. A natural next screen once the registry is clean."
   />
 </template>

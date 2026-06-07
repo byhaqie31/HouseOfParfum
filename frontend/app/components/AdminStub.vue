@@ -2,7 +2,7 @@
 import { familyOfTheHour } from '~/utils/wear'
 
 // Placeholder for a portal area that's labelled in the nav but designed next.
-defineProps<{ title: string; my: string; blurb: string }>()
+defineProps<{ title: string; sub: string; blurb: string }>()
 
 const { worldFor } = useScentWorld()
 const world = worldFor(() => familyOfTheHour())
@@ -10,7 +10,7 @@ const world = worldFor(() => familyOfTheHour())
 
 <template>
   <div>
-    <AdminPageHeader :title="title" :sub="my" />
+    <AdminPageHeader :title="title" :sub="sub" />
     <div
       class="rounded-panel border border-dashed px-10 py-14 text-center"
       style="border-color: var(--color-rule); background: var(--color-surface);"

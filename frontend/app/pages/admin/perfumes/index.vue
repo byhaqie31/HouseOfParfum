@@ -106,7 +106,7 @@ async function onSave(payload: CuratePayload) {
 
 <template>
   <div>
-    <AdminPageHeader title="Perfume registry" sub="Curate the source of truth behind every colour. Daftar wangian.">
+    <AdminPageHeader title="Perfume registry" sub="Curate the source of truth behind every colour.">
       <template #actions>
         <div class="text-right">
           <div class="fd" :style="{ fontSize: '26px', lineHeight: 1, color: incompleteTotal ? accent : 'var(--color-ink)' }">{{ incompleteTotal }}</div>
@@ -211,7 +211,7 @@ async function onSave(payload: CuratePayload) {
             </tr>
           </tbody>
         </table>
-        <div v-if="!perfumes.length" class="fb px-10 py-12 text-center italic" style="font-size: 14px; color: var(--color-ink-mute);">Nothing matches. Tiada padanan.</div>
+        <div v-if="!perfumes.length" class="fb px-10 py-12 text-center italic" style="font-size: 14px; color: var(--color-ink-mute);">Nothing matches.</div>
       </div>
 
       <!-- Mobile cards -->
@@ -242,7 +242,7 @@ async function onSave(payload: CuratePayload) {
             </span>
           </div>
         </button>
-        <div v-if="!perfumes.length" class="fb px-6 py-12 text-center italic" style="font-size: 14px; color: var(--color-ink-mute);">Nothing matches. Tiada padanan.</div>
+        <div v-if="!perfumes.length" class="fb px-6 py-12 text-center italic" style="font-size: 14px; color: var(--color-ink-mute);">Nothing matches.</div>
       </div>
 
       <!-- Pagination -->

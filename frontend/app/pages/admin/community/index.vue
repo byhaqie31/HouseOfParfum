@@ -5,7 +5,7 @@ definePageMeta({ layout: 'admin', middleware: 'admin' })
 <template>
   <AdminStub
     title="Community"
-    my="komuniti"
+    sub="Moderation for shared wardrobes and journals."
     blurb="A moderation queue for public wardrobes and journal entries, plus a way to feature a fragrance, for when the is_public features ship."
   />
 </template>

@@ -65,7 +65,7 @@ onMounted(() => load(1))
 
 <template>
   <div>
-    <AdminPageHeader title="Members" sub="Everyone in the house. Ahli komuniti." />
+    <AdminPageHeader title="Members" sub="Everyone in the house." />
 
     <div
       v-if="loading"

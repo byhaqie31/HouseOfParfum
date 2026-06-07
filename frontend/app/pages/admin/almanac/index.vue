@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-6">
 
-    <AdminPageHeader title="Almanac" sub="Chapters and questions, the perfumery primer. Almanak." />
+    <AdminPageHeader title="Almanac" sub="Chapters and questions, the perfumery primer." />
 
     <!-- Loading -->
     <div v-if="loading" class="border border-rule px-6 py-16 text-center font-mono text-[11px] text-ink-mute uppercase tracking-widest">
