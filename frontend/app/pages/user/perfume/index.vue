@@ -3,13 +3,11 @@
     <div class="max-w-6xl mx-auto">
       <!-- Header -->
       <header class="border-b border-rule pb-8">
-        <p class="font-mono text-[11px] uppercase tracking-widest text-ink-mute">
-          The catalog
-        </p>
-        <h1 class="mt-3 font-display text-5xl sm:text-6xl text-ink tracking-tight leading-[1.05]">
+        <p class="kicker">The catalog</p>
+        <h1 class="mt-3 fd text-5xl sm:text-6xl tracking-tight leading-[1.05]" style="color: var(--color-ink);">
           Discover
         </h1>
-        <p class="mt-4 font-display italic text-[15px] text-ink-soft max-w-xl">
+        <p class="mt-4 fd italic text-[15px] max-w-xl" style="color: var(--color-ink-soft);">
           Browse the catalogue, search by house or name, and add what's already on your shelf.
         </p>
       </header>
@@ -17,7 +15,7 @@
       <!-- Primary controls: search + house + sex (equal thirds) -->
       <div class="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
-          <label for="catalog-search" class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-2">
+          <label for="catalog-search" class="block fd font-medium text-[10px] uppercase tracking-[0.22em] mb-2" style="color: var(--color-ink-soft);">
             Search
           </label>
           <input
@@ -26,11 +24,11 @@
             type="text"
             autocomplete="off"
             placeholder="Brand or name…"
-            class="w-full h-11 bg-paper-deep border border-rule px-4 text-[14px] text-ink placeholder:font-display placeholder:italic placeholder:text-ink-mute focus:outline-none focus:border-ink-soft transition-colors"
+            class="w-full h-[46px] rounded-field bg-paper-deep border border-rule px-4 text-[14px] text-ink placeholder:font-display placeholder:italic placeholder:text-ink-mute focus:outline-none focus:border-ink-soft transition-colors"
           >
         </div>
         <div>
-          <label class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-2">
+          <label class="block fd font-medium text-[10px] uppercase tracking-[0.22em] mb-2" style="color: var(--color-ink-soft);">
             House
           </label>
           <EditorialSelect
@@ -42,7 +40,7 @@
           />
         </div>
         <div>
-          <label class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-2">
+          <label class="block fd font-medium text-[10px] uppercase tracking-[0.22em] mb-2" style="color: var(--color-ink-soft);">
             For
           </label>
           <EditorialSelect v-model="gender" :options="SEX_OPTIONS" placeholder="Anyone" />
@@ -53,34 +51,34 @@
       <div class="mt-6">
         <button
           type="button"
-          class="inline-flex items-center gap-2 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.16em] border transition-colors"
-          :class="showFilters
-            ? 'bg-accent-soft border-accent text-accent-deep'
-            : 'bg-paper-deep border-rule text-ink hover:border-ink-soft'"
+          class="inline-flex items-center gap-2 rounded-full px-4 py-2 font-mono text-[10px] uppercase tracking-[0.16em] border transition-colors"
+          :class="showFilters ? '' : 'bg-paper-deep border-rule text-ink hover:border-ink-soft'"
+          :style="showFilters ? { background: houseWorld.soft, borderColor: houseWorld.accent, color: houseWorld.accent } : undefined"
           @click="showFilters = !showFilters"
         >
           <Icon name="lucide:sliders-horizontal" size="13" />
           Filters
-          <span v-if="activeFilterCount" class="font-mono text-[9px] bg-accent text-paper rounded-full px-1.5 py-px">
-            {{ activeFilterCount }}
-          </span>
+          <span
+            v-if="activeFilterCount"
+            class="font-mono text-[9px] rounded-full px-1.5 py-px"
+            :style="{ background: houseWorld.accent, color: 'var(--color-canvas)' }"
+          >{{ activeFilterCount }}</span>
         </button>
       </div>
 
       <!-- Advanced filter panel -->
-      <div v-if="showFilters" class="mt-4 border border-rule bg-paper-deep p-5 sm:p-6">
+      <div v-if="showFilters" class="mt-4 rounded-card border border-rule bg-paper-deep p-5 sm:p-6">
         <!-- A–Z name index -->
         <div>
-          <label class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-2">
+          <label class="block fd font-medium text-[10px] uppercase tracking-[0.22em] mb-2" style="color: var(--color-ink-soft);">
             Name index
           </label>
           <div class="flex flex-wrap items-center gap-1.5">
             <button
               type="button"
-              class="px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest border transition-colors"
-              :class="letter === ''
-                ? 'bg-ink text-paper border-ink'
-                : 'bg-paper border-rule text-ink-soft hover:border-ink-soft'"
+              class="px-2.5 py-1 rounded-full font-mono text-[10px] uppercase tracking-widest border transition-colors"
+              :class="letter === '' ? '' : 'bg-paper border-rule text-ink-soft hover:border-ink-soft'"
+              :style="letter === '' ? { background: houseWorld.soft, borderColor: houseWorld.accent, color: houseWorld.accent } : undefined"
               @click="letter = ''"
             >
               All
@@ -89,10 +87,9 @@
               v-for="l in LETTERS"
               :key="l"
               type="button"
-              class="w-7 py-1 font-mono text-[10px] border transition-colors"
-              :class="letter === l
-                ? 'bg-ink text-paper border-ink'
-                : 'bg-paper border-rule text-ink-soft hover:border-ink-soft'"
+              class="w-7 py-1 rounded-full font-mono text-[10px] border transition-colors"
+              :class="letter === l ? '' : 'bg-paper border-rule text-ink-soft hover:border-ink-soft'"
+              :style="letter === l ? { background: houseWorld.soft, borderColor: houseWorld.accent, color: houseWorld.accent } : undefined"
               @click="letter = l"
             >
               {{ l }}
@@ -103,8 +100,8 @@
         <div class="mt-6 grid grid-cols-1 md:grid-cols-[1fr_200px_180px] gap-6">
           <!-- Notes (multi-select, match all) — picker above, chosen notes below -->
           <div>
-            <label class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-2">
-              Notes <span class="text-ink-mute normal-case tracking-normal">— must contain all</span>
+            <label class="block fd font-medium text-[10px] uppercase tracking-[0.22em] mb-2" style="color: var(--color-ink-soft);">
+              Notes <span class="normal-case tracking-normal" style="color: var(--color-ink-mute);">— must contain all</span>
             </label>
             <EditorialSelect
               :model-value="''"
@@ -119,7 +116,8 @@
                 v-for="n in selectedNotes"
                 :key="n"
                 type="button"
-                class="inline-flex items-center gap-1 px-2 py-1 font-mono text-[9px] uppercase tracking-widest bg-accent-soft border border-accent text-accent-deep"
+                class="inline-flex items-center gap-1 rounded-full px-2 py-1 font-mono text-[9px] uppercase tracking-widest border"
+                :style="{ background: houseWorld.soft, borderColor: houseWorld.accent, color: houseWorld.accent }"
                 @click="removeNote(n)"
               >
                 {{ n }}
@@ -130,7 +128,7 @@
 
           <!-- Season -->
           <div>
-            <label class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-2">
+            <label class="block fd font-medium text-[10px] uppercase tracking-[0.22em] mb-2" style="color: var(--color-ink-soft);">
               Season
             </label>
             <EditorialSelect v-model="season" :options="SEASON_OPTIONS" placeholder="Any season" />
@@ -138,7 +136,7 @@
 
           <!-- Rating -->
           <div>
-            <label class="block font-display font-medium text-[10px] uppercase tracking-[0.22em] text-ink-soft mb-2">
+            <label class="block fd font-medium text-[10px] uppercase tracking-[0.22em] mb-2" style="color: var(--color-ink-soft);">
               Rating
             </label>
             <EditorialSelect v-model="ratingMin" :options="RATING_OPTIONS" placeholder="Any rating" />
@@ -148,7 +146,8 @@
         <div v-if="activeFilterCount" class="mt-5 pt-4 border-t border-rule">
           <button
             type="button"
-            class="font-display italic text-[13px] text-ink-soft hover:text-accent-deep transition-colors"
+            class="fd italic text-[13px] transition-colors"
+            style="color: var(--color-ink-soft);"
             @click="clearFilters"
           >
             Clear filters
@@ -158,23 +157,22 @@
 
       <!-- Control bar: count (left) · sort (right) -->
       <div class="mt-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
-        <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-ink-mute">
+        <p class="font-mono text-[10px] uppercase tracking-[0.18em]" style="color: var(--color-ink-mute);">
           {{ total.toLocaleString() }} {{ total === 1 ? 'fragrance' : 'fragrances' }}
           <template v-if="!loading && perfumes.length">
-            <span class="text-accent-deep mx-1">·</span>showing {{ perfumes.length }}
+            <span class="mx-1" :style="{ color: houseWorld.accent }">·</span>showing {{ perfumes.length }}
           </template>
         </p>
 
         <div class="flex flex-wrap items-center gap-x-2 gap-y-1.5">
-          <span class="font-mono text-[10px] uppercase tracking-[0.14em] text-ink-mute mr-1">Sort</span>
+          <span class="font-mono text-[10px] uppercase tracking-[0.14em] mr-1" style="color: var(--color-ink-mute);">Sort</span>
           <button
             v-for="opt in SORT_OPTIONS"
             :key="opt.value"
             type="button"
-            class="px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.12em] border transition-colors"
-            :class="sort === opt.value
-              ? 'bg-accent-soft border-accent text-accent-deep'
-              : 'bg-paper-deep border-rule text-ink-soft hover:border-ink-soft hover:text-ink'"
+            class="px-2.5 py-1 rounded-full font-mono text-[11px] uppercase tracking-[0.12em] border transition-colors"
+            :class="sort === opt.value ? '' : 'bg-paper-deep border-rule text-ink-soft hover:border-ink-soft hover:text-ink'"
+            :style="sort === opt.value ? { background: houseWorld.soft, borderColor: houseWorld.accent, color: houseWorld.accent } : undefined"
             @click="sort = opt.value"
           >
             {{ opt.label }}
@@ -183,41 +181,20 @@
       </div>
 
       <!-- Loading -->
-      <p v-if="loading" class="mt-16 text-center font-display italic text-ink-soft">
+      <p v-if="loading" class="mt-16 text-center fd italic" style="color: var(--color-ink-soft);">
         Drawing from the cabinet…
       </p>
 
       <!-- Empty -->
-      <p v-else-if="perfumes.length === 0" class="mt-16 text-center font-display italic text-ink-soft">
+      <p v-else-if="perfumes.length === 0" class="mt-16 text-center fd italic" style="color: var(--color-ink-soft);">
         Nothing matches that. Loosen a filter or clear the search.
       </p>
 
-      <!-- Grid: 2 cols × 4 rows = 8 on mobile, 4 cols × 4 rows = 16 on desktop -->
+      <!-- Grid: 2 cols × 4 rows = 8 on mobile, 4 cols × 4 rows = 16 on desktop.
+           Each card wears the colour of its scent family (derived from main_accord). -->
       <ul v-else class="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-4">
         <li v-for="p in perfumes" :key="p.id">
-          <NuxtLink
-            :to="`/user/perfume/${p.id}`"
-            class="group block bg-paper border border-rule p-5 hover:bg-paper-deep transition-colors duration-200"
-          >
-            <div class="aspect-3/4 bg-paper-deep border border-rule flex items-center justify-center group-hover:bg-paper transition-colors duration-200">
-              <BottleIcon :size="64" />
-            </div>
-            <p class="mt-4 font-mono text-[9px] uppercase tracking-[0.16em] text-ink-mute">
-              {{ p.brand }}
-            </p>
-            <h3 class="mt-1 font-display text-[18px] text-ink leading-tight min-h-[2.5em] line-clamp-2">
-              {{ p.name }}
-            </h3>
-            <p
-              v-if="p.main_accord"
-              class="mt-3 font-mono text-[9px] uppercase tracking-[0.14em] text-ink-mute leading-snug"
-            >
-              {{ formatAccord(p.main_accord) }}
-            </p>
-            <p class="mt-5 font-display italic text-[12px] text-ink hover:text-accent-deep border-b border-accent inline-block pb-px">
-              View details →
-            </p>
-          </NuxtLink>
+          <DiscoverCard :perfume="p" />
         </li>
       </ul>
 
@@ -234,7 +211,7 @@
         >
           &larr; Previous
         </button>
-        <span class="text-ink-mute">
+        <span style="color: var(--color-ink-mute);">
           Page {{ page }} / {{ lastPage.toLocaleString() }}
         </span>
         <button
@@ -251,6 +228,9 @@
 </template>
 
 <script setup lang="ts">
+import { familyOfTheHour } from '~/utils/wear'
+import type { ScentFamilyKey } from '~/utils/scent'
+
 definePageMeta({ layout: 'app', middleware: 'auth' })
 
 type Perfume = {
@@ -258,9 +238,15 @@ type Perfume = {
   brand: string
   name: string
   main_accord?: string | null
+  rating?: number | null
+  family?: ScentFamilyKey | null
 }
 
 const api = useApi()
+
+// The day's accent tints the active chips, like the rest of the app's chrome.
+const { worldFor } = useScentWorld()
+const houseWorld = worldFor(() => familyOfTheHour())
 
 const perfumes = ref<Perfume[]>([])
 const total = ref(0)
@@ -416,9 +402,6 @@ watch(searchQuery, () => {
   clearTimeout(searchTimer)
   searchTimer = setTimeout(resetAndFetch, 300)
 })
-
-const formatAccord = (raw: string) =>
-  raw.split(',').map((s: string) => s.trim()).filter(Boolean).join(' · ')
 
 onMounted(async () => {
   // Track viewport so per-page count adapts to mobile vs desktop. lg = 1024px.

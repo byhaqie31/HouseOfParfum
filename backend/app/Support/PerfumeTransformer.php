@@ -27,6 +27,9 @@ class PerfumeTransformer
             // Editorial fields — null until filled in by an admin.
             'image'       => $d->image,
             'history'     => $d->history,
+            // Curated scent family (drives the colour). Null until an admin sets it;
+            // Discover falls back to deriving it from main_accord client-side.
+            'family'      => $d->family,
 
             // Scent profile.
             'main_accord'  => self::commaList($d->accords),

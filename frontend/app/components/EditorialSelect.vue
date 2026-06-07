@@ -130,13 +130,14 @@ onBeforeUnmount(() => {
 
 .trigger {
   width: 100%;
-  height: 44px;
+  height: 46px;
   box-sizing: border-box;
   display: flex;
   align-items: center;
   gap: 10px;
-  background: var(--color-paper-deep);
+  background: var(--color-surface);
   border: 1px solid var(--color-rule);
+  border-radius: var(--radius-field);
   padding: 0 14px;
   text-align: left;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -173,11 +174,13 @@ onBeforeUnmount(() => {
 
 .menu {
   position: absolute;
-  top: calc(100% - 1px);
+  top: calc(100% + 4px);
   left: 0;
   right: 0;
-  background: var(--color-paper);
+  background: var(--color-surface);
   border: 1px solid var(--color-ink-soft);
+  border-radius: var(--radius-field);
+  overflow: hidden;
   z-index: 30;
 }
 
