@@ -73,11 +73,8 @@ async function handleLogout() {
         <!-- Wordmark -->
         <div class="flex items-start justify-between px-1">
           <NuxtLink to="/admin" class="block">
-            <div class="fd leading-tight" style="font-size: 22px; color: var(--color-ink);">House of Parfum</div>
-            <div
-              class="fm mt-1 uppercase"
-              :style="{ fontSize: '8.5px', letterSpacing: '0.2em', color: houseWorld.accent }"
-            >Admin portal</div>
+            <div class="fd leading-none" style="font-size: 22px; color: var(--color-ink);">House of Parfum</div>
+            <div class="kicker mt-1.5">Admin portal</div>
           </NuxtLink>
           <button
             class="lg:hidden"
@@ -106,7 +103,7 @@ async function handleLogout() {
         </nav>
 
         <!-- Footer: preview · canvas toggle · account -->
-        <div class="mt-auto flex flex-col gap-2.5 pt-5">
+        <div class="mt-auto flex flex-col gap-3 pt-5">
           <NuxtLink
             to="/user/today"
             class="flex items-center gap-2 px-3 py-1 fm uppercase"
@@ -117,16 +114,16 @@ async function handleLogout() {
 
           <CanvasToggle variant="row" />
 
-          <div class="flex items-center gap-2.5 rounded-field border px-3 py-2.5" style="border-color: var(--color-rule);">
+          <div class="flex items-center gap-3 rounded-field border px-3 py-2.5" style="border-color: var(--color-rule);">
             <span
               class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
               :style="{ background: houseWorld.gradient, color: houseWorld.onGrad }"
             >
-              <span class="fd" style="font-size: 12.5px;">{{ initials }}</span>
+              <span class="fd" style="font-size: 13px;">{{ initials }}</span>
             </span>
             <div class="min-w-0 flex-1">
-              <div class="fb truncate leading-tight" style="font-size: 12.5px; font-weight: 600; color: var(--color-ink);">{{ auth.user?.name || 'Admin' }}</div>
-              <div class="fb truncate leading-tight" style="font-size: 10.5px; color: var(--color-ink-mute);">Curation team</div>
+              <div class="fb block truncate" style="font-size: 13px; color: var(--color-ink);">{{ auth.user?.name || 'Admin' }}</div>
+              <div class="fb block truncate" style="font-size: 11px; color: var(--color-ink-mute);">Curation team</div>
             </div>
             <button
               class="shrink-0"

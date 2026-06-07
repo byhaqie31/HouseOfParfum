@@ -35,6 +35,9 @@ const initials = computed(() => {
   if (!name) return ''
   return name.split(/\s+/).slice(0, 2).map((p: string) => p[0]?.toUpperCase() ?? '').join('')
 })
+
+// Admins get a shortcut into the back-office (mirrors the admin shell's "View the app").
+const isAdmin = computed(() => auth.user?.role === 'admin')
 </script>
 
 <template>
@@ -78,6 +81,15 @@ const initials = computed(() => {
       </NuxtLink>
 
       <div class="mt-auto flex flex-col gap-3 pt-5">
+        <NuxtLink
+          v-if="isAdmin"
+          to="/admin"
+          class="flex items-center gap-2 px-3 py-1 fm uppercase"
+          style="font-size: 9.5px; letter-spacing: 0.14em; color: var(--color-ink-mute);"
+        >
+          <Icon name="lucide:layout-dashboard" size="13" /> Admin portal
+        </NuxtLink>
+
         <CanvasToggle variant="row" />
         <NuxtLink
           to="/user/profile"
@@ -105,6 +117,15 @@ const initials = computed(() => {
     >
       <NuxtLink to="/user/today" class="fd" style="font-size: 18px;">House of Parfum</NuxtLink>
       <div class="flex items-center gap-2">
+        <NuxtLink
+          v-if="isAdmin"
+          to="/admin"
+          class="flex h-10 w-10 items-center justify-center rounded-full border"
+          style="border-color: var(--color-rule); background: var(--color-surface); color: var(--color-ink-soft);"
+          aria-label="Admin portal"
+        >
+          <Icon name="lucide:layout-dashboard" size="18" />
+        </NuxtLink>
         <CanvasToggle variant="icon" />
         <NuxtLink
           to="/user/profile"
