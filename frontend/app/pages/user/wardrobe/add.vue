@@ -141,6 +141,9 @@ onMounted(async () => {
   } catch { /* ignore */ }
 })
 
+// Standard fragrance concentrations, strongest → lightest.
+const CONCENTRATIONS = ['Extrait de Parfum', 'Parfum', 'Elixir', 'Eau de Parfum', 'Eau de Toilette', 'Eau de Cologne', 'Eau Fraîche']
+
 const inputClass =
   'w-full rounded-field border px-3.5 py-2.5 fb focus:outline-none'
 const inputStyle =
@@ -238,7 +241,29 @@ const inputStyle =
         </div>
         <div>
           <label for="conc" class="mb-1.5 block fb" style="font-size: 13px; color: var(--color-ink-soft);">Concentration</label>
-          <input id="conc" v-model="form.concentration" type="text" placeholder="e.g. Eau de parfum" :class="inputClass" :style="inputStyle">
+          <div class="relative">
+            <select
+              id="conc"
+              v-model="form.concentration"
+              :class="inputClass"
+              :style="[inputStyle, {
+                appearance: 'none',
+                WebkitAppearance: 'none',
+                paddingRight: '40px',
+                cursor: 'pointer',
+                color: form.concentration ? 'var(--color-ink)' : 'var(--color-ink-mute)',
+              }]"
+            >
+              <option value="">Select concentration…</option>
+              <option v-for="c in CONCENTRATIONS" :key="c" :value="c">{{ c }}</option>
+            </select>
+            <Icon
+              name="lucide:chevron-down"
+              size="16"
+              class="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2"
+              style="color: var(--color-ink-mute);"
+            />
+          </div>
         </div>
       </div>
       <div>
