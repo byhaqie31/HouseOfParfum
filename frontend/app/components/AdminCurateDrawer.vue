@@ -68,19 +68,19 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
     <Transition name="drawer">
       <div
         v-if="perfume"
-        class="fixed inset-0 z-[120] flex justify-end"
+        class="fixed inset-0 z-120 flex justify-end"
         style="background: color-mix(in oklab, var(--color-canvas) 30%, rgba(0,0,0,0.5)); backdrop-filter: blur(5px);"
         role="dialog"
         aria-modal="true"
         @click.self="emit('close')"
       >
         <div
-          class="drawer-panel flex h-full w-[480px] max-w-[92vw] flex-col overflow-y-auto border-l"
+          class="drawer-panel flex h-full w-120 max-w-[92vw] flex-col overflow-y-auto border-l"
           style="background: var(--color-canvas); border-color: var(--color-rule); box-shadow: -30px 0 80px -30px rgba(0,0,0,0.4);"
         >
           <!-- Live colour-world preview header -->
           <div
-            class="px-7 py-[30px]"
+            class="px-7 py-7.5"
             :style="world
               ? { background: world.bloom, color: world.onGrad }
               : { background: 'var(--color-surface-2)', color: 'var(--color-ink-soft)' }"
@@ -96,13 +96,13 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
               <ScentFlacon v-if="world" :world="world!" :size="54" />
               <span
                 v-else
-                class="shrink-0 rounded-[18px] border"
+                class="shrink-0 rounded-card border"
                 style="width: 54px; height: 74px; border: 1.5px dashed currentColor; opacity: 0.5;"
               />
             </div>
           </div>
 
-          <div class="px-7 pb-10 pt-[26px]">
+          <div class="px-7 pb-10 pt-6.5">
             <!-- Scent family — the keystone -->
             <div class="flex items-baseline justify-between">
               <span class="fm uppercase" style="font-size: 9px; letter-spacing: 0.14em; color: var(--color-ink-mute);">Scent family</span>

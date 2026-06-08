@@ -24,7 +24,7 @@
             type="text"
             autocomplete="off"
             placeholder="Brand or name…"
-            class="w-full h-[46px] rounded-field bg-paper-deep border border-rule px-4 text-[14px] text-ink placeholder:font-display placeholder:italic placeholder:text-ink-mute focus:outline-none focus:border-ink-soft transition-colors"
+            class="w-full h-11.5 rounded-field bg-paper-deep border border-rule px-4 text-[14px] text-ink placeholder:font-display placeholder:italic placeholder:text-ink-mute focus:outline-none focus:border-ink-soft transition-colors"
           >
         </div>
         <div>

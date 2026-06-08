@@ -48,7 +48,7 @@ const isAdmin = computed(() => auth.user?.role === 'admin')
     <div class="min-h-screen" style="background: var(--color-canvas);">
     <!-- ── Web sidebar (lg+) ───────────────────────────────────────────── -->
     <aside
-      class="fixed inset-y-0 left-0 z-40 hidden w-[248px] flex-col border-r px-5 py-6 lg:flex"
+      class="fixed inset-y-0 left-0 z-40 hidden w-62 flex-col border-r px-5 py-6 lg:flex"
       style="border-color: var(--color-rule); background: var(--color-surface);"
     >
       <NuxtLink to="/user/today" class="block px-1">
@@ -139,8 +139,8 @@ const isAdmin = computed(() => auth.user?.role === 'admin')
     </header>
 
     <!-- ── Main content ────────────────────────────────────────────────── -->
-    <main class="lg:pl-[248px]">
-      <div class="mx-auto w-full max-w-[1320px] px-5 pb-28 pt-5 md:px-8 md:pt-8 lg:pb-12">
+    <main class="lg:pl-62">
+      <div class="mx-auto w-full max-w-330 px-5 pb-28 pt-5 md:px-8 md:pt-8 lg:pb-12">
         <slot />
       </div>
     </main>

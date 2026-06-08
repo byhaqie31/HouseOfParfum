@@ -64,7 +64,7 @@ async function handleLogout() {
 
       <!-- ── Sidebar (matches the app shell: 248px) ──────────────────────── -->
       <aside
-        class="fixed inset-y-0 left-0 z-50 flex w-[248px] flex-col border-r px-5 py-6
+        class="fixed inset-y-0 left-0 z-50 flex w-62 flex-col border-r px-5 py-6
                transition-transform duration-200 ease-in-out
                -translate-x-full lg:sticky lg:top-0 lg:h-screen lg:translate-x-0"
         :class="{ 'translate-x-0': sidebarOpen }"
@@ -153,7 +153,7 @@ async function handleLogout() {
         </header>
 
         <!-- Content — matches the app shell exactly: max-w-1320, px-5/md:px-8 -->
-        <main class="mx-auto w-full max-w-[1320px] flex-1 px-5 pb-12 pt-5 md:px-8 md:pt-8">
+        <main class="mx-auto w-full max-w-330 flex-1 px-5 pb-12 pt-5 md:px-8 md:pt-8">
           <slot />
         </main>
       </div>

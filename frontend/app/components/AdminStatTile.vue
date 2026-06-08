@@ -14,7 +14,7 @@ const up = computed(() => (props.growth ?? 0) >= 0)
     style="background: var(--color-surface); border-color: var(--color-rule);"
   >
     <!-- accent tab -->
-    <div class="absolute left-0 top-0 h-[3px] w-9" style="background: var(--color-accent);" />
+    <div class="absolute left-0 top-0 h-0.75 w-9" style="background: var(--color-accent);" />
 
     <div class="fm uppercase" style="font-size: 9.5px; letter-spacing: 0.16em; color: var(--color-ink-mute);">{{ label }}</div>
 

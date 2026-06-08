@@ -110,7 +110,7 @@ const cardStyle = 'background: var(--color-surface); border-color: var(--color-r
     <!-- Spectrum + wears trend -->
     <div class="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
       <!-- Scent spectrum -->
-      <section class="rounded-panel border p-[26px]" :style="cardStyle">
+      <section class="rounded-panel border p-6.5" :style="cardStyle">
         <div class="flex items-start justify-between gap-4">
           <div>
             <h2 class="fd" style="font-size: 22px; color: var(--color-ink);">Scent spectrum</h2>
@@ -135,17 +135,17 @@ const cardStyle = 'background: var(--color-surface); border-color: var(--color-r
 
         <div class="mt-5 flex flex-col gap-3.5">
           <div v-for="r in spectrum" :key="r.key" class="flex items-center gap-3.5">
-            <div class="flex w-[130px] shrink-0 items-center gap-2.5">
+            <div class="flex w-32.5 shrink-0 items-center gap-2.5">
               <ScentOrb :world="r.world" :size="13" />
               <span class="fb truncate" style="font-size: 13px; font-weight: 600; color: var(--color-ink);">{{ r.label }}</span>
             </div>
-            <div class="relative h-[26px] flex-1 overflow-hidden rounded-full" style="background: var(--color-surface-2);">
+            <div class="relative h-6.5 flex-1 overflow-hidden rounded-full" style="background: var(--color-surface-2);">
               <div
                 class="h-full rounded-full"
                 :style="{ width: `${r.pct}%`, background: r.world.gradient, transition: 'width .4s cubic-bezier(.2,.8,.2,1)' }"
               />
             </div>
-            <div class="fm w-[54px] text-right" style="font-size: 13px; color: var(--color-ink);">{{ r.val.toLocaleString() }}</div>
+            <div class="fm w-13.5 text-right" style="font-size: 13px; color: var(--color-ink);">{{ r.val.toLocaleString() }}</div>
           </div>
         </div>
 
@@ -163,7 +163,7 @@ const cardStyle = 'background: var(--color-surface); border-color: var(--color-r
       </section>
 
       <!-- Wears over time -->
-      <section class="rounded-panel border p-[26px]" :style="cardStyle">
+      <section class="rounded-panel border p-6.5" :style="cardStyle">
         <div class="flex items-start justify-between">
           <div>
             <h2 class="fd whitespace-nowrap" style="font-size: 22px; color: var(--color-ink);">Wears logged</h2>
@@ -174,7 +174,7 @@ const cardStyle = 'background: var(--color-surface); border-color: var(--color-r
             <div class="fm mt-1 uppercase" style="font-size: 9.5px; letter-spacing: 0.1em; color: var(--color-ink-mute);">total</div>
           </div>
         </div>
-        <div class="mt-5 flex h-[140px] items-end gap-1.5">
+        <div class="mt-5 flex h-35 items-end gap-1.5">
           <div
             v-for="(d, i) in wearSeries"
             :key="d.date"
@@ -199,7 +199,7 @@ const cardStyle = 'background: var(--color-surface); border-color: var(--color-r
     <!-- Catalogue health + most logged -->
     <div class="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
       <!-- Catalogue health -->
-      <section class="rounded-panel border p-[26px]" :style="cardStyle">
+      <section class="rounded-panel border p-6.5" :style="cardStyle">
         <div class="flex items-start justify-between gap-4">
           <div>
             <h2 class="fd" style="font-size: 22px; color: var(--color-ink);">Catalogue health</h2>
@@ -246,7 +246,7 @@ const cardStyle = 'background: var(--color-surface); border-color: var(--color-r
       </section>
 
       <!-- Most logged -->
-      <section class="rounded-panel border p-[26px]" :style="cardStyle">
+      <section class="rounded-panel border p-6.5" :style="cardStyle">
         <h2 class="fd" style="font-size: 22px; color: var(--color-ink);">Most logged</h2>
         <p class="fb mt-0.5 italic" style="font-size: 12.5px; color: var(--color-ink-mute);">Your members’ signatures.</p>
 
