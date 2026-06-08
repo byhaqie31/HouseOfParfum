@@ -1,45 +1,54 @@
 <template>
   <footer
-    class="bg-paper-deep text-ink-soft border-t border-rule relative
-           after:absolute after:-top-px after:right-0 after:w-20 after:h-px after:bg-accent after:content-['']"
+    class="relative border-t"
+    style="background: var(--color-surface-2); color: var(--color-ink-soft); border-color: var(--color-rule);"
   >
     <!-- Main Footer — marketing surface only (hidden when logged in) -->
-    <div v-if="!auth.isLoggedIn" class="max-w-300 mx-auto px-6 py-16 border-b border-rule">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
+    <div
+      v-if="!auth.isLoggedIn"
+      class="mx-auto max-w-300 border-b px-6 py-16"
+      style="border-color: var(--color-rule);"
+    >
+      <div class="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4">
         <!-- Brand — enlarged to anchor the row -->
         <div>
-          <div class="flex items-center gap-4 mb-5">
-            <img
-              src="/favicon/favicon.svg"
-              alt=""
-              aria-hidden="true"
-              class="h-14 w-14 shrink-0 brightness-0"
+          <div class="mb-5 flex items-center gap-4">
+            <span
+              class="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-card"
+              :style="{ background: world.soft }"
             >
-            <h3 class="font-display text-2xl font-normal text-ink tracking-[-0.005em] leading-tight">
+              <img
+                src="/favicon/favicon.svg"
+                alt=""
+                aria-hidden="true"
+                class="h-9 w-9 shrink-0"
+              >
+            </span>
+            <h3 class="fd" style="font-size: 24px; letter-spacing: -0.005em; line-height: 1.15; color: var(--color-ink);">
               House of Parfum
             </h3>
           </div>
-          <p class="text-sm leading-relaxed text-ink-soft max-w-xs">
+          <p class="fb max-w-xs" style="font-size: 14px; line-height: 1.65; color: var(--color-ink-soft);">
             A companion for the fragrance devoted.
           </p>
         </div>
 
         <!-- Account -->
         <div>
-          <h4 class="text-ink text-xs font-medium uppercase tracking-[0.2em] mb-5">Account</h4>
+          <h4 class="fm mb-5 uppercase" style="font-size: 11px; letter-spacing: 0.18em; color: var(--color-ink);">Account</h4>
           <ul class="space-y-3">
             <li>
-              <NuxtLink to="/auth/register" class="text-sm text-ink-soft hover:text-ink transition-colors">
+              <NuxtLink to="/auth/register" class="fb footer-link" style="font-size: 14px;">
                 Create Account
               </NuxtLink>
             </li>
             <li>
-              <NuxtLink to="/auth/login" class="text-sm text-ink-soft hover:text-ink transition-colors">
+              <NuxtLink to="/auth/login" class="fb footer-link" style="font-size: 14px;">
                 Sign In
               </NuxtLink>
             </li>
             <li>
-              <a href="#" class="text-sm text-ink-soft hover:text-ink transition-colors">
+              <a href="#" class="fb footer-link" style="font-size: 14px;">
                 Reviews
               </a>
             </li>
@@ -48,20 +57,20 @@
 
         <!-- Legal -->
         <div>
-          <h4 class="text-ink text-xs font-medium uppercase tracking-[0.2em] mb-5">Legal</h4>
+          <h4 class="fm mb-5 uppercase" style="font-size: 11px; letter-spacing: 0.18em; color: var(--color-ink);">Legal</h4>
           <ul class="space-y-3">
             <li>
-              <a href="#" class="text-sm text-ink-soft hover:text-ink transition-colors">
+              <a href="#" class="fb footer-link" style="font-size: 14px;">
                 Privacy Policy
               </a>
             </li>
             <li>
-              <a href="#" class="text-sm text-ink-soft hover:text-ink transition-colors">
+              <a href="#" class="fb footer-link" style="font-size: 14px;">
                 Terms &amp; Conditions
               </a>
             </li>
             <li>
-              <a href="#" class="text-sm text-ink-soft hover:text-ink transition-colors">
+              <a href="#" class="fb footer-link" style="font-size: 14px;">
                 Cookie Policy
               </a>
             </li>
@@ -70,41 +79,43 @@
 
         <!-- Contact -->
         <div>
-          <h4 class="text-ink text-xs font-medium uppercase tracking-[0.2em] mb-5">Contact</h4>
+          <h4 class="fm mb-5 uppercase" style="font-size: 11px; letter-spacing: 0.18em; color: var(--color-ink);">Contact</h4>
           <ul class="space-y-3">
             <li class="flex items-start gap-2">
-              <Icon name="lucide:store" size="14" class="text-ink-mute shrink-0 mt-0.5" />
-              <span class="text-sm text-ink-soft leading-snug">
+              <Icon name="lucide:store" size="14" class="mt-0.5 shrink-0" style="color: var(--color-ink-mute);" />
+              <span class="fb leading-snug" style="font-size: 14px; color: var(--color-ink-soft);">
                 Axel Nova Ventures
                 <br>
-                <span class="font-mono text-[10px] text-ink-mute tracking-[0.04em]">
+                <span class="fm" style="font-size: 10px; letter-spacing: 0.04em; color: var(--color-ink-mute);">
                   202603119899 (CA0420977-U)
                 </span>
               </span>
             </li>
             <li class="flex items-center gap-2">
-              <Icon name="lucide:map-pin" size="14" class="text-ink-mute shrink-0" />
-              <span class="text-sm text-ink-soft">Shah Alam, Malaysia</span>
+              <Icon name="lucide:map-pin" size="14" class="shrink-0" style="color: var(--color-ink-mute);" />
+              <span class="fb" style="font-size: 14px; color: var(--color-ink-soft);">Shah Alam, Malaysia</span>
             </li>
             <li class="flex items-center gap-2">
-              <Icon name="lucide:mail" size="14" class="text-ink-mute shrink-0" />
-              <a href="mailto:baihaqie@axelnova.tech" class="text-sm text-ink-soft hover:text-ink transition-colors">
+              <Icon name="lucide:mail" size="14" class="shrink-0" style="color: var(--color-ink-mute);" />
+              <a href="mailto:baihaqie@axelnova.tech" class="fb footer-link" style="font-size: 14px;">
                 baihaqie@axelnova.tech
               </a>
             </li>
           </ul>
 
           <!-- Social Icons — disabled, show "Coming soon" tooltip on hover -->
-          <div class="items-center gap-4 mt-7 hidden">
+          <div class="mt-7 hidden items-center gap-4">
             <span
               v-for="social in socials"
               :key="social.label"
-              class="relative group inline-flex cursor-not-allowed text-ink-mute"
+              class="group relative inline-flex cursor-not-allowed"
+              style="color: var(--color-ink-mute);"
               :aria-label="`${social.label} (coming soon)`"
             >
               <Icon :name="social.icon" size="16" />
               <span
-                class="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap bg-ink text-paper px-2 py-1 font-mono text-[8px] uppercase tracking-[0.18em] opacity-0 group-hover:opacity-100 transition-opacity"
+                class="fm pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-field px-2 py-1 uppercase opacity-0 transition-opacity group-hover:opacity-100"
+                style="font-size: 8px; letter-spacing: 0.18em; background: var(--color-ink); color: var(--color-canvas);"
               >
                 Coming soon
               </span>
@@ -115,26 +126,26 @@
     </div>
 
     <!-- Bottom Bar — always visible -->
-    <div class="max-w-300 mx-auto px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-      <p class="font-mono text-[10px] uppercase tracking-[0.14em] text-ink-mute">
+    <div class="mx-auto flex max-w-300 flex-col items-center justify-between gap-3 px-6 py-5 sm:flex-row">
+      <p class="fm uppercase" style="font-size: 10px; letter-spacing: 0.14em; color: var(--color-ink-mute);">
         &copy; {{ new Date().getFullYear() }}
         <a
           href="https://axelnovaventures.com"
           target="_blank"
           rel="noopener noreferrer"
-          class="text-ink-soft hover:text-ink transition-colors"
+          class="footer-link"
         >
           Axel Nova Ventures
         </a>
         &middot; All rights reserved
       </p>
-      <p class="font-mono text-[10px] uppercase tracking-[0.14em] text-ink-mute">
+      <p class="fm uppercase" style="font-size: 10px; letter-spacing: 0.14em; color: var(--color-ink-mute);">
         Made with love by
         <a
           href="https://baihaqie.com"
           target="_blank"
           rel="noopener noreferrer"
-          class="text-ink-soft hover:text-ink transition-colors"
+          class="footer-link"
         >
           Baihaqie Yusri
         </a>
@@ -144,7 +155,11 @@
 </template>
 
 <script setup lang="ts">
+import { familyOfTheHour } from '~/utils/wear'
+
 const auth = useAuthStore()
+const { worldFor } = useScentWorld()
+const world = worldFor(() => familyOfTheHour())
 
 const socials = [
   { label: 'Instagram', icon: 'lucide:instagram' },
@@ -153,3 +168,13 @@ const socials = [
   { label: 'Facebook',  icon: 'lucide:facebook' },
 ] as const
 </script>
+
+<style scoped>
+.footer-link {
+  color: var(--color-ink-soft);
+  transition: color 0.15s ease;
+}
+.footer-link:hover {
+  color: var(--color-ink);
+}
+</style>

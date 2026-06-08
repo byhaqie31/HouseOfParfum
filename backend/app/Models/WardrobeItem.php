@@ -18,10 +18,25 @@ class WardrobeItem extends Model
         'catalog_id',
         'brand',
         'name',
+        'family',
+        'tagline',
+        'concentration',
+        'notes_top',
+        'notes_heart',
+        'notes_base',
         'size',
         'acquired',
         'notes',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'notes_top' => 'array',
+            'notes_heart' => 'array',
+            'notes_base' => 'array',
+        ];
+    }
 
     public function user()
     {

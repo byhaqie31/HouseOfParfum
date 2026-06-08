@@ -1,32 +1,38 @@
 <template>
   <nav
-    class="fixed top-0 left-0 right-0 z-50 bg-paper/85 backdrop-blur-xl border-b border-rule
-           after:hidden md:after:block after:absolute after:left-0 after:-bottom-px
-           after:w-15 after:h-px after:bg-accent after:content-['']"
+    class="fixed top-0 right-0 left-0 z-50 border-b backdrop-blur-xl"
+    style="background: color-mix(in oklab, var(--color-canvas) 85%, transparent); border-color: var(--color-rule);"
   >
-    <div class="max-w-300 mx-auto px-6 h-14 flex items-center justify-between">
+    <div class="mx-auto flex h-14 max-w-300 items-center justify-between px-6">
       <NuxtLink
         to="/"
-        class="inline-flex items-center gap-2.5 font-display text-xl font-normal text-ink tracking-[-0.005em]"
+        class="fd inline-flex items-center gap-2.5"
+        style="font-size: 20px; letter-spacing: -0.005em; color: var(--color-ink);"
       >
-        <img
-          src="/favicon/favicon.svg"
-          alt=""
-          aria-hidden="true"
-          class="h-9 w-9 shrink-0 brightness-0"
+        <span
+          class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-field"
+          :style="{ background: world.soft }"
         >
+          <img
+            src="/favicon/favicon.svg"
+            alt=""
+            aria-hidden="true"
+            class="h-6 w-6 shrink-0"
+          >
+        </span>
         House of Parfum
       </NuxtLink>
 
       <!-- Authenticated nav -->
       <template v-if="auth.isLoggedIn">
         <!-- Desktop -->
-        <div class="hidden md:flex items-center gap-10">
+        <div class="hidden items-center gap-10 md:flex">
           <NuxtLink
             v-for="link in appLinks"
             :key="link.to"
             :to="link.to"
-            class="nav-link text-xs uppercase tracking-[0.2em] font-medium text-ink-soft hover:text-ink transition-colors pb-1"
+            class="fm nav-link pb-1 uppercase"
+            style="font-size: 11px; letter-spacing: 0.2em; color: var(--color-ink-soft);"
           >
             {{ link.label }}
           </NuxtLink>
@@ -34,7 +40,7 @@
           <!-- Profile Dropdown -->
           <div ref="profileDropdownRef" class="relative flex items-center">
             <button
-              class="text-ink-soft hover:text-ink transition-colors"
+              class="nav-icon-btn"
               aria-label="Account menu"
               @click="profileOpen = !profileOpen"
             >
@@ -51,28 +57,34 @@
             >
               <div
                 v-if="profileOpen"
-                class="absolute top-full right-0 mt-3 w-72 bg-paper border border-rule overflow-hidden"
+                class="absolute top-full right-0 mt-3 w-72 overflow-hidden rounded-panel border"
+                style="background: var(--color-surface); border-color: var(--color-rule);"
               >
                 <!-- Summary header -->
-                <div class="px-5 pt-6 pb-6 bg-paper-deep text-center">
-                  <div class="mx-auto h-14 w-14 rounded-full bg-accent-soft border border-accent flex items-center justify-center">
+                <div class="px-5 pt-6 pb-6 text-center" style="background: var(--color-surface-2);">
+                  <div
+                    class="mx-auto flex h-14 w-14 items-center justify-center rounded-full"
+                    :style="{ background: world.soft, color: world.accent }"
+                  >
                     <span
                       v-if="userInitials"
-                      class="font-display text-[18px] text-accent-deep tracking-tight"
+                      class="fd"
+                      style="font-size: 18px; letter-spacing: -0.005em;"
                     >
                       {{ userInitials }}
                     </span>
-                    <Icon v-else name="lucide:user" size="22" class="text-accent-deep" />
+                    <Icon v-else name="lucide:user" size="22" />
                   </div>
-                  <p class="mt-3 font-display text-[18px] text-ink leading-tight">
+                  <p class="fd mt-3" style="font-size: 18px; line-height: 1.15; color: var(--color-ink);">
                     {{ auth.user?.name || 'Friend' }}
                   </p>
-                  <p class="mt-1 font-mono text-[10px] uppercase tracking-[0.16em] text-ink-mute truncate">
+                  <p class="fm mt-1 truncate uppercase" style="font-size: 10px; letter-spacing: 0.16em; color: var(--color-ink-mute);">
                     {{ auth.user?.email || '—' }}
                   </p>
                   <p
                     v-if="memberSinceShort"
-                    class="mt-2 font-mono text-[9px] uppercase tracking-[0.18em] text-ink-mute"
+                    class="fm mt-2 uppercase"
+                    style="font-size: 9px; letter-spacing: 0.18em; color: var(--color-ink-mute);"
                   >
                     Member since {{ memberSinceShort }}
                   </p>
@@ -82,7 +94,8 @@
                     <NuxtLink
                       v-if="auth.user?.role === 'admin'"
                       to="/admin"
-                      class="block w-full py-2 border border-rule font-mono text-[10px] uppercase tracking-[0.18em] text-ink-soft hover:text-ink hover:border-ink-soft transition-colors"
+                      class="fm menu-outline-btn block w-full rounded-field py-2 uppercase"
+                      style="font-size: 10px; letter-spacing: 0.18em;"
                       @click="profileOpen = false"
                     >
                       Back to Admin
@@ -90,13 +103,15 @@
                     <NuxtLink
                       v-else
                       to="/user/profile"
-                      class="block w-full py-2 border border-rule font-mono text-[10px] uppercase tracking-[0.18em] text-ink-soft hover:text-ink hover:border-ink-soft transition-colors"
+                      class="fm menu-outline-btn block w-full rounded-field py-2 uppercase"
+                      style="font-size: 10px; letter-spacing: 0.18em;"
                       @click="profileOpen = false"
                     >
                       View profile
                     </NuxtLink>
                     <button
-                      class="block w-full py-2 font-display italic text-[15px] text-ink-mute hover:text-ink transition-colors"
+                      class="fd menu-signout block w-full py-2 italic"
+                      style="font-size: 15px;"
                       @click="handleLogout"
                     >
                       Sign out
@@ -109,10 +124,10 @@
         </div>
 
         <!-- Mobile -->
-        <div class="flex md:hidden items-center gap-4">
+        <div class="flex items-center gap-4 md:hidden">
           <button
             ref="mobileButtonRef"
-            class="text-ink-soft hover:text-ink transition-colors"
+            class="nav-icon-btn"
             aria-label="Toggle menu"
             @click="mobileMenuOpen = !mobileMenuOpen"
           >
@@ -125,7 +140,9 @@
       <template v-else>
         <NuxtLink
           to="/auth/login"
-          class="text-xs uppercase tracking-[0.2em] font-medium text-ink hover:text-ink-soft transition-colors"
+          class="fm inline-flex items-center rounded-full px-5 py-2 uppercase"
+          style="font-size: 11px; letter-spacing: 0.16em;"
+          :style="{ background: world.gradient, color: world.onGrad }"
         >
           Sign in
         </NuxtLink>
@@ -144,24 +161,29 @@
       <div
         v-if="auth.isLoggedIn && mobileMenuOpen"
         ref="mobileDrawerRef"
-        class="md:hidden bg-paper/95 backdrop-blur-xl border-b border-rule px-6 py-5 space-y-5"
+        class="space-y-5 border-b px-6 py-5 backdrop-blur-xl md:hidden"
+        style="background: color-mix(in oklab, var(--color-canvas) 95%, transparent); border-color: var(--color-rule);"
       >
         <!-- Profile chip -->
         <div class="flex items-center gap-3">
-          <div class="h-11 w-11 rounded-full bg-accent-soft border border-accent flex items-center justify-center shrink-0">
+          <div
+            class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
+            :style="{ background: world.soft, color: world.accent }"
+          >
             <span
               v-if="userInitials"
-              class="font-display text-[15px] text-accent-deep tracking-tight"
+              class="fd"
+              style="font-size: 15px; letter-spacing: -0.005em;"
             >
               {{ userInitials }}
             </span>
-            <Icon v-else name="lucide:user" size="18" class="text-accent-deep" />
+            <Icon v-else name="lucide:user" size="18" />
           </div>
           <div class="min-w-0">
-            <p class="font-display text-[16px] text-ink leading-tight truncate">
+            <p class="fd truncate" style="font-size: 16px; line-height: 1.15; color: var(--color-ink);">
               {{ auth.user?.name || 'Friend' }}
             </p>
-            <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-ink-mute truncate">
+            <p class="fm truncate uppercase" style="font-size: 10px; letter-spacing: 0.16em; color: var(--color-ink-mute);">
               {{ auth.user?.email || '—' }}
             </p>
           </div>
@@ -173,7 +195,8 @@
             v-for="link in mobileGridLinks"
             :key="link.to"
             :to="link.to"
-            class="mobile-tile border border-rule bg-paper px-4 py-3 text-center text-[11px] uppercase tracking-[0.2em] font-medium text-ink-soft hover:bg-paper-deep hover:text-ink transition-colors"
+            class="fm mobile-tile rounded-field border px-4 py-3 text-center uppercase"
+            style="font-size: 11px; letter-spacing: 0.2em;"
             @click="mobileMenuOpen = false"
           >
             {{ link.label }}
@@ -183,7 +206,8 @@
         <!-- Sign out bar -->
         <button
           type="button"
-          class="block w-full bg-paper-deep border border-rule px-4 py-3 font-display italic text-[15px] text-ink-soft hover:text-ink hover:border-ink-soft transition-colors"
+          class="fd mobile-signout block w-full rounded-field border px-4 py-3 italic"
+          style="font-size: 15px;"
           @click="handleLogout"
         >
           Sign out
@@ -194,10 +218,15 @@
 </template>
 
 <script setup lang="ts">
+import { familyOfTheHour } from '~/utils/wear'
+
 const auth = useAuthStore()
 const router = useRouter()
 const mobileMenuOpen = ref(false)
 const profileOpen = ref(false)
+
+const { worldFor } = useScentWorld()
+const world = worldFor(() => familyOfTheHour())
 
 const profileDropdownRef = ref<HTMLElement | null>(null)
 const mobileButtonRef = ref<HTMLElement | null>(null)
@@ -276,3 +305,60 @@ const handleLogout = () => {
   router.push('/auth/login')
 }
 </script>
+
+<style scoped>
+.nav-link {
+  transition: color 0.15s ease;
+}
+.nav-link:hover {
+  color: var(--color-ink);
+}
+
+.nav-icon-btn {
+  color: var(--color-ink-soft);
+  transition: color 0.15s ease;
+}
+.nav-icon-btn:hover {
+  color: var(--color-ink);
+}
+
+.menu-outline-btn {
+  border: 1px solid var(--color-rule);
+  color: var(--color-ink-soft);
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.menu-outline-btn:hover {
+  color: var(--color-ink);
+  border-color: var(--color-ink-soft);
+}
+
+.menu-signout {
+  color: var(--color-ink-mute);
+  transition: color 0.15s ease;
+}
+.menu-signout:hover {
+  color: var(--color-ink);
+}
+
+.mobile-tile {
+  background: var(--color-surface);
+  border-color: var(--color-rule);
+  color: var(--color-ink-soft);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.mobile-tile:hover {
+  background: var(--color-surface-2);
+  color: var(--color-ink);
+}
+
+.mobile-signout {
+  background: var(--color-surface-2);
+  border-color: var(--color-rule);
+  color: var(--color-ink-soft);
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.mobile-signout:hover {
+  color: var(--color-ink);
+  border-color: var(--color-ink-soft);
+}
+</style>

@@ -19,6 +19,10 @@ class JournalEntry extends Model
         'brand',
         'name',
         'worn_at',
+        'sprays',
+        'mood',
+        'occasion',
+        'weather',
         'experience',
         'compliments',
         'longevity',
@@ -29,6 +33,7 @@ class JournalEntry extends Model
     {
         return [
             'worn_at' => 'datetime',
+            'sprays' => 'integer',
         ];
     }
 

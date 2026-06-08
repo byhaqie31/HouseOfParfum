@@ -1,11 +1,9 @@
 <template>
-  <div class="min-h-screen pt-20 pb-24 px-6">
-    <div class="max-w-5xl mx-auto">
+  <div>
+    <div class="mx-auto max-w-5xl">
       <header class="text-center">
-        <p class="font-mono text-[14px] uppercase tracking-[0.32em] text-ink-mute font-bold">
-          A reference volume
-        </p>
-        <p class="mt-4 font-display italic text-[14px] text-ink-soft">
+        <div class="kicker" style="font-size: 11px;">A reference volume</div>
+        <p class="fb mt-3 italic" style="font-size: 14px; color: var(--color-ink-soft);">
           Click or drag a corner to turn the page.
         </p>
       </header>
@@ -26,7 +24,7 @@
 import { PERFUME_FAQ } from '~/data/perfume-faq'
 import type { FaqChapter } from '~/data/perfume-faq'
 
-definePageMeta({ middleware: 'auth' })
+definePageMeta({ layout: 'app', middleware: 'auth' })
 
 useHead({
   title: 'The Almanac — House of Parfum',

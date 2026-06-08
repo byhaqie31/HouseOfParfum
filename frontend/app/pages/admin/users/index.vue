@@ -1,101 +1,12 @@
-<template>
-  <div class="space-y-6">
-
-    <!-- Loading / empty states -->
-    <div v-if="loading" class="border border-rule px-6 py-16 text-center font-mono text-[11px] text-ink-mute uppercase tracking-widest">
-      Loading…
-    </div>
-    <div v-else-if="!users.length" class="border border-rule px-6 py-16 text-center font-mono text-[11px] text-ink-mute uppercase tracking-widest">
-      No users found.
-    </div>
-
-    <template v-else>
-      <!-- Desktop table (md+) -->
-      <div class="hidden md:block border border-rule">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="border-b border-rule">
-              <th class="px-6 py-3 text-left font-mono text-[10px] uppercase tracking-widest text-ink-mute">Name</th>
-              <th class="px-6 py-3 text-left font-mono text-[10px] uppercase tracking-widest text-ink-mute">Email</th>
-              <th class="px-6 py-3 text-left font-mono text-[10px] uppercase tracking-widest text-ink-mute">Role</th>
-              <th class="px-6 py-3 text-left font-mono text-[10px] uppercase tracking-widest text-ink-mute">Joined</th>
-              <th class="px-6 py-3 text-right font-mono text-[10px] uppercase tracking-widest text-ink-mute">Actions</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-rule">
-            <tr
-              v-for="user in users"
-              :key="user.id"
-              class="hover:bg-paper-deep transition-colors"
-            >
-              <td class="px-6 py-4 text-ink">{{ user.name }}</td>
-              <td class="px-6 py-4 text-ink-soft font-mono text-xs">{{ user.email }}</td>
-              <td class="px-6 py-4">
-                <RoleBadge :role="user.role" />
-              </td>
-              <td class="px-6 py-4 font-mono text-xs text-ink-mute">{{ formatDate(user.created_at) }}</td>
-              <td class="px-6 py-4 text-right">
-                <RoleToggle :user="user" :busy="toggling === user.id" :current-email="currentUserEmail" @toggle="toggleRole" />
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Mobile cards (< md) -->
-      <div class="md:hidden border border-rule divide-y divide-rule">
-        <div
-          v-for="user in users"
-          :key="user.id"
-          class="px-4 py-4 space-y-2"
-        >
-          <div class="flex items-start justify-between gap-3">
-            <div class="min-w-0">
-              <p class="text-sm text-ink font-medium truncate">{{ user.name }}</p>
-              <p class="font-mono text-[10px] text-ink-mute truncate">{{ user.email }}</p>
-            </div>
-            <RoleBadge :role="user.role" class="shrink-0" />
-          </div>
-          <div class="flex items-center justify-between">
-            <p class="font-mono text-[10px] text-ink-mute uppercase tracking-widest">
-              {{ formatDate(user.created_at) }}
-            </p>
-            <RoleToggle :user="user" :busy="toggling === user.id" :current-email="currentUserEmail" @toggle="toggleRole" />
-          </div>
-        </div>
-      </div>
-    </template>
-
-    <!-- Pagination -->
-    <div v-if="meta && !loading" class="flex items-center justify-between">
-      <p class="font-mono text-[10px] text-ink-mute uppercase tracking-widest">
-        {{ meta.from }}–{{ meta.to }} of {{ meta.total }}
-      </p>
-      <div class="flex items-center gap-3">
-        <button
-          class="font-mono text-[10px] uppercase tracking-widest text-ink-soft hover:text-ink transition-colors disabled:opacity-30"
-          :disabled="!meta.prev_page_url"
-          @click="loadPage(page - 1)"
-        >
-          ← Prev
-        </button>
-        <button
-          class="font-mono text-[10px] uppercase tracking-widest text-ink-soft hover:text-ink transition-colors disabled:opacity-30"
-          :disabled="!meta.next_page_url"
-          @click="loadPage(page + 1)"
-        >
-          Next →
-        </button>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
+import { scentWorld, hashSeed, FAMILY_ORDER } from '~/utils/scent'
+
 definePageMeta({ layout: 'admin', middleware: 'admin' })
 
 const api = useApi()
 const auth = useAuthStore()
+const canvas = useCanvasStore()
+const isDark = computed(() => canvas.isDark)
 
 const currentUserEmail = computed(() => auth.user?.email)
 
@@ -106,45 +17,7 @@ interface AdminUser {
   role: string
   created_at: string
 }
-
-interface Meta {
-  from: number
-  to: number
-  total: number
-  prev_page_url: string | null
-  next_page_url: string | null
-}
-
-// Inline sub-components to avoid extra files
-const RoleBadge = defineComponent({
-  props: { role: String },
-  setup(props) {
-    return () => h('span', {
-      class: [
-        'font-mono text-[10px] uppercase tracking-widest px-2 py-0.5',
-        props.role === 'admin' ? 'bg-accent-soft text-ink' : 'bg-paper-deep text-ink-mute',
-      ].join(' '),
-    }, props.role === 'admin' ? 'Admin' : 'User')
-  },
-})
-
-const RoleToggle = defineComponent({
-  props: {
-    user: Object as () => AdminUser,
-    busy: Boolean,
-    currentEmail: String,
-  },
-  emits: ['toggle'],
-  setup(props, { emit }) {
-    return () => props.user?.email !== props.currentEmail
-      ? h('button', {
-          class: 'font-mono text-[10px] uppercase tracking-widest text-ink-soft hover:text-ink transition-colors disabled:opacity-40',
-          disabled: props.busy,
-          onClick: () => emit('toggle', props.user),
-        }, props.user?.role === 'admin' ? 'Revoke admin' : 'Make admin')
-      : null
-  },
-})
+interface Meta { from: number; to: number; total: number; prev_page_url: string | null; next_page_url: string | null }
 
 const users = ref<AdminUser[]>([])
 const meta = ref<Meta | null>(null)
@@ -155,7 +28,18 @@ const page = ref(1)
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 
-const loadPage = async (p: number) => {
+const initialsOf = (name: string) =>
+  name.trim().split(/\s+/).slice(0, 2).map((p) => p[0]?.toUpperCase() ?? '').join('') || '·'
+
+// Give every member a deterministic little colour world — the scent system,
+// applied to people: same member always reads the same hue.
+function worldOf(u: AdminUser) {
+  const seed = hashSeed(u.name + u.email)
+  const family = FAMILY_ORDER[Math.floor(seed * FAMILY_ORDER.length)] ?? 'woody'
+  return scentWorld(family, seed, isDark.value)
+}
+
+async function load(p = 1) {
   loading.value = true
   page.value = p
   const res = await api.get(`/admin/users?page=${p}`)
@@ -164,13 +48,149 @@ const loadPage = async (p: number) => {
   loading.value = false
 }
 
-const toggleRole = async (user: AdminUser) => {
+async function toggleRole(user: AdminUser) {
   toggling.value = user.id
-  const newRole = user.role === 'admin' ? '0' : 'admin'
-  const updated = await api.patch(`/admin/users/${user.id}`, { role: newRole })
-  user.role = updated.role
-  toggling.value = null
+  try {
+    const newRole = user.role === 'admin' ? '0' : 'admin'
+    const updated = await api.patch(`/admin/users/${user.id}`, { role: newRole })
+    user.role = updated.role
+  }
+  finally {
+    toggling.value = null
+  }
 }
 
-onMounted(() => loadPage(1))
+onMounted(() => load(1))
 </script>
+
+<template>
+  <div>
+    <AdminPageHeader title="Members" sub="Everyone in the house." />
+
+    <div
+      v-if="loading"
+      class="rounded-card border px-6 py-16 text-center fm uppercase"
+      style="border-color: var(--color-rule); background: var(--color-surface); font-size: 11px; letter-spacing: 0.14em; color: var(--color-ink-mute);"
+    >Loading…</div>
+
+    <template v-else>
+      <!-- Desktop table -->
+      <div class="hidden overflow-hidden rounded-card border md:block" style="border-color: var(--color-rule); background: var(--color-surface);">
+        <table class="w-full border-collapse">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--color-rule);">
+              <th class="mem-th" style="width: 42%;">Member</th>
+              <th class="mem-th">Role</th>
+              <th class="mem-th">Joined</th>
+              <th class="mem-th" style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(u, i) in users" :key="u.id" :style="{ borderTop: i ? '1px solid var(--color-rule)' : 'none' }">
+              <td class="px-4 py-3.5">
+                <div class="flex items-center gap-3">
+                  <span
+                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+                    :style="{ background: worldOf(u).gradient, color: worldOf(u).onGrad }"
+                  ><span class="fd" style="font-size: 12px;">{{ initialsOf(u.name) }}</span></span>
+                  <div class="min-w-0">
+                    <div class="fd truncate" style="font-size: 15px; line-height: 1.15; color: var(--color-ink);">{{ u.name }}</div>
+                    <div class="fb truncate" style="font-size: 11px; color: var(--color-ink-mute);">{{ u.email }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-3.5">
+                <span
+                  class="fm uppercase"
+                  :style="u.role === 'admin'
+                    ? { fontSize: '9.5px', letterSpacing: '0.08em', color: 'var(--color-accent-deep)', background: 'var(--color-accent-soft)', padding: '4px 9px', borderRadius: '999px' }
+                    : { fontSize: '9.5px', letterSpacing: '0.08em', color: 'var(--color-ink-mute)', background: 'var(--color-surface-2)', padding: '4px 9px', borderRadius: '999px' }"
+                >{{ u.role === 'admin' ? 'Admin' : 'Member' }}</span>
+              </td>
+              <td class="mem-td">{{ formatDate(u.created_at) }}</td>
+              <td class="px-4 py-3.5 text-right">
+                <button
+                  v-if="u.email !== currentUserEmail"
+                  type="button"
+                  class="fm uppercase disabled:opacity-40"
+                  style="font-size: 10px; letter-spacing: 0.1em; color: var(--color-ink-soft);"
+                  :disabled="toggling === u.id"
+                  @click="toggleRole(u)"
+                >{{ u.role === 'admin' ? 'Revoke admin' : 'Make admin' }}</button>
+                <span v-else class="fm uppercase" style="font-size: 10px; letter-spacing: 0.1em; color: var(--color-ink-mute);">You</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile cards -->
+      <div class="flex flex-col gap-3 md:hidden">
+        <div
+          v-for="u in users"
+          :key="u.id"
+          class="rounded-card border p-4"
+          style="border-color: var(--color-rule); background: var(--color-surface);"
+        >
+          <div class="flex items-center gap-3">
+            <span
+              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+              :style="{ background: worldOf(u).gradient, color: worldOf(u).onGrad }"
+            ><span class="fd" style="font-size: 12px;">{{ initialsOf(u.name) }}</span></span>
+            <div class="min-w-0 flex-1">
+              <div class="fd truncate" style="font-size: 15px; line-height: 1.15; color: var(--color-ink);">{{ u.name }}</div>
+              <div class="fb truncate" style="font-size: 11px; color: var(--color-ink-mute);">{{ u.email }}</div>
+            </div>
+            <span
+              class="fm uppercase"
+              :style="u.role === 'admin'
+                ? { fontSize: '9.5px', color: 'var(--color-accent-deep)', background: 'var(--color-accent-soft)', padding: '4px 9px', borderRadius: '999px' }
+                : { fontSize: '9.5px', color: 'var(--color-ink-mute)', background: 'var(--color-surface-2)', padding: '4px 9px', borderRadius: '999px' }"
+            >{{ u.role === 'admin' ? 'Admin' : 'Member' }}</span>
+          </div>
+          <div class="mt-3 flex items-center justify-between">
+            <span class="fm uppercase" style="font-size: 10px; letter-spacing: 0.1em; color: var(--color-ink-mute);">{{ formatDate(u.created_at) }}</span>
+            <button
+              v-if="u.email !== currentUserEmail"
+              type="button"
+              class="fm uppercase disabled:opacity-40"
+              style="font-size: 10px; letter-spacing: 0.1em; color: var(--color-ink-soft);"
+              :disabled="toggling === u.id"
+              @click="toggleRole(u)"
+            >{{ u.role === 'admin' ? 'Revoke admin' : 'Make admin' }}</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div v-if="meta && users.length" class="mt-5 flex items-center justify-between">
+        <p class="fm uppercase" style="font-size: 10px; letter-spacing: 0.12em; color: var(--color-ink-mute);">{{ meta.from }}–{{ meta.to }} of {{ meta.total }}</p>
+        <div class="flex items-center gap-4">
+          <button type="button" class="fm uppercase disabled:opacity-30" style="font-size: 10px; letter-spacing: 0.12em; color: var(--color-ink-soft);" :disabled="!meta.prev_page_url" @click="load(page - 1)">← Prev</button>
+          <button type="button" class="fm uppercase disabled:opacity-30" style="font-size: 10px; letter-spacing: 0.12em; color: var(--color-ink-soft);" :disabled="!meta.next_page_url" @click="load(page + 1)">Next →</button>
+        </div>
+      </div>
+    </template>
+  </div>
+</template>
+
+<style scoped>
+.mem-th {
+  padding: 11px 16px;
+  text-align: left;
+  font-family: var(--font-data);
+  font-weight: 700;
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-ink-mute);
+}
+.mem-td {
+  padding: 14px 16px;
+  font-family: var(--font-data);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-size: 12.5px;
+  color: var(--color-ink-mute);
+}
+</style>

@@ -1,241 +1,8 @@
-<template>
-  <div class="min-h-screen pt-20 pb-24 px-6">
-    <div class="max-w-5xl mx-auto">
-      <!-- Back link -->
-      <button
-        type="button"
-        class="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-ink-soft hover:text-ink transition-colors"
-        @click="goBack"
-      >
-        <Icon name="lucide:arrow-left" size="14" />
-        Back
-      </button>
-
-      <template v-if="loading">
-        <p class="mt-20 text-center font-display italic text-ink-soft">Drawing from the cabinet…</p>
-      </template>
-
-      <template v-else-if="!perfume">
-        <p class="mt-20 text-center font-display italic text-ink-soft">
-          That bottle isn't on file.
-        </p>
-      </template>
-
-      <template v-else>
-        <!-- Hero -->
-        <header class="mt-8 grid grid-cols-1 md:grid-cols-[220px_1fr] gap-10 md:gap-14 border-y border-ink relative py-10">
-          <div class="absolute -top-px left-0 w-20 h-px bg-accent" />
-
-          <!-- Bottle image or placeholder -->
-          <div class="aspect-3/4 bg-paper-deep border border-rule flex items-center justify-center overflow-hidden">
-            <img
-              v-if="perfume.image"
-              :src="perfume.image"
-              :alt="`${perfume.brand} ${perfume.name}`"
-              class="w-full h-full object-contain"
-            >
-            <BottleIcon v-else :size="120" />
-          </div>
-
-          <div>
-            <p class="font-display italic text-[15px] text-ink-soft leading-tight">
-              {{ perfume.brand }}
-            </p>
-            <h1 class="mt-1 font-display text-4xl sm:text-5xl text-ink tracking-[-0.005em] leading-none">
-              {{ perfume.name }}
-            </h1>
-
-            <!-- Meta line -->
-            <p class="mt-4 font-mono text-[10px] uppercase tracking-[0.16em] text-ink-mute">
-              <template v-if="perfume.year">{{ perfume.year }}</template>
-              <template v-if="perfume.country">
-                <span class="text-accent-deep mx-1">·</span>{{ perfume.country }}
-              </template>
-              <template v-if="perfume.suit">
-                <span class="text-accent-deep mx-1">·</span>{{ perfume.suit }}
-              </template>
-              <template v-if="perfume.rating">
-                <span class="text-accent-deep mx-1">·</span>{{ perfume.rating.toFixed(2) }}
-                <span class="text-ink-mute ml-1">({{ perfume.votes }} votes)</span>
-              </template>
-            </p>
-
-            <!-- Main accord chips -->
-            <div v-if="accordChips.length" class="mt-6 flex flex-wrap gap-2">
-              <span
-                v-for="chip in accordChips"
-                :key="chip"
-                class="px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.14em] text-ink bg-paper-deep border border-rule"
-              >
-                {{ chip }}
-              </span>
-            </div>
-
-            <!-- History / editorial description -->
-            <p
-              v-if="perfume.history"
-              class="mt-6 pt-5 border-t border-rule font-display italic text-[15px] text-ink-soft leading-normal max-w-prose"
-            >
-              {{ perfume.history }}
-            </p>
-
-            <!-- Perfumers -->
-            <p v-if="perfume.perfumers" class="mt-5 font-mono text-[10px] uppercase tracking-[0.16em] text-ink-mute">
-              <span class="text-accent-deep mr-1.5">/</span>
-              By {{ perfume.perfumers }}
-            </p>
-
-            <!-- Actions -->
-            <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
-              <NuxtLink
-                v-if="ownedItem"
-                :to="`/user/wardrobe/${ownedItem.id}`"
-                class="inline-block bg-ink text-paper text-[11px] uppercase tracking-[0.2em] font-medium px-6 py-3 hover:bg-ink-soft transition-colors"
-              >
-                Show in wardrobe
-              </NuxtLink>
-              <NuxtLink
-                v-else
-                :to="`/user/wardrobe/add?catalog_id=${perfume.id}`"
-                class="inline-block bg-ink text-paper text-[11px] uppercase tracking-[0.2em] font-medium px-6 py-3 hover:bg-ink-soft transition-colors"
-              >
-                Add to wardrobe
-              </NuxtLink>
-              <p v-if="ownedItem" class="font-display italic text-[14px] text-accent-deep">
-                You already own this.
-              </p>
-            </div>
-          </div>
-        </header>
-
-        <!-- Notes pyramid -->
-        <section v-if="hasAnyNotes" class="mt-16">
-          <p class="font-display font-medium text-[11px] uppercase tracking-[0.28em] text-accent-deep mb-2">
-            The pyramid
-          </p>
-          <h2 class="font-display text-3xl text-ink tracking-tight">
-            Notes <em class="text-ink-soft">it leaves on you.</em>
-          </h2>
-
-          <div class="mt-10 grid grid-cols-1 md:grid-cols-3 gap-px bg-rule border border-rule">
-            <article v-if="perfume.top_notes" class="bg-paper p-8">
-              <p class="font-mono text-[9px] uppercase tracking-[0.18em] text-accent-deep">
-                Top
-              </p>
-              <h3 class="mt-2 font-display text-[18px] text-ink leading-tight">
-                What you smell first
-              </h3>
-              <p class="mt-4 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-soft leading-relaxed">
-                {{ formatNotes(perfume.top_notes) }}
-              </p>
-            </article>
-
-            <article v-if="perfume.middle_notes" class="bg-paper p-8">
-              <p class="font-mono text-[9px] uppercase tracking-[0.18em] text-accent-deep">
-                Heart
-              </p>
-              <h3 class="mt-2 font-display text-[18px] text-ink leading-tight">
-                What it settles into
-              </h3>
-              <p class="mt-4 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-soft leading-relaxed">
-                {{ formatNotes(perfume.middle_notes) }}
-              </p>
-            </article>
-
-            <article v-if="perfume.base_notes" class="bg-paper p-8">
-              <p class="font-mono text-[9px] uppercase tracking-[0.18em] text-accent-deep">
-                Base
-              </p>
-              <h3 class="mt-2 font-display text-[18px] text-ink leading-tight">
-                What lingers on skin
-              </h3>
-              <p class="mt-4 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-soft leading-relaxed">
-                {{ formatNotes(perfume.base_notes) }}
-              </p>
-            </article>
-          </div>
-        </section>
-
-        <!-- When to wear -->
-        <section v-if="hasWearBars" class="mt-16">
-          <p class="font-display font-medium text-[11px] uppercase tracking-[0.28em] text-accent-deep mb-2">
-            Climate
-          </p>
-          <h2 class="font-display text-3xl text-ink tracking-tight">
-            When it <em class="text-ink-soft">wears best.</em>
-          </h2>
-
-          <div class="mt-10 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
-            <div>
-              <p class="font-mono text-[9px] uppercase tracking-[0.18em] text-ink-mute mb-5">
-                Season
-              </p>
-              <div class="space-y-4">
-                <div v-for="season in seasons" :key="season.label">
-                  <div class="flex items-baseline justify-between mb-1.5">
-                    <span class="font-mono text-[10px] uppercase tracking-[0.16em] text-ink">{{ season.label }}</span>
-                    <span class="font-mono text-[10px] text-ink-mute">{{ season.value }}%</span>
-                  </div>
-                  <div class="h-px bg-rule relative overflow-hidden">
-                    <div
-                      class="absolute inset-y-0 left-0 bg-ink transition-all duration-700"
-                      :style="{ width: `${season.value}%` }"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <p class="font-mono text-[9px] uppercase tracking-[0.18em] text-ink-mute mb-5">
-                Time of day
-              </p>
-              <div class="space-y-4">
-                <div v-for="time in times" :key="time.label">
-                  <div class="flex items-baseline justify-between mb-1.5">
-                    <span class="font-mono text-[10px] uppercase tracking-[0.16em] text-ink">{{ time.label }}</span>
-                    <span class="font-mono text-[10px] text-ink-mute">{{ time.value }}%</span>
-                  </div>
-                  <div class="h-px bg-rule relative overflow-hidden">
-                    <div
-                      class="absolute inset-y-0 left-0 bg-ink transition-all duration-700"
-                      :style="{ width: `${time.value}%` }"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <p v-if="perfume.suit_season || perfume.suit_time" class="mt-10 font-display italic text-[14px] text-ink-soft">
-            <template v-if="perfume.suit_season">
-              Best worn through {{ perfume.suit_season.toLowerCase() }}
-            </template>
-            <template v-if="perfume.suit_season && perfume.suit_time">, </template>
-            <template v-if="perfume.suit_time">
-              suited to the {{ perfume.suit_time.toLowerCase() }}
-            </template>.
-          </p>
-        </section>
-
-        <!-- Fragrantica reference -->
-        <div v-if="perfume.source_url" class="mt-16 pt-8 border-t border-rule flex justify-center sm:justify-end">
-          <a
-            :href="perfume.source_url"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="font-display italic text-[14px] text-ink hover:text-accent-deep pb-1 border-b border-accent transition-colors"
-          >
-            Learn more about this perfume &rarr;
-          </a>
-        </div>
-      </template>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
-definePageMeta({ middleware: 'auth' })
+import { type ScentFamilyKey } from '~/utils/scent'
+import { deriveFamily } from '~/utils/scentFamily'
+
+definePageMeta({ layout: 'app', middleware: 'auth' })
 
 type Bar = { label: string; value: number }
 
@@ -243,28 +10,43 @@ const route = useRoute()
 const router = useRouter()
 const api = useApi()
 const wardrobe = useWardrobeStore()
+const { worldFor } = useScentWorld()
 
 const perfume = ref<any>(null)
 const loading = ref(true)
 
-const ownedItem = computed(() =>
-  perfume.value
-    ? wardrobe.items.find(i => i.catalog_id === perfume.value.id) ?? null
-    : null,
+function splitAccords(raw?: string | null): string[] {
+  return (raw ?? '').split(',').map((s) => s.trim()).filter(Boolean)
+}
+
+// Colour the whole page from the fragrance's own scent world — a curated family
+// wins, else derive it from the catalogue's main_accord vocabulary.
+const family = computed<ScentFamilyKey>(
+  () => perfume.value?.family ?? deriveFamily(splitAccords(perfume.value?.main_accord)),
+)
+const world = worldFor(
+  () => family.value,
+  () => `${perfume.value?.id ?? ''}${perfume.value?.name ?? ''}`,
 )
 
-const accordChips = computed<string[]>(() => {
-  const raw = perfume.value?.main_accord
-  if (!raw || typeof raw !== 'string') return []
-  return raw.split(',').map((s: string) => s.trim()).filter(Boolean)
-})
+const ownedItem = computed(() =>
+  perfume.value ? wardrobe.items.find((i) => i.catalog_id === perfume.value.id) ?? null : null,
+)
+
+const accordChips = computed<string[]>(() => splitAccords(perfume.value?.main_accord))
 
 const formatNotes = (raw: string) =>
-  raw.split(',').map((s: string) => s.trim()).filter(Boolean).join(' · ')
+  raw.split(',').map((s) => s.trim()).filter(Boolean).join(' · ')
 
 const hasAnyNotes = computed(
   () => perfume.value?.top_notes || perfume.value?.middle_notes || perfume.value?.base_notes,
 )
+
+const noteTiers = computed(() => [
+  { key: 'top', label: 'Top', heading: 'What you smell first', notes: perfume.value?.top_notes as string | null },
+  { key: 'heart', label: 'Heart', heading: 'What it settles into', notes: perfume.value?.middle_notes as string | null },
+  { key: 'base', label: 'Base', heading: 'What lingers on skin', notes: perfume.value?.base_notes as string | null },
+])
 
 const seasons = computed<Bar[]>(() => {
   const p = perfume.value
@@ -287,9 +69,7 @@ const times = computed<Bar[]>(() => {
 })
 
 const hasWearBars = computed(
-  () =>
-    seasons.value.some((s: Bar) => s.value > 0)
-    || times.value.some((t: Bar) => t.value > 0),
+  () => seasons.value.some((s) => s.value > 0) || times.value.some((t) => t.value > 0),
 )
 
 const goBack = () => {
@@ -301,9 +81,163 @@ onMounted(async () => {
   try {
     perfume.value = await api.get(`/perfume/${route.params.id}`)
   } catch {
-    // perfume stays null → "not on file" state shown
+    // perfume stays null → "not on file" state
   } finally {
     loading.value = false
   }
-})
+}
+)
 </script>
+
+<template>
+  <div class="mx-auto max-w-5xl">
+    <!-- Back -->
+    <button
+      type="button"
+      class="fm inline-flex items-center gap-2 uppercase"
+      style="font-size: 10px; letter-spacing: 0.16em; color: var(--color-ink-soft);"
+      @click="goBack"
+    >
+      <Icon name="lucide:arrow-left" size="14" />
+      Back
+    </button>
+
+    <p v-if="loading" class="fb mt-20 text-center italic" style="color: var(--color-ink-soft);">Drawing from the cabinet…</p>
+    <p v-else-if="!perfume" class="fb mt-20 text-center italic" style="color: var(--color-ink-soft);">That bottle isn't on file.</p>
+
+    <template v-else>
+      <!-- ── Hero ──────────────────────────────────────────────────────── -->
+      <header class="mt-6 grid grid-cols-1 gap-8 md:grid-cols-[minmax(0,340px)_1fr] md:gap-12">
+        <!-- colour panel -->
+        <div
+          class="flex min-h-80 items-center justify-center rounded-hero p-8"
+          :style="{ background: world.bloom }"
+        >
+          <img
+            v-if="perfume.image"
+            :src="perfume.image"
+            :alt="`${perfume.brand} ${perfume.name}`"
+            class="max-h-70 w-full object-contain"
+          >
+          <ScentFlacon v-else :world="world" :size="150" />
+        </div>
+
+        <!-- details -->
+        <div class="min-w-0">
+          <div class="fm uppercase" style="font-size: 10px; letter-spacing: 0.18em; color: var(--color-ink-mute);">{{ perfume.brand }}</div>
+          <h1 class="fd mt-1.5" style="font-size: clamp(34px, 5vw, 48px); line-height: 1.04; color: var(--color-ink);">{{ perfume.name }}</h1>
+
+          <div class="mt-3">
+            <ScentFamilyLabel :world="world" :size="13" />
+          </div>
+
+          <!-- meta -->
+          <p class="fm mt-3 uppercase" style="font-size: 10px; letter-spacing: 0.14em; color: var(--color-ink-mute);">
+            <template v-if="perfume.year">{{ perfume.year }}</template>
+            <template v-if="perfume.country"><span :style="{ color: world.accent }" class="mx-1.5">·</span>{{ perfume.country }}</template>
+            <template v-if="perfume.suit"><span :style="{ color: world.accent }" class="mx-1.5">·</span>{{ perfume.suit }}</template>
+            <template v-if="perfume.rating">
+              <span :style="{ color: world.accent }" class="mx-1.5">·</span>{{ perfume.rating.toFixed(2) }}
+              <span class="ml-1" style="color: var(--color-ink-mute);">({{ perfume.votes }} votes)</span>
+            </template>
+          </p>
+
+          <!-- accord chips -->
+          <div v-if="accordChips.length" class="mt-5 flex flex-wrap gap-2">
+            <span
+              v-for="chip in accordChips"
+              :key="chip"
+              class="fm uppercase"
+              :style="{ background: world.soft, color: world.accent, fontSize: '9px', letterSpacing: '0.12em', padding: '6px 12px', borderRadius: '999px' }"
+            >{{ chip }}</span>
+          </div>
+
+          <!-- history -->
+          <p
+            v-if="perfume.history"
+            class="fb mt-6 max-w-prose border-t pt-5 italic"
+            style="font-size: 15px; line-height: 1.6; color: var(--color-ink-soft); border-color: var(--color-rule);"
+          >{{ perfume.history }}</p>
+
+          <!-- perfumers -->
+          <p v-if="perfume.perfumers" class="fm mt-5 uppercase" style="font-size: 10px; letter-spacing: 0.16em; color: var(--color-ink-mute);">
+            <span :style="{ color: world.accent }" class="mr-1.5">/</span>By {{ perfume.perfumers }}
+          </p>
+
+          <!-- actions -->
+          <div class="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
+            <NuxtLink
+              :to="ownedItem ? `/user/wardrobe/${ownedItem.id}` : `/user/wardrobe/add?catalog_id=${perfume.id}`"
+              class="inline-flex items-center gap-2 rounded-full px-6 py-3"
+              :style="{ background: world.gradient, color: world.onGrad }"
+            >
+              <Icon :name="ownedItem ? 'lucide:library' : 'lucide:plus'" size="16" />
+              <span class="fb" style="font-weight: 700;">{{ ownedItem ? 'Show in wardrobe' : 'Add to wardrobe' }}</span>
+            </NuxtLink>
+            <p v-if="ownedItem" class="fb italic" :style="{ fontSize: '14px', color: world.accent }">You already own this.</p>
+          </div>
+        </div>
+      </header>
+
+      <!-- ── Notes pyramid ─────────────────────────────────────────────── -->
+      <section v-if="hasAnyNotes" class="mt-14">
+        <p class="fm uppercase" :style="{ fontSize: '10px', letterSpacing: '0.2em', color: world.accent }">The pyramid</p>
+        <h2 class="fd mt-1" style="font-size: 28px; color: var(--color-ink);">Notes <em style="color: var(--color-ink-soft);">it leaves on you.</em></h2>
+
+        <div class="mt-6 grid grid-cols-1 gap-3 md:grid-cols-3">
+          <article
+            v-for="tier in noteTiers"
+            v-show="tier.notes"
+            :key="tier.key"
+            class="rounded-card border p-6"
+            style="background: var(--color-surface); border-color: var(--color-rule);"
+          >
+            <p class="fm uppercase" :style="{ fontSize: '9px', letterSpacing: '0.16em', color: world.accent }">{{ tier.label }}</p>
+            <h3 class="fd mt-1.5" style="font-size: 18px; line-height: 1.2; color: var(--color-ink);">{{ tier.heading }}</h3>
+            <p class="fb mt-3" style="font-size: 13px; line-height: 1.6; color: var(--color-ink-soft); text-transform: capitalize;">{{ formatNotes(tier.notes) }}</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- ── Climate ───────────────────────────────────────────────────── -->
+      <section v-if="hasWearBars" class="mt-14">
+        <p class="fm uppercase" :style="{ fontSize: '10px', letterSpacing: '0.2em', color: world.accent }">Climate</p>
+        <h2 class="fd mt-1" style="font-size: 28px; color: var(--color-ink);">When it <em style="color: var(--color-ink-soft);">wears best.</em></h2>
+
+        <div class="mt-6 grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-14">
+          <div v-for="group in [{ label: 'Season', bars: seasons }, { label: 'Time of day', bars: times }]" :key="group.label">
+            <p class="fm mb-4 uppercase" style="font-size: 9px; letter-spacing: 0.18em; color: var(--color-ink-mute);">{{ group.label }}</p>
+            <div class="space-y-3.5">
+              <div v-for="bar in group.bars" :key="bar.label">
+                <div class="mb-1.5 flex items-baseline justify-between">
+                  <span class="fm uppercase" style="font-size: 10px; letter-spacing: 0.14em; color: var(--color-ink);">{{ bar.label }}</span>
+                  <span class="fm" style="font-size: 10px; color: var(--color-ink-mute);">{{ bar.value }}%</span>
+                </div>
+                <div class="h-2 overflow-hidden rounded-full" style="background: var(--color-surface-2);">
+                  <div class="h-full rounded-full transition-all duration-700" :style="{ width: `${bar.value}%`, background: world.gradient }" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p v-if="perfume.suit_season || perfume.suit_time" class="fb mt-8 italic" style="font-size: 14px; color: var(--color-ink-soft);">
+          <template v-if="perfume.suit_season">Best worn through {{ perfume.suit_season.toLowerCase() }}</template>
+          <template v-if="perfume.suit_season && perfume.suit_time">, </template>
+          <template v-if="perfume.suit_time">suited to the {{ perfume.suit_time.toLowerCase() }}</template>.
+        </p>
+      </section>
+
+      <!-- Fragrantica reference -->
+      <div v-if="perfume.source_url" class="mt-14 flex justify-center border-t pt-8 sm:justify-end" style="border-color: var(--color-rule);">
+        <a
+          :href="perfume.source_url"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="fb italic"
+          :style="{ fontSize: '14px', color: world.accent, borderBottom: `1px solid ${world.accent}`, paddingBottom: '2px' }"
+        >Learn more about this perfume →</a>
+      </div>
+    </template>
+  </div>
+</template>

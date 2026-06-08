@@ -34,3 +34,26 @@ export function formatTime(str: string): string {
     hour12: true,
   })
 }
+
+/** Local calendar key "YYYY-MM-DD" for grouping wears by day. */
+export function dateKey(d: Date | string): string {
+  const date = typeof d === 'string' ? parseTimestamp(d) : d
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
+}
+
+/** Warm relative-day label: "today", "yesterday", "3 days ago", else a short date. */
+export function relativeDay(str: string | null | undefined): string {
+  if (!str) return 'never'
+  const then = parseTimestamp(str)
+  const today = new Date()
+  const a = new Date(then.getFullYear(), then.getMonth(), then.getDate())
+  const b = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+  const days = Math.round((b.getTime() - a.getTime()) / 86400000)
+  if (days <= 0) return 'today'
+  if (days === 1) return 'yesterday'
+  if (days < 7) return `${days} days ago`
+  if (days < 14) return 'last week'
+  if (days < 31) return `${Math.floor(days / 7)} weeks ago`
+  return then.toLocaleDateString([], { month: 'short', day: 'numeric' })
+}

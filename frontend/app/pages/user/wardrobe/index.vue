@@ -1,105 +1,68 @@
-<template>
-  <div class="min-h-screen pt-20 pb-24 px-6">
-    <div class="max-w-6xl mx-auto">
-      <header class="border-b border-rule pb-8">
-        <p class="font-mono text-[11px] uppercase tracking-widest text-ink-mute">
-          Your shelf
-        </p>
-        <h1 class="mt-3 font-display text-5xl sm:text-6xl text-ink tracking-tight leading-[1.05]">
-          Wardrobe
-        </h1>
-      </header>
-
-      <!-- Count + add button, on the same line below the bar -->
-      <div v-if="wardrobe.count > 0" class="mt-8 flex items-center justify-between gap-4">
-        <p class="font-mono text-[11px] uppercase tracking-[0.2em] text-ink-mute">
-          {{ String(wardrobe.count).padStart(2, '0') }}
-          <span class="text-ink-soft ml-1">{{ wardrobe.count === 1 ? 'bottle' : 'bottles' }}</span>
-        </p>
-        <NuxtLink
-          to="/user/wardrobe/add"
-          class="inline-flex items-center gap-2 bg-ink text-paper text-xs uppercase tracking-[0.2em] px-6 py-3 hover:bg-ink-soft transition-colors"
-        >
-          <Icon name="lucide:plus" size="14" />
-          Add a bottle
-        </NuxtLink>
-      </div>
-
-      <!-- Populated shelf -->
-      <section v-if="wardrobe.count > 0" class="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        <NuxtLink
-          v-for="item in wardrobe.items"
-          :key="item.id"
-          :to="`/user/wardrobe/${item.id}`"
-          class="group flex flex-col"
-        >
-          <div class="aspect-3/4 bg-paper-deep border border-rule flex items-center justify-center group-hover:bg-paper transition-colors duration-200">
-            <BottleIcon :size="72" />
-          </div>
-          <p class="mt-4 font-mono text-[9px] uppercase tracking-[0.16em] text-ink-mute">
-            {{ item.brand }}
-          </p>
-          <h3 class="mt-1 font-display text-[17px] text-ink leading-tight group-hover:text-accent-deep transition-colors">
-            {{ item.name }}
-          </h3>
-          <p class="mt-2 font-mono text-[9px] uppercase tracking-[0.14em] text-ink-mute">
-            {{ item.size }} ml
-            <template v-if="item.acquired">
-              <span class="text-accent-deep mx-1">·</span>{{ item.acquired }}
-            </template>
-          </p>
-          <p
-            v-if="lastWornLabel(item.id)"
-            class="mt-2 font-display italic text-[12px] text-ink-soft"
-          >
-            {{ lastWornLabel(item.id) }}
-          </p>
-        </NuxtLink>
-      </section>
-
-      <!-- Empty state -->
-      <section v-else class="mt-24 sm:mt-32 max-w-xl mx-auto text-center">
-        <div class="w-60 h-60 rounded-full border border-rule bg-paper-deep flex items-center justify-center mx-auto">
-          <BottleIcon :size="100" />
-        </div>
-        <h2 class="mt-12 font-display text-3xl sm:text-4xl text-ink tracking-tight leading-[1.1]">
-          Your shelf is bare.
-        </h2>
-        <p class="mt-4 text-base text-ink-soft leading-relaxed">
-          Begin with the bottle you reached for today.
-        </p>
-        <NuxtLink
-          to="/user/wardrobe/add"
-          class="mt-12 inline-flex items-center gap-2 bg-ink text-paper text-xs uppercase tracking-[0.2em] px-8 py-3.5 hover:bg-ink-soft transition-colors"
-        >
-          Add your first bottle
-          <Icon name="lucide:arrow-right" size="14" />
-        </NuxtLink>
-      </section>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
-definePageMeta({ middleware: 'auth' })
+import { familyOfTheHour } from '~/utils/wear'
+
+definePageMeta({ layout: 'app', middleware: 'auth' })
+useHead({ title: 'Your shelf' })
 
 const wardrobe = useWardrobeStore()
-const journal = useJournalStore()
+const logStore = useLogStore()
+const { worldFor } = useScentWorld()
+const houseWorld = worldFor(() => familyOfTheHour())
 
-const lastWornLabel = (wardrobeItemId: string) => {
-  const iso = journal.lastWornAt(wardrobeItemId)
-  if (!iso) return ''
-  const days = Math.floor(
-    (Date.now() - new Date(iso).getTime()) / (1000 * 60 * 60 * 24),
-  )
-  if (days === 0) return 'Worn today'
-  if (days === 1) return 'Worn yesterday'
-  if (days < 7) return `Worn ${days} days ago`
-  if (days < 30) return `Last worn ${days} days ago`
-  if (days < 365) {
-    const months = Math.floor(days / 30)
-    return `Last worn ${months} ${months === 1 ? 'month' : 'months'} ago`
-  }
-  return 'Last worn over a year ago'
-}
+function openBottle(id: string) { navigateTo(`/user/wardrobe/${id}`) }
 </script>
+
+<template>
+  <div>
+    <header class="mb-6 flex items-end justify-between gap-4">
+      <div>
+        <div class="kicker">Your vanity</div>
+        <h1 class="fd mt-1" style="font-size: clamp(30px, 6vw, 44px); line-height: 1.05;">Your shelf</h1>
+        <p v-if="wardrobe.count" class="fm mt-2" style="font-size: 12px; color: var(--color-ink-mute);">
+          {{ wardrobe.count }} {{ wardrobe.count === 1 ? 'bottle' : 'bottles' }}
+        </p>
+      </div>
+      <NuxtLink
+        to="/user/wardrobe/add"
+        class="hidden items-center gap-2 rounded-full px-5 py-2.5 sm:inline-flex"
+        :style="{ background: houseWorld.gradient, color: houseWorld.onGrad }"
+      >
+        <Icon name="lucide:plus" size="16" /><span class="fb" style="font-weight: 700;">Add a bottle</span>
+      </NuxtLink>
+    </header>
+
+    <!-- populated shelf -->
+    <section v-if="wardrobe.count">
+      <p class="fb mb-4 hidden italic lg:block" style="font-size: 12px; color: var(--color-ink-mute);">Hover a bottle to log a wear. On a phone, swipe it left.</p>
+      <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+        <ShelfCard
+          v-for="item in wardrobe.items"
+          :key="item.id"
+          :item="item"
+          @open="openBottle($event.id)"
+          @log="logStore.start($event)"
+        />
+      </div>
+    </section>
+
+    <!-- empty state -->
+    <section v-else class="mx-auto mt-16 max-w-md text-center">
+      <div
+        class="mx-auto flex h-52 w-52 items-center justify-center rounded-full border"
+        style="border-color: var(--color-rule); background: var(--color-surface);"
+      >
+        <ScentFlacon :world="houseWorld" :size="96" />
+      </div>
+      <h2 class="fd mt-10" style="font-size: 30px;">Your shelf is bare.</h2>
+      <p class="fb mt-3 italic" style="font-size: 15px; color: var(--color-ink-soft);">Begin with the bottle you reached for today.</p>
+      <NuxtLink
+        to="/user/wardrobe/add"
+        class="mt-8 inline-flex items-center gap-2 rounded-full px-6 py-3"
+        :style="{ background: houseWorld.gradient, color: houseWorld.onGrad }"
+      >
+        <span class="fb" style="font-weight: 700;">Add your first bottle</span>
+        <Icon name="lucide:arrow-right" size="16" />
+      </NuxtLink>
+    </section>
+  </div>
+</template>

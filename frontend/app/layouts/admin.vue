@@ -1,198 +1,41 @@
-<template>
-  <div class="min-h-screen bg-paper flex">
-
-    <!-- Mobile backdrop -->
-    <Transition
-      enter-active-class="transition duration-200 ease-out"
-      enter-from-class="opacity-0"
-      enter-to-class="opacity-100"
-      leave-active-class="transition duration-150 ease-in"
-      leave-from-class="opacity-100"
-      leave-to-class="opacity-0"
-    >
-      <div
-        v-if="sidebarOpen"
-        class="fixed inset-0 z-20 bg-ink/25 md:hidden"
-        @click="sidebarOpen = false"
-      />
-    </Transition>
-
-    <!-- Sidebar -->
-    <aside
-      class="fixed inset-y-0 left-0 z-30 w-60 bg-paper-deep border-r border-rule flex flex-col
-             transition-transform duration-200 ease-in-out
-             -translate-x-full md:translate-x-0"
-      :class="{ 'translate-x-0': sidebarOpen }"
-    >
-      <!-- Brand -->
-      <div class="h-14 px-5 flex items-center justify-between border-b border-rule shrink-0">
-        <NuxtLink to="/admin" class="min-w-0">
-          <p class="font-display text-[15px] text-ink tracking-tight truncate leading-tight">
-            House of Parfum
-          </p>
-          <p class="font-mono text-[9px] uppercase tracking-[0.2em] text-ink-mute">
-            Admin
-          </p>
-        </NuxtLink>
-
-        <!-- Close button (mobile only) -->
-        <button
-          class="md:hidden text-ink-mute hover:text-ink transition-colors shrink-0 ml-2"
-          aria-label="Close menu"
-          @click="sidebarOpen = false"
-        >
-          <Icon name="lucide:x" class="h-4 w-4" />
-        </button>
-      </div>
-
-      <!-- Navigation -->
-      <nav class="flex-1 overflow-y-auto px-2 py-3 space-y-0.5">
-        <!-- Overview -->
-        <NuxtLink
-          to="/admin"
-          class="admin-nav-link"
-          exact-active-class="admin-nav-link--active"
-          @click="sidebarOpen = false"
-        >
-          <Icon name="lucide:layout-dashboard" class="h-3.5 w-3.5 shrink-0" />
-          Dashboard
-        </NuxtLink>
-
-        <!-- Manage section -->
-        <p class="font-mono text-[9px] uppercase tracking-[0.2em] text-ink-mute px-3 pt-5 pb-1.5">
-          Manage
-        </p>
-
-        <NuxtLink
-          to="/admin/users"
-          class="admin-nav-link"
-          active-class="admin-nav-link--active"
-          @click="sidebarOpen = false"
-        >
-          <Icon name="lucide:users" class="h-3.5 w-3.5 shrink-0" />
-          Users
-        </NuxtLink>
-
-        <NuxtLink
-          to="/admin/perfumes"
-          class="admin-nav-link"
-          active-class="admin-nav-link--active"
-          @click="sidebarOpen = false"
-        >
-          <Icon name="lucide:spray-can" class="h-3.5 w-3.5 shrink-0" />
-          Perfumes
-        </NuxtLink>
-
-        <NuxtLink
-          to="/admin/almanac"
-          class="admin-nav-link"
-          active-class="admin-nav-link--active"
-          @click="sidebarOpen = false"
-        >
-          <Icon name="lucide:book-open" class="h-3.5 w-3.5 shrink-0" />
-          Almanac
-        </NuxtLink>
-      </nav>
-
-      <!-- Admin identity + sign out -->
-      <div class="px-4 py-4 border-t border-rule shrink-0">
-        <div class="flex items-center gap-3 mb-4">
-          <div class="h-8 w-8 rounded-full bg-accent-soft border border-accent flex items-center justify-center shrink-0">
-            <span class="font-display text-[12px] text-accent-deep tracking-tight">
-              {{ adminInitials }}
-            </span>
-          </div>
-          <div class="min-w-0">
-            <p class="font-display text-[13px] text-ink leading-tight truncate">
-              {{ auth.user?.name || 'Admin' }}
-            </p>
-            <p class="font-mono text-[9px] text-ink-mute tracking-tight truncate">
-              {{ auth.user?.email || '' }}
-            </p>
-          </div>
-        </div>
-
-        <button
-          class="w-full text-left font-mono text-[10px] uppercase tracking-widest text-ink-mute hover:text-ink transition-colors"
-          @click="handleLogout"
-        >
-          Sign out
-        </button>
-      </div>
-    </aside>
-
-    <!-- Main content area (offset by sidebar on md+) -->
-    <div class="flex-1 min-w-0 flex flex-col md:pl-60">
-
-      <!-- Top bar -->
-      <header class="sticky top-0 z-10 h-14 bg-paper/90 backdrop-blur-xl border-b border-rule flex items-center px-5 md:px-8 gap-4">
-        <!-- Hamburger (mobile only) -->
-        <button
-          class="md:hidden text-ink-soft hover:text-ink transition-colors shrink-0"
-          aria-label="Open menu"
-          @click="sidebarOpen = true"
-        >
-          <Icon name="lucide:menu" class="h-5 w-5" />
-        </button>
-
-        <!-- Accent hairline (mirrors the main navbar style) -->
-        <div class="absolute bottom-0 left-0 w-12 h-px bg-accent" />
-
-        <p class="font-mono text-[11px] uppercase tracking-widest text-ink-soft">
-          {{ pageTitle }}
-        </p>
-
-        <!-- Live preview -->
-        <NuxtLink
-          to="/user/today"
-          class="ml-auto inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-ink-mute hover:text-ink transition-colors"
-        >
-          <Icon name="lucide:eye" class="h-3 w-3" />
-          <span class="sm:hidden">Preview</span>
-          <span class="hidden sm:inline">Show live preview</span>
-        </NuxtLink>
-      </header>
-
-      <!-- Page content -->
-      <main class="flex-1 px-5 py-6 md:px-8 md:py-8">
-        <slot />
-      </main>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
+import { familyOfTheHour } from '~/utils/wear'
+
 const auth = useAuthStore()
 const router = useRouter()
 const route = useRoute()
+const { worldFor } = useScentWorld()
+
+// The admin chrome borrows the day's accent, same as the app shell.
+const houseWorld = worldFor(() => familyOfTheHour())
+
+// Back-office IA. Houses and Community are designed-next placeholders.
+const nav = [
+  { to: '/admin', label: 'Overview', icon: 'lucide:layout-dashboard', exact: true },
+  { to: '/admin/perfumes', label: 'Registry', icon: 'lucide:spray-can' },
+  { to: '/admin/brands', label: 'Houses', icon: 'lucide:building-2' },
+  { to: '/admin/users', label: 'Members', icon: 'lucide:users' },
+  { to: '/admin/almanac', label: 'Almanac', icon: 'lucide:book-open' },
+  { to: '/admin/community', label: 'Community', icon: 'lucide:messages-square' },
+]
 
 const sidebarOpen = ref(false)
 
-const pageTitles: Record<string, string> = {
-  '/admin': 'Dashboard',
-  '/admin/users': 'Users',
-  '/admin/perfumes': 'Perfumes',
-  '/admin/almanac': 'Almanac',
+function isActive(item: { to: string; exact?: boolean }) {
+  if (item.exact) return route.path === item.to
+  return route.path === item.to || route.path.startsWith(item.to + '/')
 }
 
-const pageTitle = computed(
-  () => pageTitles[route.path] ?? route.path.split('/').pop() ?? 'Admin',
-)
-
-const adminInitials = computed(() => {
+const initials = computed(() => {
   const name = auth.user?.name?.trim()
   if (!name) return 'A'
-  return name
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part: string) => part[0]?.toUpperCase() ?? '')
-    .join('')
+  return name.split(/\s+/).slice(0, 2).map((p: string) => p[0]?.toUpperCase() ?? '').join('')
 })
 
-// Close sidebar when route changes (mobile nav tap)
+// Close the mobile drawer whenever the route changes.
 watch(() => route.path, () => { sidebarOpen.value = false })
 
-const handleLogout = async () => {
+async function handleLogout() {
   const api = useApi()
   try { await api.post('/logout', {}) } catch {}
   auth.logout()
@@ -200,30 +43,120 @@ const handleLogout = async () => {
 }
 </script>
 
-<style scoped>
-.admin-nav-link {
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: var(--radius-sm);
-  border-left: 2px solid transparent;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: var(--color-ink-soft);
-  transition: color 0.15s, background-color 0.15s, border-color 0.15s;
-}
+<template>
+  <!-- Auth- + canvas-mode driven (client state); render client-side to avoid
+       SSR/after-dark hydration mismatches, mirroring the app shell. -->
+  <ClientOnly>
+    <div class="min-h-screen lg:flex" style="background: var(--color-canvas);">
 
-.admin-nav-link:hover {
-  color: var(--color-ink);
-  background-color: var(--color-paper);
-}
+      <!-- Mobile drawer backdrop -->
+      <Transition
+        enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0" enter-to-class="opacity-100"
+        leave-active-class="transition duration-150 ease-in" leave-from-class="opacity-100" leave-to-class="opacity-0"
+      >
+        <div
+          v-if="sidebarOpen"
+          class="fixed inset-0 z-40 lg:hidden"
+          style="background: color-mix(in oklab, var(--color-ink) 32%, transparent);"
+          @click="sidebarOpen = false"
+        />
+      </Transition>
 
-.admin-nav-link--active {
-  color: var(--color-ink);
-  background-color: var(--color-paper);
-  border-left-color: var(--color-accent);
-}
-</style>
+      <!-- ── Sidebar (matches the app shell: 248px) ──────────────────────── -->
+      <aside
+        class="fixed inset-y-0 left-0 z-50 flex w-62 flex-col border-r px-5 py-6
+               transition-transform duration-200 ease-in-out
+               -translate-x-full lg:sticky lg:top-0 lg:h-screen lg:translate-x-0"
+        :class="{ 'translate-x-0': sidebarOpen }"
+        style="border-color: var(--color-rule); background: var(--color-surface);"
+      >
+        <!-- Wordmark -->
+        <div class="flex items-start justify-between px-1">
+          <NuxtLink to="/admin" class="block">
+            <div class="fd leading-none" style="font-size: 22px; color: var(--color-ink);">House of Parfum</div>
+            <div class="kicker mt-1.5">Admin portal</div>
+          </NuxtLink>
+          <button
+            class="lg:hidden"
+            style="color: var(--color-ink-mute);"
+            aria-label="Close menu"
+            @click="sidebarOpen = false"
+          >
+            <Icon name="lucide:x" size="18" />
+          </button>
+        </div>
+
+        <!-- Nav -->
+        <nav class="mt-8 flex flex-col gap-1">
+          <NuxtLink
+            v-for="item in nav"
+            :key="item.to"
+            :to="item.to"
+            class="flex items-center gap-3 rounded-field px-3 py-2.5"
+            :style="isActive(item)
+              ? { background: houseWorld.soft, color: houseWorld.accent }
+              : { color: 'var(--color-ink-soft)' }"
+          >
+            <Icon :name="item.icon" size="19" />
+            <span class="fb" style="font-size: 14px;">{{ item.label }}</span>
+          </NuxtLink>
+        </nav>
+
+        <!-- Footer: portal switch · canvas toggle · account -->
+        <div class="mt-auto flex flex-col gap-3 pt-5">
+          <PortalSwitch current="admin" />
+
+          <CanvasToggle variant="row" />
+
+          <div class="flex items-center gap-3 rounded-field border px-3 py-2.5" style="border-color: var(--color-rule);">
+            <span
+              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+              :style="{ background: houseWorld.gradient, color: houseWorld.onGrad }"
+            >
+              <span class="fd" style="font-size: 13px;">{{ initials }}</span>
+            </span>
+            <div class="min-w-0 flex-1">
+              <div class="fb block truncate" style="font-size: 13px; color: var(--color-ink);">{{ auth.user?.name || 'Admin' }}</div>
+              <div class="fb block truncate" style="font-size: 11px; color: var(--color-ink-mute);">Curation team</div>
+            </div>
+            <button
+              class="shrink-0"
+              style="color: var(--color-ink-mute);"
+              aria-label="Sign out"
+              title="Sign out"
+              @click="handleLogout"
+            >
+              <Icon name="lucide:log-out" size="16" />
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- ── Content column ──────────────────────────────────────────────── -->
+      <div class="flex min-w-0 flex-1 flex-col">
+        <!-- Mobile top bar (hamburger) -->
+        <header
+          class="sticky top-0 z-30 flex items-center gap-3 border-b px-5 py-3 lg:hidden"
+          style="border-color: var(--color-rule); background: color-mix(in oklab, var(--color-canvas) 88%, transparent); backdrop-filter: blur(12px);"
+        >
+          <button style="color: var(--color-ink-soft);" aria-label="Open menu" @click="sidebarOpen = true">
+            <Icon name="lucide:menu" size="20" />
+          </button>
+          <NuxtLink to="/admin" class="fd" style="font-size: 17px; color: var(--color-ink);">House of Parfum</NuxtLink>
+          <span class="fm ml-auto uppercase" :style="{ fontSize: '9px', letterSpacing: '0.18em', color: houseWorld.accent }">Admin</span>
+        </header>
+
+        <!-- Content — matches the app shell exactly: max-w-1320, px-5/md:px-8 -->
+        <main class="mx-auto w-full max-w-330 flex-1 px-5 pb-12 pt-5 md:px-8 md:pt-8">
+          <slot />
+        </main>
+      </div>
+    </div>
+
+    <template #fallback>
+      <div class="flex min-h-screen items-center justify-center" style="background: var(--color-canvas);">
+        <div class="fd animate-pulse" style="font-size: 20px; color: var(--color-ink-mute);">House of Parfum · Admin</div>
+      </div>
+    </template>
+  </ClientOnly>
+</template>
