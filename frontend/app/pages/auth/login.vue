@@ -1,76 +1,74 @@
 <template>
-  <div class="min-h-screen grid grid-cols-1 md:grid-cols-12 bg-paper">
-    <!-- Brand panel -->
-    <aside class="hidden md:flex md:col-span-7 bg-paper-deep p-12 lg:p-16 flex-col justify-between relative overflow-hidden">
-      <!-- Watermark: tall apothecary bottle, vertically centred against the right edge -->
-      <svg
-        class="absolute top-1/2 -translate-y-1/2 right-8 lg:right-12 w-72 lg:w-80 h-auto text-ink pointer-events-none select-none"
-        viewBox="0 0 200 280"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="0.8"
-        style="opacity: 0.09"
-        aria-hidden="true"
-      >
-        <!-- Cap -->
-        <rect x="76" y="6" width="48" height="34" />
-        <!-- Collar -->
-        <rect x="80" y="40" width="40" height="10" />
-        <!-- Neck -->
-        <rect x="86" y="50" width="28" height="22" />
-        <!-- Body -->
-        <rect x="22" y="72" width="156" height="200" rx="2" />
-        <!-- Label panel -->
-        <rect x="44" y="166" width="112" height="58" />
-        <!-- Label rule -->
-        <line x1="60" y1="194" x2="140" y2="194" />
-        <!-- Inner shoulder line -->
-        <line x1="22" y1="100" x2="178" y2="100" stroke-dasharray="2 4" />
-      </svg>
+  <div class="grid min-h-screen grid-cols-1 md:grid-cols-12" style="background: var(--color-canvas);">
 
-      <NuxtLink to="/about" class="relative z-10 font-display text-xl text-ink tracking-tight">
+    <!-- ── Brand / visual panel ─────────────────────────────────────────────
+         Full-bleed AI hero image over a scent-gradient base. If the image is
+         missing it gracefully falls back to the gradient, so the panel always
+         looks intentional. Drop your generated image at
+         public/auth/login-hero.png (see public/auth/README.md). -->
+    <aside class="relative hidden overflow-hidden md:col-span-7 md:flex md:flex-col md:justify-between md:p-12 lg:p-16">
+      <!-- scent-gradient base (fallback + bleeds behind transparent images) -->
+      <div class="absolute inset-0" style="background:
+        radial-gradient(110% 90% at 18% 12%, oklch(0.96 0.06 350 / 0.85) 0%, transparent 55%),
+        linear-gradient(150deg, oklch(0.86 0.11 350) 0%, oklch(0.74 0.11 38) 100%);" />
+
+      <!-- the hero image -->
+      <img
+        v-show="!heroFailed"
+        :src="heroSrc"
+        alt=""
+        aria-hidden="true"
+        class="absolute inset-0 h-full w-full object-cover"
+        @error="heroFailed = true"
+      >
+
+      <!-- legibility scrim (top + bottom), violet-tinted to match after dark -->
+      <div class="absolute inset-0" style="background:
+        linear-gradient(to top, color-mix(in oklab, oklch(0.16 0.03 320) 64%, transparent) 0%, transparent 50%),
+        linear-gradient(to bottom, color-mix(in oklab, oklch(0.16 0.03 320) 34%, transparent) 0%, transparent 24%);" />
+
+      <NuxtLink to="/about" class="fd relative z-10" style="font-size: 22px; color: oklch(0.99 0.004 90);">
         House of Parfum
       </NuxtLink>
 
       <div class="relative z-10 max-w-xl">
-        <h1 class="font-display text-5xl lg:text-6xl leading-[1.05] text-ink tracking-tight">
-          A companion for the bottles you wear,<br>
-          <em class="text-ink-soft">and the ones you remember.</em>
+        <h1 class="fd" style="font-size: clamp(36px, 4.4vw, 58px); line-height: 1.06; color: oklch(0.99 0.004 90);">
+          A companion for the bottles you wear,
+          <em style="color: oklch(0.99 0.004 90 / 0.78);">and the ones you remember.</em>
         </h1>
-        <p class="mt-8 text-base text-ink-soft leading-relaxed max-w-md">
-          Log your collection. Note your daily wear. See what suits today &mdash;
+        <p class="fb mt-7 max-w-md" style="font-size: 15px; line-height: 1.6; color: oklch(0.99 0.004 90 / 0.82);">
+          Log your collection. Note your daily wear. See what suits today —
           drawn from your shelf, the weather, and your mood.
         </p>
         <NuxtLink
           to="/about"
-          class="mt-10 inline-flex items-center gap-2 text-xs uppercase tracking-widest text-ink hover:text-accent transition-colors"
+          class="fm mt-9 inline-flex items-center gap-2 uppercase"
+          style="font-size: 11px; letter-spacing: 0.16em; color: oklch(0.99 0.004 90);"
         >
           Learn more
-          <Icon name="lucide:arrow-right" class="h-3.5 w-3.5" />
+          <Icon name="lucide:arrow-right" size="14" />
         </NuxtLink>
       </div>
 
-      <p class="relative z-10 font-mono text-[11px] text-ink-mute">
-        &copy; {{ new Date().getFullYear() }} Axel Nova Ventures
+      <p class="fm relative z-10" style="font-size: 11px; color: oklch(0.99 0.004 90 / 0.7);">
+        © {{ new Date().getFullYear() }} Axel Nova Ventures
       </p>
     </aside>
 
-    <!-- Form panel -->
-    <section class="col-span-1 md:col-span-5 flex items-center justify-center px-6 py-12 md:py-16">
+    <!-- ── Form panel ───────────────────────────────────────────────────── -->
+    <section class="col-span-1 flex items-center justify-center px-6 py-12 md:col-span-5 md:py-16">
       <div class="w-full max-w-sm">
-        <!-- Mobile brand mark (form panel only on mobile) -->
-        <NuxtLink to="/about" class="md:hidden font-display text-2xl text-ink tracking-tight block mb-10 text-center">
+        <!-- Mobile brand mark -->
+        <NuxtLink to="/about" class="fd mb-10 block text-center md:hidden" style="font-size: 24px; color: var(--color-ink);">
           House of Parfum
         </NuxtLink>
 
-        <h2 class="font-display text-3xl text-ink tracking-tight">Welcome back!</h2>
-        <p class="mt-2 text-sm text-ink-soft">
-          Sign in to your shelf.
-        </p>
+        <h2 class="fd" style="font-size: 30px; line-height: 1.1; color: var(--color-ink);">Welcome back</h2>
+        <p class="fb mt-2" style="font-size: 14px; color: var(--color-ink-soft);">Sign in to your shelf.</p>
 
-        <form class="mt-10 space-y-5" @submit.prevent="handleLogin">
+        <form class="mt-9 space-y-5" @submit.prevent="handleLogin">
           <div>
-            <label for="email" class="block text-[11px] uppercase tracking-widest text-ink-soft mb-2">
+            <label for="email" class="fm mb-2 block uppercase" style="font-size: 10px; letter-spacing: 0.16em; color: var(--color-ink-soft);">
               Email
             </label>
             <input
@@ -79,51 +77,45 @@
               type="email"
               required
               autocomplete="email"
-              class="w-full bg-transparent border-b border-rule px-0 py-2 text-ink placeholder:text-ink-mute focus:outline-none focus:border-ink transition-colors"
+              placeholder="you@example.com"
+              class="auth-input fb"
             >
           </div>
 
           <div>
-            <div class="flex items-baseline justify-between mb-2">
-              <label for="password" class="block text-[11px] uppercase tracking-widest text-ink-soft">
-                Password
-              </label>
-              <!-- Placeholder for future /forgot-password link -->
-            </div>
+            <label for="password" class="fm mb-2 block uppercase" style="font-size: 10px; letter-spacing: 0.16em; color: var(--color-ink-soft);">
+              Password
+            </label>
             <input
               id="password"
               v-model="form.password"
               type="password"
               required
               autocomplete="current-password"
-              class="w-full bg-transparent border-b border-rule px-0 py-2 text-ink placeholder:text-ink-mute focus:outline-none focus:border-ink transition-colors"
+              placeholder="••••••••"
+              class="auth-input fb"
             >
           </div>
 
-          <p v-if="error" class="text-sm text-accent">{{ error }}</p>
+          <p v-if="error" class="fb" style="font-size: 13px; color: oklch(0.6 0.15 25);">{{ error }}</p>
 
-          <button
-            type="submit"
-            :disabled="submitting"
-            class="w-full bg-ink text-paper text-xs uppercase tracking-widest py-3.5 hover:bg-ink-soft transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
+          <button type="submit" :disabled="submitting" class="auth-submit fm uppercase">
             {{ submitting ? 'Signing in…' : 'Sign in' }}
           </button>
         </form>
 
-        <p class="mt-8 text-xs uppercase tracking-widest text-ink-soft text-center">
+        <p class="fm mt-8 text-center uppercase" style="font-size: 10px; letter-spacing: 0.14em; color: var(--color-ink-soft);">
           New here?
-          <NuxtLink to="/auth/register" class="text-ink hover:text-accent transition-colors ml-1">
-            Create an account
-          </NuxtLink>
+          <NuxtLink to="/auth/register" class="ml-1" style="color: var(--color-accent-deep);">Create an account</NuxtLink>
         </p>
 
         <NuxtLink
           to="/about"
-          class="md:hidden mt-8 flex items-center justify-center gap-2 text-xs uppercase tracking-widest text-ink-soft hover:text-ink transition-colors"
+          class="fm mt-8 flex items-center justify-center gap-2 uppercase md:hidden"
+          style="font-size: 10px; letter-spacing: 0.14em; color: var(--color-ink-soft);"
         >
           Learn more
-          <Icon name="lucide:arrow-right" class="h-3.5 w-3.5" />
+          <Icon name="lucide:arrow-right" size="14" />
         </NuxtLink>
       </div>
     </section>
@@ -132,6 +124,12 @@
 
 <script setup lang="ts">
 definePageMeta({ layout: 'auth', middleware: 'guest' })
+
+// Drop your AI-generated hero here. PNG (supports a transparent bottle) or JPG —
+// just keep the filename, or change this one line to match. Falls back to the
+// scent gradient if the file is absent.
+const heroSrc = '/auth/login-hero.png'
+const heroFailed = ref(false)
 
 const api = useApi()
 const auth = useAuthStore()
@@ -156,3 +154,36 @@ const handleLogin = async () => {
   }
 }
 </script>
+
+<style scoped>
+.auth-input {
+  width: 100%;
+  background: var(--color-surface);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-field);
+  padding: 12px 14px;
+  font-size: 14px;
+  color: var(--color-ink);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.auth-input::placeholder { color: var(--color-ink-mute); }
+.auth-input:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-accent) 18%, transparent);
+}
+
+.auth-submit {
+  width: 100%;
+  border-radius: var(--radius-field);
+  padding: 14px;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: var(--color-canvas);
+  background: linear-gradient(150deg, var(--color-accent) 0%, var(--color-accent-deep) 100%);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.auth-submit:hover { opacity: 0.92; }
+.auth-submit:active { transform: translateY(1px); }
+.auth-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+</style>
