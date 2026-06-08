@@ -81,14 +81,7 @@ const isAdmin = computed(() => auth.user?.role === 'admin')
       </NuxtLink>
 
       <div class="mt-auto flex flex-col gap-3 pt-5">
-        <NuxtLink
-          v-if="isAdmin"
-          to="/admin"
-          class="flex items-center gap-2 px-3 py-1 fm uppercase"
-          style="font-size: 9.5px; letter-spacing: 0.14em; color: var(--color-ink-mute);"
-        >
-          <Icon name="lucide:layout-dashboard" size="13" /> Admin portal
-        </NuxtLink>
+        <PortalSwitch v-if="isAdmin" current="app" />
 
         <CanvasToggle variant="row" />
         <NuxtLink

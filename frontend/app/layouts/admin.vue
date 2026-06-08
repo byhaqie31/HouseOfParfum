@@ -102,15 +102,9 @@ async function handleLogout() {
           </NuxtLink>
         </nav>
 
-        <!-- Footer: preview · canvas toggle · account -->
+        <!-- Footer: portal switch · canvas toggle · account -->
         <div class="mt-auto flex flex-col gap-3 pt-5">
-          <NuxtLink
-            to="/user/today"
-            class="flex items-center gap-2 px-3 py-1 fm uppercase"
-            style="font-size: 9.5px; letter-spacing: 0.14em; color: var(--color-ink-mute);"
-          >
-            <Icon name="lucide:eye" size="13" /> View the app
-          </NuxtLink>
+          <PortalSwitch current="admin" />
 
           <CanvasToggle variant="row" />
 
