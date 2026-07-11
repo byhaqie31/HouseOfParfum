@@ -35,6 +35,17 @@
       </div>
     </section>
 
+    <!-- Showcase marquee — top-rated bottles from the public catalogue -->
+    <section v-if="showcase.length" class="pb-24">
+      <p class="kicker text-center" :style="{ color: world.accent }">
+        From the catalogue
+      </p>
+      <h2 class="fd mt-4 text-center" style="font-size: clamp(32px, 5vw, 52px); line-height: 1.1; letter-spacing: -0.01em; color: var(--color-ink);">
+        The bottles people rate highest.
+      </h2>
+      <ShowcaseMarquee :perfumes="showcase" class="mt-14" />
+    </section>
+
     <!-- Three pillars -->
     <section class="border-y px-6 py-24" style="border-color: var(--color-rule); background: var(--color-surface-2);">
       <div class="mx-auto max-w-5xl">
@@ -96,6 +107,17 @@ import { familyOfTheHour } from '~/utils/wear'
 const auth = useAuthStore()
 const { worldFor } = useScentWorld()
 const world = worldFor(() => familyOfTheHour())
+
+const api = useApi()
+
+// Public top-rated slice for the showcase marquee. Any failure (backend down,
+// empty catalogue) resolves to [] and the section hides itself — a marketing
+// page shows no spinners and no error states.
+const { data: showcase } = await useAsyncData(
+  'about-showcase',
+  () => api.get('/perfume?sort=rating&per_page=12').then((res) => res.data ?? []),
+  { default: () => [] },
+)
 
 const pillars = [
   {
