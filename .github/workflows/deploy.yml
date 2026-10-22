@@ -40,7 +40,10 @@ jobs:
 
             echo ""
             echo "=== rebuild + start (incremental, layer-cached) ==="
-            docker compose -f docker-compose.prod.yml up -d --build
+            # --pull refreshes the node/php base images so upstream security
+            # fixes land on every deploy instead of reusing the VPS's cached copy.
+            docker compose -f docker-compose.prod.yml build --pull
+            docker compose -f docker-compose.prod.yml up -d
 
             echo ""
             echo "=== wait for boot ==="
