@@ -87,7 +87,8 @@ docker compose -f docker-compose.prod.yml exec backend php artisan event:cache
 ```bash
 cd ~/HouseOfParfum
 git pull
-docker compose -f docker-compose.prod.yml up -d --build
+docker compose -f docker-compose.prod.yml build --pull   # --pull: fresh node/php base images (security fixes)
+docker compose -f docker-compose.prod.yml up -d
 docker compose -f docker-compose.prod.yml exec backend php artisan migrate --force
 docker compose -f docker-compose.prod.yml exec backend php artisan discovery:import 
 docker compose -f docker-compose.prod.yml exec backend php artisan cache:clear

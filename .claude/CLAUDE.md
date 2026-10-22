@@ -55,7 +55,7 @@ docker compose -f docker-compose.dev.yml down            # or `down -v` to wipe 
 
 Endpoints: backend `http://127.0.0.1:8000`, frontend `http://127.0.0.1:3005`, phpMyAdmin `http://127.0.0.1:8080`.
 
-Production deploys via `docker compose -f docker-compose.prod.yml up -d --build` on the VPS — see [docs/global/DEPLOY.md](../docs/global/DEPLOY.md).
+Production deploys via `docker compose -f docker-compose.prod.yml build --pull && docker compose -f docker-compose.prod.yml up -d` on the VPS — see [docs/global/DEPLOY.md](../docs/global/DEPLOY.md).
 
 ## Non-obvious rules
 
